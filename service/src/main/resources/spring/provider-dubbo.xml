@@ -13,6 +13,9 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context-3.0.xsd"
        default-autowire="byName" default-lazy-init="false">
+    <dubbo:service interface="cn.donut.ordermq.service.TestService" ref="testService"/>
+    <bean id="testService" class="cn.donut.ordermq.impl.TestServiceImpl" />
+
 
 
 </beans>

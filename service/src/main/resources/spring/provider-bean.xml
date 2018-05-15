@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="http://www.springframework.org/schema/beans                             http://www.springframework.org/schema/beans/spring-beans.xsd                             http://www.springframework.org/schema/tx                             http://www.springframework.org/schema/tx/spring-tx.xsd                             http://www.springframework.org/schema/context                             http://www.springframework.org/schema/context/spring-context-3.0.xsd" default-autowire="byName" default-lazy-init="false">  
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans                             http://www.springframework.org/schema/beans/spring-beans.xsd                             http://www.springframework.org/schema/tx                             http://www.springframework.org/schema/tx/spring-tx.xsd                             http://www.springframework.org/schema/context                             http://www.springframework.org/schema/context/spring-context-3.0.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
+       default-autowire="byName" default-lazy-init="false">  
   <!-- enable autowire -->  
   <context:annotation-config/>  
-  <bean id="dataSource" class="com.koolearn.framework.mybatis.datasource.KooDataSource"> 
-    <property name="bizName" value="${koo.datasource.name}"/> 
+  <bean id="dataSource" class="com.koolearn.framework.mybatis.datasource.KooDataSource">
+    <property name="bizName" value="donut_ordermq"/>
   </bean>  
   <bean id="sqlSessionFactory" class="com.koolearn.framework.mybatis.spring.KooSqlSessionFactoryBean"> 
     <property name="dataSource" ref="dataSource"/>  
@@ -16,12 +20,14 @@
     </property> 
   </bean>  
   <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> 
-    <property name="basePackage" value="com.koolearn.zky.mapper"/>  
+    <property name="basePackage" value="cn.donut.ordermq.mapper"/>
     <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>  
     <property name="annotationClass" value="com.koolearn.framework.mybatis.annotation.DAO"/> 
   </bean>  
   <bean id="transactionManager" class="com.koolearn.framework.mybatis.datasource.KooDataSourceTransactionManager"> 
     <property name="dataSource" ref="dataSource"/> 
   </bean>  
-  <tx:annotation-driven/> 
+  <tx:annotation-driven/>
+  <dubbo:service interface="cn.donut.ordermq.service.TestService" ref="testService"/>
+  <bean id="testService" class="cn.donut.ordermq.impl.TestServiceImpl"/>
 </beans>

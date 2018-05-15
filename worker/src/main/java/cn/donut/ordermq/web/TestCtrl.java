@@ -1,5 +1,6 @@
 package cn.donut.ordermq.web;
 
+import cn.donut.ordermq.service.TestService;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,12 +18,14 @@ public class TestCtrl {
     @Autowired
     private AmqpTemplate amqpTemplate;
 
+    @Autowired
+    private TestService testService;
 
     @RequestMapping(method = RequestMethod.GET,value = "hi")
     @ResponseBody
     public String hi(){
         amqpTemplate.convertAndSend("sharks.data.change","sharks.data.change.*.*","hi");
-        return "ok";
+        return testService.test();
     }
 
 }

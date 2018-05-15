@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <import resource="applicationContext-service-config.xml"/>
     <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
@@ -40,6 +41,6 @@
     </rabbit:listener-container>
 
     <!--<dubbo:reference id="feVersionService" interface="com.koolearn.common.assets.service.IFEVersionService"/>-->
-    
+    <dubbo:reference id="testService" interface="cn.donut.ordermq.service.TestService"/>
     
 </beans>
