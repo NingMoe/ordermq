@@ -13,5 +13,6 @@
   <modules> 
     <module>api</module>  
     <module>service</module>
+    <module>worker</module>
   </modules> 
 </project>
