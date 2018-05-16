@@ -8,12 +8,15 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package cn.donut.ordermq.consumer;
+package cn.donut.ordermq.web;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -37,12 +40,12 @@ public class TopicSender {
             jsonObject.put("changeType", 1);
             jsonObject.put("primaryKey", i + i);
             jsonObject.put("productLine", i + i);
-//            HashMap<String, String> hashMap = new HashMap<String, String>();
-//            hashMap.put("附加", "1");
+            HashMap<String, String> hashMap = Maps.newHashMap();
+            hashMap.put("附加", "1");
             jsonObject.put("primaryKey", i + i);
-//            jsonObject.put("attachments", hashMap);
+            jsonObject.put("attachments", hashMap);
             //@param firest:queue second:routing key third:message
-            this.rabbitTemplate.convertAndSend("sharks.data.change-donut", "sharks.data.change.userProduct.DONUT", jsonObject.toString());
+            this.rabbitTemplate.convertAndSend("sharks.data.change", "sharks.data.change.userProduct.DONUT", jsonObject.toString());
         }
 
     }

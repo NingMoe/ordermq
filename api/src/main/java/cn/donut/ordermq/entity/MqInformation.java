@@ -1,9 +1,10 @@
 package cn.donut.ordermq.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MqInformation {
+public class MqInformation implements Serializable {
     private Integer id;
 
     private Byte changeType;

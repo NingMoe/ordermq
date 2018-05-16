@@ -1,12 +1,22 @@
 package cn.donut.ordermq.web;
 
+import cn.donut.ordermq.entity.MqAttachments;
+import cn.donut.ordermq.entity.MqInformation;
+import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
+import cn.donut.ordermq.service.MqInformationServiceProvider;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.amqp.core.AmqpTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author wangjiahao
@@ -14,32 +24,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class TestCtrl {
-
-    @Autowired
-    private AmqpTemplate amqpTemplate;
 //
-//    @Autowired
-//    private TestService testService;
+    private static final Logger log = LoggerFactory.getLogger(TestCtrl.class);
+//
+    @Autowired
+    private MqInformationServiceProvider mqInformationServiceProvider;
+    @Autowired
+    private MqAttachmentsServiceProvider mqAttachmentsServiceProvider;
 
-    @RequestMapping(method = RequestMethod.GET,value = "hi")
-    @ResponseBody
-    public void hi(){
-//        amqpTemplate.convertAndSend("sharks.data.change","sharks.data.change.*.*","hi");
-//        return testService.test();
-
-        for (int i = 0; i < 3; i++) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("dataType", i);
-            jsonObject.put("changeType", 1);
-            jsonObject.put("primaryKey", i + i);
-            jsonObject.put("productLine", i + i);
-//            HashMap<String, String> hashMap = new HashMap<String, String>();
-//            hashMap.put("附加", "1");
-            jsonObject.put("primaryKey", i + i);
-//            jsonObject.put("attachments", hashMap);
-            //@param firest:queue second:routing key third:message
-            this.amqpTemplate.convertAndSend("sharks.data.change-donut", "sharks.data.change.userProduct.*", jsonObject.toString());
-        }
-    }
 
 }

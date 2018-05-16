@@ -1,8 +1,9 @@
 package cn.donut.ordermq.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class MqAttachments {
+public class MqAttachments implements Serializable {
     private Integer id;
 
     private Integer mqInformId;

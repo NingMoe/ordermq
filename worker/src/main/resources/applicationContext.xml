@@ -6,13 +6,14 @@
         http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <import resource="applicationContext-service-config.xml"/>
-    <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
 
-    <!--配置connection-factory，指定连接rabbit server参数 -->
-    <rabbit:connection-factory id="connectionFactory"
-                               host="localhost" port="5672" username="guest"
-                               password="guest" channel-cache-size="5"
-                               publisher-returns="true" publisher-confirms="true"/>
+    <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+        <property name="addresses" value="localhost:5672"/>
+        <property name="username" value="guest"/>
+        <property name="password" value="guest"/>
+        <property name="virtualHost" value="/"/>
+    </bean>
+
 
     <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
     <rabbit:admin connection-factory="connectionFactory"/>
@@ -30,16 +31,22 @@
         </rabbit:bindings>
     </rabbit:topic-exchange>
 
-    <!-- 消息接收者 -->
 
-    <bean id="consumer" class="cn.donut.ordermq.consumer.MsgReceiver"/>
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
     <rabbit:listener-container connection-factory="connectionFactory">
         <rabbit:listener queues="sharks.data.change-donut" ref="consumer"/>
     </rabbit:listener-container>
+    <!--<bean id="listener" class="cn.donut.ordermq.web.MsgReceiver">-->
+        <!--<property name="consumer" ref="rabbitmq_consumer"/>-->
+    <!--</bean>-->
+    <!-- 消息接收者 -->
+    <bean id="consumer" class="cn.donut.ordermq.web.MsgReceiver">
+        <property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>
+        <property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>
+    </bean>
 
     <!--<dubbo:reference id="feVersionService" interface="com.koolearn.common.assets.service.IFEVersionService"/>-->
-    <dubbo:reference id="MqAttachmentsService" interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
-    <dubbo:reference id="MqInformationService" interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
+    <dubbo:reference id="mqAttachmentsServiceProvider" interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
+    <dubbo:reference id="mqInformationServiceProvider" interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
 
 </beans>
