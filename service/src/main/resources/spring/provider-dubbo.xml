@@ -13,9 +13,12 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context-3.0.xsd"
        default-autowire="byName" default-lazy-init="false">
-    <dubbo:service interface="cn.donut.ordermq.service.TestService" ref="testService"/>
-    <bean id="testService" class="cn.donut.ordermq.impl.TestServiceImpl" />
 
+    <dubbo:service interface="cn.donut.ordermq.service.MqInformationServiceProvider" ref="MqInformationServiceProvider"/>
+    <bean id="MqInformationServiceProvider" class="cn.donut.ordermq.impl.MqInformationServiceProviderImpl" />
+
+    <dubbo:service interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider" ref="MqAttachmentsServiceProvider"/>
+    <bean id="MqAttachmentsServiceProvider" class="cn.donut.ordermq.impl.MqAttachmentsServiceProviderImpl" />
 
 
 </beans>
