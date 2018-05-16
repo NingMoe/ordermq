@@ -8,10 +8,10 @@
     <import resource="applicationContext-service-config.xml"/>
 
     <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
-        <property name="addresses" value="localhost:5672"/>
-        <property name="username" value="guest"/>
-        <property name="password" value="guest"/>
-        <property name="virtualHost" value="/"/>
+        <property name="addresses" value="${rabbit.addresses}"/>
+        <property name="username" value="${rabbit.username}"/>
+        <property name="password" value="${rabbit.password}"/>
+        <property name="virtualHost" value="${rabbit.vhost}"/>
     </bean>
 
 
