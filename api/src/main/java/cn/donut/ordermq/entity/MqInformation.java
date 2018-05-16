@@ -7,14 +7,20 @@ import java.util.HashMap;
 public class MqInformation implements Serializable {
     private Integer id;
 
+
+    //变更类型 1.新增 2.修改 3.删除
     private Byte changeType;
 
+    //    变更的数据类型
     private String dataType;
 
+    //变更数据主键
     private Integer primaryKey;
 
+    //数据对应的产品线id
     private Integer productLine;
 
+    //是否已推送给nodejs接口 0.未推送 1.已推送
     private Byte isPulish;
 
     private Date createTime;
@@ -23,10 +29,12 @@ public class MqInformation implements Serializable {
 
     private Date updateTime;
 
+    //失败次数
     private Integer failCount;
 
     private Byte isDelete;
 
+    //json中附加信息部分
     private HashMap<String, String> attachments = new HashMap<String, String>();
 
     public Integer getId() {

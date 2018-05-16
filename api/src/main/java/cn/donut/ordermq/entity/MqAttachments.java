@@ -8,8 +8,9 @@ public class MqAttachments implements Serializable {
 
     private Integer mqInformId;
 
+    //json中的key
     private String theKey;
-
+    //json中的value
     private String theValue;
 
     private Date createTime;
