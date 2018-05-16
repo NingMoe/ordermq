@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-
-    <import resource="applicationContext-service-config.xml"/>
-
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://code.alibabatech.com/schema/dubbo
+                           http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+                           http://www.springframework.org/schema/rabbit
+			                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+       default-autowire="byName" default-lazy-init="false">
+    <context:annotation-config/>
+    <tx:annotation-driven/>
     <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
         <property name="addresses" value="${rabbit.addresses}"/>
         <property name="username" value="${rabbit.username}"/>
@@ -36,17 +42,15 @@
     <rabbit:listener-container connection-factory="connectionFactory">
         <rabbit:listener queues="sharks.data.change-donut" ref="consumer"/>
     </rabbit:listener-container>
-    <!--<bean id="listener" class="cn.donut.ordermq.web.MsgReceiver">-->
-        <!--<property name="consumer" ref="rabbitmq_consumer"/>-->
-    <!--</bean>-->
+
     <!-- 消息接收者 -->
-    <bean id="consumer" class="cn.donut.ordermq.web.MsgReceiver">
+    <bean id="consumer" class="cn.donut.ordermq.worker.MsgReceiver">
         <property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>
         <property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>
     </bean>
 
-    <!--<dubbo:reference id="feVersionService" interface="com.koolearn.common.assets.service.IFEVersionService"/>-->
     <dubbo:reference id="mqAttachmentsServiceProvider" interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
     <dubbo:reference id="mqInformationServiceProvider" interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
+
 
 </beans>

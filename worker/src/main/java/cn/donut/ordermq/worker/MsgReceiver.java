@@ -1,4 +1,4 @@
-package cn.donut.ordermq.web;
+package cn.donut.ordermq.worker;
 
 import cn.donut.ordermq.entity.MqAttachments;
 import cn.donut.ordermq.entity.MqInformation;
@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -31,7 +29,6 @@ public class MsgReceiver implements MessageListener{
 
 
     @Override
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
     public void onMessage(Message msg) {
         log.info("收到消息===>:{}", msg.toString());
         MqInformation mqInformation;
