@@ -4,18 +4,15 @@ import cn.donut.ordermq.entity.MqAttachments;
 import cn.donut.ordermq.entity.MqInformation;
 import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import cn.donut.ordermq.service.MqInformationServiceProvider;
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,7 +22,6 @@ import java.util.Map;
  * @author wangjiahao
  * @date 2018/5/15 9:33
  */
-//@Component
 public class MsgReceiver implements MessageListener{
 
     private MqInformationServiceProvider mqInformationServiceProvider;
@@ -33,11 +29,12 @@ public class MsgReceiver implements MessageListener{
 
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
+
     @Override
     @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
     public void onMessage(Message msg) {
         log.info("收到消息===>:{}", msg.toString());
-        MqInformation mqInformation = new MqInformation();
+        MqInformation mqInformation;
         String json;
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
