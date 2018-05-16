@@ -1,6 +1,7 @@
 package cn.donut.ordermq.entity;
 
 import java.util.Date;
+import java.util.HashMap;
 
 public class MqInformation {
     private Integer id;
@@ -24,6 +25,8 @@ public class MqInformation {
     private Integer failCount;
 
     private Byte isDelete;
+
+    private HashMap<String, String> attachments = new HashMap<String, String>();
 
     public Integer getId() {
         return id;
@@ -111,5 +114,13 @@ public class MqInformation {
 
     public void setIsDelete(Byte isDelete) {
         this.isDelete = isDelete;
+    }
+
+    public HashMap<String, String> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(HashMap<String, String> attachments) {
+        this.attachments = attachments;
     }
 }

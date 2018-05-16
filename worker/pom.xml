@@ -29,6 +29,14 @@
             <!--<type>pom</type>-->
         <!--</dependency>-->
 
+        <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.47</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-framework-common</artifactId>

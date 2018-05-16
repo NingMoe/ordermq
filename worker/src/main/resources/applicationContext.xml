@@ -12,23 +12,21 @@
     <rabbit:connection-factory id="connectionFactory"
                                host="localhost" port="5672" username="guest"
                                password="guest" channel-cache-size="5"
-                               publisher-returns="true" publisher-confirms="true" />
+                               publisher-returns="true" publisher-confirms="true"/>
 
     <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
-    <rabbit:admin connection-factory="connectionFactory" />
+    <rabbit:admin connection-factory="connectionFactory"/>
 
-    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
-
-
+    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
 
 
     <!--定义queue  说明：durable:是否持久化 exclusive: 仅创建者可以使用的私有队列，断开后自动删除 auto_delete: 当所有消费客户端连接断开后，是否自动删除队列-->
-    <rabbit:queue name="test" durable="true" auto-delete="false" exclusive="false"/>
+    <rabbit:queue name="sharks.data.change-donut" durable="true" auto-delete="false" exclusive="false"/>
     <!--定义topic-exchange -->
     <rabbit:topic-exchange name="sharks.data.change"
                            durable="true" auto-delete="false">
         <rabbit:bindings>
-            <rabbit:binding queue="test" pattern="sharks.data.change.*.*"/>
+            <rabbit:binding queue="sharks.data.change-donut" pattern="sharks.data.change.userProduct.DONUT"/>
         </rabbit:bindings>
     </rabbit:topic-exchange>
 
@@ -36,11 +34,12 @@
 
     <bean id="consumer" class="cn.donut.ordermq.consumer.MsgReceiver"/>
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
-    <rabbit:listener-container connection-factory="connectionFactory" >
-        <rabbit:listener  queues="test"  ref="consumer"/>
+    <rabbit:listener-container connection-factory="connectionFactory">
+        <rabbit:listener queues="sharks.data.change-donut" ref="consumer"/>
     </rabbit:listener-container>
 
     <!--<dubbo:reference id="feVersionService" interface="com.koolearn.common.assets.service.IFEVersionService"/>-->
-    <dubbo:reference id="testService" interface="cn.donut.ordermq.service.TestService"/>
-    
+    <dubbo:reference id="MqAttachmentsService" interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
+    <dubbo:reference id="MqInformationService" interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
+
 </beans>
