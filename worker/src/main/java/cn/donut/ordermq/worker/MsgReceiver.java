@@ -35,11 +35,6 @@ public class MsgReceiver implements MessageListener {
     @Override
     public void onMessage(Message msg) {
         log.info("收到消息===>:{}", msg.toString());
-        MqAttachments temp = new MqAttachments();
-        temp.setTheKey("即将保存");
-        temp.setTheValue("没报错");
-        temp.setCreateTime(new Date());
-        this.mqAttachmentsServiceProvider.insertMqAttachments(temp);
         MqInformation mqInformation;
         String json;
         try {
@@ -57,68 +52,43 @@ public class MsgReceiver implements MessageListener {
         mqInformation.setCreateTime(date);
         mqInformation.setIsDelete((byte) 0);
         mqInformation.setFailCount(0);
-        HashMap<String, String> attachemts = mqInformation.getAttachments();
         mqInformationServiceProvider.insertMqInformation(mqInformation);
         log.info("MQ消息已保存！ID===>:{}", mqInformation.getId());
-        MqAttachments e = new MqAttachments();
-        e.setTheKey("catch");
-        e.setCreateTime(new Date());
-        try {
-            if (attachemts != null) {
-                for (Map.Entry<String, String> entry : attachemts.entrySet()) {
-                    MqAttachments mqAttachments = new MqAttachments();
-                    System.out.println(entry.getKey() + ":" + entry.getValue());
-                    mqAttachments.setTheKey(entry.getKey());
-                    mqAttachments.setTheValue(entry.getValue());
-                    mqAttachments.setId(mqInformation.getId());
-                    mqAttachments.setCreateTime(date);
-                    mqAttachments.setIsDelete((byte) 0);
-                    mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-                    log.debug("附加消息已保存！ID===>:{}", mqAttachments.getId());
-                }
+        //附加信息部分
+        HashMap<String, String> attachemts = mqInformation.getAttachments();
+        if (attachemts != null) {
+            for (Map.Entry<String, String> entry : attachemts.entrySet()) {
+                MqAttachments mqAttachments = new MqAttachments();
+                System.out.println(entry.getKey() + ":" + entry.getValue());
+                mqAttachments.setTheKey(entry.getKey());
+                mqAttachments.setTheValue(entry.getValue());
+                mqAttachments.setId(mqInformation.getId());
+                mqAttachments.setCreateTime(date);
+                mqAttachments.setIsDelete((byte) 0);
+                mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
+                log.debug("附加消息已保存！ID===>:{}", mqAttachments.getId());
             }
-            e.setTheValue("没事");
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            e.setTheKey("异常！");
-            mqAttachmentsServiceProvider.insertMqAttachments(e);
         }
 
-        mqAttachmentsServiceProvider.insertMqAttachments(e);
         UserProduct userProduct = new UserProduct();
-        userProduct = iUserProductService.getById(466570);
-
+        userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
         JSONObject jsonObject = new JSONObject();
         String jsonUserProduct = "";
-
-        MqAttachments mqAttachments = new MqAttachments();
-        mqAttachments.setCreateTime(new Date());
-        mqAttachments.setTheKey("test");
-
         if (null == userProduct) {
             log.debug("没有查询到对应数据！");
             System.out.println("没有查询到对应数据！");
             jsonObject.put("userProduct", jsonUserProduct);
-            mqAttachments.setTheValue("空");
         } else {
             log.debug("userProduct：{}", userProduct);
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
-//                log.debug("userProduct：{}", userProduct);
                 System.out.println("userProduct = " + userProduct);
                 jsonUserProduct = this.Object2Json(userProduct);
                 jsonObject.put("userProduct", jsonUserProduct);
+            } else {
+                log.info("不符合条件的ProductLine！");
             }
-            mqAttachments.setTheValue(userProduct.getId().toString());
 
         }
-        mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-
-        MqAttachments t = new MqAttachments();
-        t.setCreateTime(new Date());
-        t.setTheKey("一结束");
-        t.setTheValue("为报错");
-        this.mqAttachmentsServiceProvider.insertMqAttachments(t);
     }
 
     //UserProduct转为json
