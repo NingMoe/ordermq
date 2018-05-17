@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -74,10 +73,11 @@ public class MsgReceiver implements MessageListener {
 
         userProduct = iUserProductService.getById(466570);
         if (null == userProduct) {
-            System.out.println();
+            log.info("没有查询到对应数据！");
+            System.out.println("没有查询到对应数据！");
         } else {
-
-            System.out.println();
+            log.info("userProduct：{}",userProduct);
+            System.out.println("userProduct = " + userProduct);
         }
 
 
