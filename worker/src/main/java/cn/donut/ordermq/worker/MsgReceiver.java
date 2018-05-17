@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.clazz.model.UserProduct;
 import com.koolearn.clazz.service.IUserProductService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -28,13 +29,13 @@ public class MsgReceiver implements MessageListener {
     private MqInformationServiceProvider mqInformationServiceProvider;
     private MqAttachmentsServiceProvider mqAttachmentsServiceProvider;
     private IUserProductService iUserProductService;
-
+    private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
 
     @Override
     public void onMessage(Message msg) {
-        log.info("收到消息===>:{}", msg.toString());
+        log.info("Received the message===>:{}", msg.toString());
         MqInformation mqInformation;
         String json;
         try {
@@ -53,7 +54,7 @@ public class MsgReceiver implements MessageListener {
         mqInformation.setIsDelete((byte) 0);
         mqInformation.setFailCount(0);
         mqInformationServiceProvider.insertMqInformation(mqInformation);
-        log.info("MQ消息已保存！ID===>:{}", mqInformation.getId());
+        log.info("Message has been saved！ID===>:{}", mqInformation.getId());
         //附加信息部分
         HashMap<String, String> attachemts = mqInformation.getAttachments();
         if (attachemts != null) {
@@ -66,29 +67,40 @@ public class MsgReceiver implements MessageListener {
                 mqAttachments.setCreateTime(date);
                 mqAttachments.setIsDelete((byte) 0);
                 mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-                log.debug("附加消息已保存！ID===>:{}", mqAttachments.getId());
+                log.info("Attachments has been saved！ID===>:{}", mqAttachments.getId());
             }
         }
 
         UserProduct userProduct = new UserProduct();
+//        userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
         userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
         JSONObject jsonObject = new JSONObject();
         String jsonUserProduct = "";
         if (null == userProduct) {
-            log.debug("没有查询到对应数据！");
+            log.warn("没有查询到对应数据！");
             System.out.println("没有查询到对应数据！");
             jsonObject.put("userProduct", jsonUserProduct);
         } else {
-            log.debug("userProduct：{}", userProduct);
+            log.info("userProduct：{}", userProduct);
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
                 System.out.println("userProduct = " + userProduct);
                 jsonUserProduct = this.Object2Json(userProduct);
                 jsonObject.put("userProduct", jsonUserProduct);
+
+                //发送数据 url：https://doabc.leanapp.cn/api/v1/web/yc/apply/status   method:post
+                String content = HttpClientUtil.doPost(url, jsonObject.toString());
+                if (StringUtils.isNotEmpty(content)) {
+                    mqInformation.setIsPulish((byte) 1);
+                    mqInformation.setPushTime(new Date());
+                    this.mqInformationServiceProvider.updateMqInformation(mqInformation);
+                }
             } else {
                 log.info("不符合条件的ProductLine！");
             }
 
         }
+
+
     }
 
     //UserProduct转为json
@@ -123,4 +135,6 @@ public class MsgReceiver implements MessageListener {
     public void setiUserProductService(IUserProductService iUserProductService) {
         this.iUserProductService = iUserProductService;
     }
+
+   
 }
