@@ -65,7 +65,7 @@ public class MsgReceiver implements MessageListener {
                 mqAttachments.setCreateTime(date);
                 mqAttachments.setIsDelete((byte) 0);
                 mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-                log.info("附加消息已保存！ID===>:{}", mqAttachments.getId());
+                log.debug("附加消息已保存！ID===>:{}", mqAttachments.getId());
             }
         }
 
@@ -77,15 +77,16 @@ public class MsgReceiver implements MessageListener {
         mqAttachments.setCreateTime(new Date());
         mqAttachments.setTheKey("test");
         if (null == userProduct) {
-            log.info("没有查询到对应数据！");
+            log.debug("没有查询到对应数据！");
             System.out.println("没有查询到对应数据！");
             jsonObject.put("userProduct", jsonUserProduct);
 
 
             mqAttachments.setTheValue("空");
         } else {
+                log.debug("userProduct：{}", userProduct);
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
-                log.info("userProduct：{}", userProduct);
+//                log.debug("userProduct：{}", userProduct);
                 System.out.println("userProduct = " + userProduct);
                 jsonUserProduct = this.Object2Json(userProduct);
                 jsonObject.put("userProduct", jsonUserProduct);
