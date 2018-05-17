@@ -47,10 +47,13 @@
     <bean id="consumer" class="cn.donut.ordermq.worker.MsgReceiver">
         <property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>
         <property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>
+        <property name="iUserProductService" ref="iUserProductService"/>
     </bean>
 
     <dubbo:reference id="mqAttachmentsServiceProvider" interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
     <dubbo:reference id="mqInformationServiceProvider" interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
+    <dubbo:reference id="iUserProductService" interface = "com.koolearn.clazz.service.IUserProductService"/>
+
 
 
 </beans>

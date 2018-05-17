@@ -6,10 +6,13 @@ import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import cn.donut.ordermq.service.MqInformationServiceProvider;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.koolearn.clazz.model.UserProduct;
+import com.koolearn.clazz.service.IUserProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -20,10 +23,11 @@ import java.util.Map;
  * @author wangjiahao
  * @date 2018/5/15 9:33
  */
-public class MsgReceiver implements MessageListener{
+public class MsgReceiver implements MessageListener {
 
     private MqInformationServiceProvider mqInformationServiceProvider;
     private MqAttachmentsServiceProvider mqAttachmentsServiceProvider;
+    private IUserProductService iUserProductService;
 
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
@@ -65,6 +69,18 @@ public class MsgReceiver implements MessageListener{
             }
         }
 
+        UserProduct userProduct = new UserProduct();
+
+
+        userProduct = iUserProductService.getById(466570);
+        if (null == userProduct) {
+            System.out.println();
+        } else {
+
+            System.out.println();
+        }
+
+
     }
 
     public MqInformationServiceProvider getMqInformationServiceProvider() {
@@ -81,5 +97,13 @@ public class MsgReceiver implements MessageListener{
 
     public void setMqAttachmentsServiceProvider(MqAttachmentsServiceProvider mqAttachmentsServiceProvider) {
         this.mqAttachmentsServiceProvider = mqAttachmentsServiceProvider;
+    }
+
+    public IUserProductService getiUserProductService() {
+        return iUserProductService;
+    }
+
+    public void setiUserProductService(IUserProductService iUserProductService) {
+        this.iUserProductService = iUserProductService;
     }
 }
