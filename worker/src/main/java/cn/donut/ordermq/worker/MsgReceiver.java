@@ -60,22 +60,32 @@ public class MsgReceiver implements MessageListener {
         HashMap<String, String> attachemts = mqInformation.getAttachments();
         mqInformationServiceProvider.insertMqInformation(mqInformation);
         log.info("MQ消息已保存！ID===>:{}", mqInformation.getId());
-        if (attachemts != null) {
-            for (Map.Entry<String, String> entry : attachemts.entrySet()) {
-                MqAttachments mqAttachments = new MqAttachments();
-                System.out.println(entry.getKey() + ":" + entry.getValue());
-                mqAttachments.setTheKey(entry.getKey());
-                mqAttachments.setTheValue(entry.getValue());
-                mqAttachments.setId(mqInformation.getId());
-                mqAttachments.setCreateTime(date);
-                mqAttachments.setIsDelete((byte) 0);
-                mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-                log.debug("附加消息已保存！ID===>:{}", mqAttachments.getId());
+        MqAttachments e = new MqAttachments();
+        e.setTheKey("catch");
+        e.setCreateTime(new Date());
+        try {
+            if (attachemts != null) {
+                for (Map.Entry<String, String> entry : attachemts.entrySet()) {
+                    MqAttachments mqAttachments = new MqAttachments();
+                    System.out.println(entry.getKey() + ":" + entry.getValue());
+                    mqAttachments.setTheKey(entry.getKey());
+                    mqAttachments.setTheValue(entry.getValue());
+                    mqAttachments.setId(mqInformation.getId());
+                    mqAttachments.setCreateTime(date);
+                    mqAttachments.setIsDelete((byte) 0);
+                    mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
+                    log.debug("附加消息已保存！ID===>:{}", mqAttachments.getId());
+                }
             }
+            e.setTheValue("没事");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            e.setTheKey("异常！");
+            mqAttachmentsServiceProvider.insertMqAttachments(e);
         }
 
-
-
+        mqAttachmentsServiceProvider.insertMqAttachments(e);
         UserProduct userProduct = new UserProduct();
         userProduct = iUserProductService.getById(466570);
 
@@ -92,7 +102,7 @@ public class MsgReceiver implements MessageListener {
             jsonObject.put("userProduct", jsonUserProduct);
             mqAttachments.setTheValue("空");
         } else {
-                log.debug("userProduct：{}", userProduct);
+            log.debug("userProduct：{}", userProduct);
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
 //                log.debug("userProduct：{}", userProduct);
                 System.out.println("userProduct = " + userProduct);
