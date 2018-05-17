@@ -55,6 +55,12 @@
 
         <dependency>
             <groupId>com.koolearn</groupId>
+            <artifactId>koo-sharks-api</artifactId>
+            <version>3.0.33</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.koolearn</groupId>
             <artifactId>koo-framework-logger-cli</artifactId>
         </dependency>
 
@@ -90,7 +96,30 @@
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-tools-generators</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
         <!-- rabbit mq end-->
+
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.5</version>
+        </dependency>
+
     </dependencies>
 
     <build>
