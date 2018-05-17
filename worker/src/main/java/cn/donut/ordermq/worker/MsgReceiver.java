@@ -69,19 +69,26 @@ public class MsgReceiver implements MessageListener {
             }
         }
 
+        MqAttachments temp = new MqAttachments();
+        temp.setTheKey("即将保存");
+        temp.setTheValue("没报错");
+        temp.setCreateTime(new Date());
+        this.mqAttachmentsServiceProvider.insertMqAttachments(temp);
+
         UserProduct userProduct = new UserProduct();
         userProduct = iUserProductService.getById(466570);
+
         JSONObject jsonObject = new JSONObject();
         String jsonUserProduct = "";
+
         MqAttachments mqAttachments = new MqAttachments();
         mqAttachments.setCreateTime(new Date());
         mqAttachments.setTheKey("test");
+
         if (null == userProduct) {
             log.info("没有查询到对应数据！");
             System.out.println("没有查询到对应数据！");
             jsonObject.put("userProduct", jsonUserProduct);
-
-
             mqAttachments.setTheValue("空");
         } else {
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
@@ -95,6 +102,11 @@ public class MsgReceiver implements MessageListener {
         }
         mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
 
+        MqAttachments t = new MqAttachments();
+        t.setCreateTime(new Date());
+        t.setTheKey("一结束");
+        t.setTheValue("为报错");
+        this.mqAttachmentsServiceProvider.insertMqAttachments(t);
     }
 
     //UserProduct转为json
