@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 〈一句话功能简述〉<br> 
+ * 〈一句话功能简述〉<br>
  * 〈httpclient〉
  *
  * @author LiYuAn
@@ -81,6 +81,7 @@ public class HttpClientUtil {
 
     /**
      * 发送 GET 请求（HTTP），不带输入数据
+     *
      * @param url
      * @return
      */
@@ -90,6 +91,7 @@ public class HttpClientUtil {
 
     /**
      * 发送 GET 请求（HTTP），K-V形式
+     *
      * @param url
      * @param params
      * @return
@@ -128,6 +130,7 @@ public class HttpClientUtil {
 
     /**
      * 发送 POST 请求（HTTP），不带输入数据
+     *
      * @param apiUrl
      * @return
      */
@@ -137,6 +140,7 @@ public class HttpClientUtil {
 
     /**
      * 发送 POST 请求（HTTP），K-V形式
+     *
      * @param apiUrl API接口URL
      * @param params 参数map
      * @return
@@ -176,8 +180,9 @@ public class HttpClientUtil {
 
     /**
      * 发送 POST 请求（HTTP），JSON形式
+     *
      * @param apiUrl
-     * @param json json对象
+     * @param json   json对象
      * @return
      */
     public static String doPost(String apiUrl, Object json) {
@@ -188,21 +193,18 @@ public class HttpClientUtil {
 
         try {
             httpPost.setConfig(requestConfig);
-            StringEntity stringEntity = new StringEntity(json.toString(),"UTF-8");//解决中文乱码问题
+            StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");//解决中文乱码问题
             stringEntity.setContentEncoding("UTF-8");
             stringEntity.setContentType("application/json");
             httpPost.setEntity(stringEntity);
-            HttpResponse res = httpClient.execute(httpPost);
-
-//            response = httpClient.execute(httpPost);
+            response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
-            if (res.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 return "{}";
             }
             System.out.println(response.getStatusLine().getStatusCode());
             httpStr = EntityUtils.toString(entity, "UTF-8");
 //            HttpEntity entity = res.getEntity();
-
 
 
         } catch (IOException e) {
@@ -221,6 +223,7 @@ public class HttpClientUtil {
 
     /**
      * 发送 SSL POST 请求（HTTPS），K-V形式
+     *
      * @param apiUrl API接口URL
      * @param params 参数map
      * @return
@@ -266,8 +269,9 @@ public class HttpClientUtil {
 
     /**
      * 发送 SSL POST 请求（HTTPS），JSON形式
+     *
      * @param apiUrl API接口URL
-     * @param json JSON对象
+     * @param json   JSON对象
      * @return
      */
     public static String doPostSSL(String apiUrl, String json) {
@@ -278,7 +282,7 @@ public class HttpClientUtil {
 
         try {
             httpPost.setConfig(requestConfig);
-            StringEntity stringEntity = new StringEntity(json.toString(),"UTF-8");//解决中文乱码问题
+            StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");//解决中文乱码问题
             stringEntity.setContentEncoding("UTF-8");
             stringEntity.setContentType("application/json");
             httpPost.setEntity(stringEntity);
@@ -348,13 +352,14 @@ public class HttpClientUtil {
 
     /**
      * 测试方法
+     *
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        Map<String,Object> params = new HashMap<String,Object >();
-        params.put("userId",73590055);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userId", 73590055);
         String apiUrl = "http://10.155.34.85:3003/api/ceping/paper_list";
-        String result = HttpClientUtil.doPost(apiUrl,params);
+        String result = HttpClientUtil.doPost(apiUrl, params);
         System.out.print(result);
     }
 
