@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -69,17 +70,39 @@ public class MsgReceiver implements MessageListener {
         }
 
         UserProduct userProduct = new UserProduct();
-
-
         userProduct = iUserProductService.getById(466570);
+        JSONObject jsonObject = new JSONObject();
+        String jsonUserProduct = "";
+        MqAttachments mqAttachments = new MqAttachments();
+        mqAttachments.setCreateTime(new Date());
+        mqAttachments.setTheKey("test");
         if (null == userProduct) {
             log.info("没有查询到对应数据！");
             System.out.println("没有查询到对应数据！");
-        } else {
-            log.info("userProduct：{}",userProduct);
-            System.out.println("userProduct = " + userProduct);
-        }
+            jsonObject.put("userProduct", jsonUserProduct);
 
+
+            mqAttachments.setTheValue("空");
+        } else {
+            if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
+                log.info("userProduct：{}", userProduct);
+                System.out.println("userProduct = " + userProduct);
+                jsonUserProduct = this.Object2Json(userProduct);
+                jsonObject.put("userProduct", jsonUserProduct);
+            }
+            mqAttachments.setTheValue(userProduct.getId().toString());
+
+        }
+        mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
+
+    }
+
+    //UserProduct转为json
+    private String Object2Json(UserProduct userProduct) {
+        if (null == userProduct) {
+            return "{}";
+        }
+        return JSONObject.toJSONString(userProduct);
 
     }
 
