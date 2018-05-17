@@ -35,6 +35,11 @@ public class MsgReceiver implements MessageListener {
     @Override
     public void onMessage(Message msg) {
         log.info("收到消息===>:{}", msg.toString());
+        MqAttachments temp = new MqAttachments();
+        temp.setTheKey("即将保存");
+        temp.setTheValue("没报错");
+        temp.setCreateTime(new Date());
+        this.mqAttachmentsServiceProvider.insertMqAttachments(temp);
         MqInformation mqInformation;
         String json;
         try {
@@ -69,11 +74,7 @@ public class MsgReceiver implements MessageListener {
             }
         }
 
-        MqAttachments temp = new MqAttachments();
-        temp.setTheKey("即将保存");
-        temp.setTheValue("没报错");
-        temp.setCreateTime(new Date());
-        this.mqAttachmentsServiceProvider.insertMqAttachments(temp);
+
 
         UserProduct userProduct = new UserProduct();
         userProduct = iUserProductService.getById(466570);
