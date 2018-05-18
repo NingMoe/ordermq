@@ -96,7 +96,11 @@
     from mq_information
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqInformation" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqInformation" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+
     insert into mq_information (id, change_type, data_type, 
       primary_key, product_line, is_pulish, 
       create_time, push_time, update_time, 
