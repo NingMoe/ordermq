@@ -152,7 +152,7 @@ public class MsgReceiver implements MessageListener {
             System.out.println(entry.getKey() + ":" + entry.getValue());
             mqAttachments.setTheKey(entry.getKey());
             mqAttachments.setTheValue(entry.getValue());
-            mqAttachments.setId(mqInformation.getId());
+            mqAttachments.setMqInformId(mqInformation.getId());
             mqAttachments.setCreateTime(date);
             mqAttachments.setIsDelete((byte) 0);
             mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
