@@ -56,12 +56,11 @@ public class MsgReceiver implements MessageListener {
         log.info("Received the message===>:{}", msg.toString());
         MqInformation mqInformation;
         String json;
+        MqInformation mq;
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
-            mqInformation.setIsPulish((byte) 0);
-            mqInformation.setCreateTime(new Date());
-            mqInformationServiceProvider.insertMqInformation(mqInformation);
+            mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
             return;
@@ -83,10 +82,11 @@ public class MsgReceiver implements MessageListener {
                 System.out.println("httpClient返回消息" + content);
                 if (StringUtils.isNotEmpty(content)) {
                     //回写推送字段
+                    mqInformation.setId(mq.getId());
                     mqInformation.setIsPulish((byte) 1);
                     mqInformation.setPushTime(new Date());
                     mqInformation.setUpdateTime(new Date());
-                    this.mqInformationServiceProvider.updateMqInformation(mqInformation);
+                    mqInformationServiceProvider.updateMqInformation(mqInformation);
                     System.out.println("pushed");
                 }
             } else {

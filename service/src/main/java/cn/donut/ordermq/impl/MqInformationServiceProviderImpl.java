@@ -52,13 +52,14 @@ public class MqInformationServiceProviderImpl implements MqInformationServicePro
     //新增
     @Override
     @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
-    public void insertMqInformation(MqInformation mqInformation) {
+    public MqInformation insertMqInformation(MqInformation mqInformation) {
         saveMqInfor(mqInformation);
         //附加信息部分
         HashMap<String, String> attachemts = mqInformation.getAttachments();
         if (attachemts != null) {
             saveAttachments(mqInformation,attachemts);
         }
+        return mqInformation;
     }
 
 

@@ -22,11 +22,11 @@ import cn.donut.ordermq.entity.MqInformation;
 public interface MqInformationServiceProvider {
 
     //根据ID获取实体
-    public MqInformation getMqInformationById(int id);
+    MqInformation getMqInformationById(int id);
 
     //新增
-    public void insertMqInformation(MqInformation mqInformation);
+    MqInformation insertMqInformation(MqInformation mqInformation);
 
     //修改
-    public void updateMqInformation(MqInformation mqInformation);
+    void updateMqInformation(MqInformation mqInformation);
 }
