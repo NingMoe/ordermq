@@ -136,9 +136,11 @@ public class MsgReceiver implements MessageListener {
         mqInformation.setCreateTime(date);
         mqInformation.setIsDelete((byte) 0);
         mqInformation.setFailCount(0);
-        mqInformationServiceProvider.insertMqInformation(mqInformation);
+        int id = mqInformationServiceProvider.insertMqInformation(mqInformation);
+        System.out.println("id=" + id);
         log.info("Message has been saved！ID===>:{}", mqInformation.getId());
         System.out.println("Message has been saved！ID===>:{}" + mqInformation.getId());
+
         return mqInformation;
     }
 
