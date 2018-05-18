@@ -70,7 +70,8 @@ public class MsgReceiver implements MessageListener {
             jsonMap.put("userProduct", "");
         } else {
             log.info("userProduct：{}", userProduct);
-            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
+//            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
+            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
                 jsonMap = this.Object2Json(userProduct);
                 String content = HttpClientUtil.doPost(Global.NODE_URL_TEST, jsonMap);
                 log.info("httpClient返回消息", content);
