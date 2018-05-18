@@ -25,7 +25,7 @@ public interface MqInformationServiceProvider {
     public MqInformation getMqInformationById(int id);
 
     //新增
-    public void insertMqInformation(MqInformation mqInformation);
+    public int insertMqInformation(MqInformation mqInformation);
 
     //修改
     public void updateMqInformation(MqInformation mqInformation);
