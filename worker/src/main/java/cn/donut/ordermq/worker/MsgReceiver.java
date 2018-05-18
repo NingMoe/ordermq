@@ -31,11 +31,8 @@ public class MsgReceiver implements MessageListener {
     private MqInformationServiceProvider mqInformationServiceProvider;
     private MqAttachmentsServiceProvider mqAttachmentsServiceProvider;
     private IUserProductService iUserProductService;
-    //测试地址
-    private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
-    //    正式地址
-    //    private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
 
+    //    正式地址
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
     /**
@@ -75,9 +72,10 @@ public class MsgReceiver implements MessageListener {
             jsonMap.put("userProduct", "");
         } else {
             log.info("userProduct：{}", userProduct);
-            if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
+            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
                 jsonMap = this.Object2Json(userProduct);
-                String content = HttpClientUtil.doPost(url, jsonMap);
+                //  String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
+                String content = HttpClientUtil.doPost(Global.NODE_URL_TEST, jsonMap);
                 log.info("httpClient返回消息", content);
                 System.out.println("httpClient返回消息" + content);
                 if (StringUtils.isNotEmpty(content)) {
@@ -141,4 +139,6 @@ public class MsgReceiver implements MessageListener {
     public void setiUserProductService(IUserProductService iUserProductService) {
         this.iUserProductService = iUserProductService;
     }
+
+
 }
