@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.clazz.model.UserProduct;
 import com.koolearn.clazz.service.IUserProductService;
+import com.koolearn.common.config.Configuration;
+import com.koolearn.common.config.impl.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +31,26 @@ public class MsgReceiver implements MessageListener {
     private MqInformationServiceProvider mqInformationServiceProvider;
     private MqAttachmentsServiceProvider mqAttachmentsServiceProvider;
     private IUserProductService iUserProductService;
+    //测试地址
     private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
+    //    正式地址
+    //    private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
+
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
-
+    /**
+     * json格式{
+     * "dataType": "数据类型",// 变更更的数据类型
+     * "changeType": 1, // 变更更类型 1.新增 2.修改 3.删除
+     * "primaryKey": xxxx, //变更更数据主键
+     * "productLine":xxx,//数据对应的产品线id
+     * "attachments": { //附加信息
+     * "xxxx": "xxx" // 附加信息
+     * }
+     * }
+     *
+     * @param msg
+     */
     @Override
     public void onMessage(Message msg) {
         log.info("Received the message===>:{}", msg.toString());
@@ -41,6 +59,7 @@ public class MsgReceiver implements MessageListener {
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
+            this.saveMqInfor(mqInformation);
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
             return;
@@ -48,48 +67,31 @@ public class MsgReceiver implements MessageListener {
             log.warn("消息中不包含关键字段！或查询不到该信息！", e);
             return;
         }
-        Date date = new Date();
-        mqInformation.setIsPulish((byte) 0);
-        mqInformation.setCreateTime(date);
-        mqInformation.setIsDelete((byte) 0);
-        mqInformation.setFailCount(0);
-        mqInformationServiceProvider.insertMqInformation(mqInformation);
+
         log.info("Message has been saved！ID===>:{}", mqInformation.getId());
         //附加信息部分
         HashMap<String, String> attachemts = mqInformation.getAttachments();
         if (attachemts != null) {
-            for (Map.Entry<String, String> entry : attachemts.entrySet()) {
-                MqAttachments mqAttachments = new MqAttachments();
-                System.out.println(entry.getKey() + ":" + entry.getValue());
-                mqAttachments.setTheKey(entry.getKey());
-                mqAttachments.setTheValue(entry.getValue());
-                mqAttachments.setId(mqInformation.getId());
-                mqAttachments.setCreateTime(date);
-                mqAttachments.setIsDelete((byte) 0);
-                mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-                log.info("Attachments has been saved！ID===>:{}", mqAttachments.getId());
-            }
+            this.saveAttachments(mqInformation, attachemts);
         }
 
         UserProduct userProduct = new UserProduct();
-//        userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
         userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
         JSONObject jsonObject = new JSONObject();
-        String jsonUserProduct = "";
+        Map<String, Object> jsonMap = new HashMap<String, Object>();
         if (null == userProduct) {
             log.warn("没有查询到对应数据！");
-            System.out.println("没有查询到对应数据！");
-            jsonObject.put("userProduct", jsonUserProduct);
+            jsonMap.put("userProduct", "");
         } else {
             log.info("userProduct：{}", userProduct);
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
-                System.out.println("userProduct = " + userProduct);
-                jsonUserProduct = this.Object2Json(userProduct);
-                jsonObject.put("userProduct", jsonUserProduct);
-
+                jsonMap = this.Object2Json(userProduct);
                 //发送数据 url：https://doabc.leanapp.cn/api/v1/web/yc/apply/status   method:post
-                String content = HttpClientUtil.doPost(url, jsonObject.toString());
+//                Configuration config = new PropertiesConfiguration("com/styspace/config.properties");
+                String content = HttpClientUtil.doPost(url, jsonMap);
+                log.info(content);
                 if (StringUtils.isNotEmpty(content)) {
+                    //回写推送字段
                     mqInformation.setIsPulish((byte) 1);
                     mqInformation.setPushTime(new Date());
                     this.mqInformationServiceProvider.updateMqInformation(mqInformation);
@@ -103,13 +105,55 @@ public class MsgReceiver implements MessageListener {
 
     }
 
-    //UserProduct转为json
-    private String Object2Json(UserProduct userProduct) {
+    //UserProduct转为Map<String,Object>
+    private Map<String, Object> Object2Json(UserProduct userProduct) {
+        Map<String, Object> jsonMap = new HashMap<String, Object>();
         if (null == userProduct) {
-            return "{}";
+            jsonMap.put("userProduct", "");
+            return jsonMap;
         }
-        return JSONObject.toJSONString(userProduct);
 
+        jsonMap.put("id", userProduct.getId());
+        jsonMap.put("userId", userProduct.getUserId());
+        jsonMap.put("orderNo", userProduct.getOrderNo());
+        jsonMap.put("productId", userProduct.getProductId());
+        jsonMap.put("status", userProduct.getStatus());
+        jsonMap.put("failureCount", userProduct.getFailureCount());
+        jsonMap.put("buyTime", userProduct.getBuyTime() != null ? DateUtil.convertTimeToString(userProduct.getBuyTime()) : "");
+        jsonMap.put("overTime", userProduct.getOverTime() != null ? DateUtil.convertTimeToString(userProduct.getOverTime()) : "");
+        jsonMap.put("freezeTime", userProduct.getFreezeTime() != null ? DateUtil.convertTimeToString(userProduct.getFreezeTime()) : "");
+        jsonMap.put("createTime", userProduct.getCreateTime() != null ? DateUtil.convertTimeToString(userProduct.getCreateTime()) : "");
+
+        return jsonMap;
+
+    }
+
+    //保存json中mq消息实体
+    private void saveMqInfor(MqInformation mqInformation) {
+
+        Date date = new Date();
+        mqInformation.setIsPulish((byte) 0);
+        mqInformation.setCreateTime(date);
+        mqInformation.setIsDelete((byte) 0);
+        mqInformation.setFailCount(0);
+        mqInformationServiceProvider.insertMqInformation(mqInformation);
+
+    }
+
+    //保存附加信息
+    private void saveAttachments(MqInformation mqInformation, HashMap<String, String> attachemts) {
+        Date date = new Date();
+        for (Map.Entry<String, String> entry : attachemts.entrySet()) {
+            MqAttachments mqAttachments = new MqAttachments();
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+            mqAttachments.setTheKey(entry.getKey());
+            mqAttachments.setTheValue(entry.getValue());
+            mqAttachments.setId(mqInformation.getId());
+            mqAttachments.setCreateTime(date);
+            mqAttachments.setIsDelete((byte) 0);
+            mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
+            log.info("Attachments has been saved！ID===>:{}", mqAttachments.getId());
+        }
     }
 
     public MqInformationServiceProvider getMqInformationServiceProvider() {
@@ -135,6 +179,4 @@ public class MsgReceiver implements MessageListener {
     public void setiUserProductService(IUserProductService iUserProductService) {
         this.iUserProductService = iUserProductService;
     }
-
-   
 }
