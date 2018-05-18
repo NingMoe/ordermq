@@ -1,6 +1,5 @@
 package cn.donut.ordermq.worker;
 
-import cn.donut.ordermq.entity.MqAttachments;
 import cn.donut.ordermq.entity.MqInformation;
 import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import cn.donut.ordermq.service.MqInformationServiceProvider;
@@ -8,14 +7,11 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.clazz.model.UserProduct;
 import com.koolearn.clazz.service.IUserProductService;
-import com.koolearn.common.config.Configuration;
-import com.koolearn.common.config.impl.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -32,9 +28,9 @@ public class MsgReceiver implements MessageListener {
     private MqAttachmentsServiceProvider mqAttachmentsServiceProvider;
     private IUserProductService iUserProductService;
     //测试地址
-    private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
+//    private final static String url = "http://10.155.232.94:3000/api/v1/web/yc/apply/status";
     //    正式地址
-    //    private final static String url = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
+        private final static String url = "https://abc.leanapp.cn/api/v1/web/yc/apply/status";
 
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
