@@ -12,7 +12,7 @@
     <!-- enable autowire -->
     <context:annotation-config/>
     <bean id="dataSource" class="com.koolearn.framework.mybatis.datasource.KooDataSource">
-        <property name="bizName" value="donut_ordermq"/>
+        <property name="bizName" value="${database}"/>
     </bean>
     <bean id="sqlSessionFactory" class="com.koolearn.framework.mybatis.spring.KooSqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
