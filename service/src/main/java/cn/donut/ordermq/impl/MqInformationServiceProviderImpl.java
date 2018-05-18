@@ -39,9 +39,9 @@ public class MqInformationServiceProviderImpl implements MqInformationServicePro
 
     //新增
     @Override
-    public void insertMqInformation(MqInformation mqInformation) {
-        this.mqInformationDao.insert(mqInformation);
+    public int insertMqInformation(MqInformation mqInformation) {
 
+        return this.mqInformationDao.insert(mqInformation);
     }
 
     //修改
