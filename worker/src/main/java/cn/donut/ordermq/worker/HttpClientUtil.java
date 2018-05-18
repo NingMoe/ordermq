@@ -10,6 +10,8 @@
  */
 package cn.donut.ordermq.worker;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -30,7 +32,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -40,13 +45,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
- * 〈一句话功能简述〉<br>
  * 〈httpclient〉
  *
  * @author LiYuAn
@@ -59,6 +61,7 @@ public class HttpClientUtil {
     private static PoolingHttpClientConnectionManager connMgr;
     private static RequestConfig requestConfig;
     private static final int MAX_TIMEOUT = 7000;
+    private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
     static {
         // 设置连接池
@@ -161,8 +164,9 @@ public class HttpClientUtil {
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
             response = httpClient.execute(httpPost);
-            System.out.println(response.toString());
+//            System.out.println(response.toString());
             HttpEntity entity = response.getEntity();
+            log.info(response.toString());
             httpStr = EntityUtils.toString(entity, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
@@ -195,7 +199,7 @@ public class HttpClientUtil {
             httpPost.setConfig(requestConfig);
             StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");//解决中文乱码问题
             stringEntity.setContentEncoding("UTF-8");
-            stringEntity.setContentType("application/json");
+            stringEntity.setContentType("application/json;charset=utf-8");
             httpPost.setEntity(stringEntity);
             response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
@@ -204,8 +208,6 @@ public class HttpClientUtil {
             }
             System.out.println(response.getStatusLine().getStatusCode());
             httpStr = EntityUtils.toString(entity, "UTF-8");
-//            HttpEntity entity = res.getEntity();
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -355,12 +357,32 @@ public class HttpClientUtil {
      *
      * @param args
      */
-    public static void main(String[] args) throws Exception {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("userId", 73590055);
-        String apiUrl = "http://10.155.34.85:3003/api/ceping/paper_list";
-        String result = HttpClientUtil.doPost(apiUrl, params);
-        System.out.print(result);
-    }
+//    public static void main(String[] args) throws Exception {
+//        String timePattern2 = "yyyy-MM-dd HH:mm:ss";
+//        SimpleDateFormat df = null;
+//        String returnValue = "";
+//        Date aDate = new Date();
+//        if (aDate == null) {
+//            // log.error("aDate is null!");
+//        } else {
+//            df = new SimpleDateFormat(timePattern2);
+//            returnValue = df.format(aDate);
+//        }
+//        System.out.println(returnValue);
+//        String url = "http://10.155.232.94:3000/api/v1/web/yc/apply/status";
+//        Map<String, Object> map = new HashMap<String, Object>();
+//        map.put("id", "466570");
+//        map.put("userId", "73650910");
+//        map.put("orderNo", "7139918604");
+//        map.put("productId", "9659");
+//        map.put("status", "3");
+//        map.put("failureCount", "0");
+//        map.put("buyTime", returnValue);
+//        map.put("overTime", returnValue);
+//        map.put("freezeTime", returnValue);
+//        map.put("createTime", returnValue);
+//        String result = HttpClientUtil.doPost(url, map);
+//        System.out.print(result);
+//    }
 
 }
