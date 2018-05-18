@@ -10,8 +10,6 @@
  */
 package cn.donut.ordermq.worker;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -34,8 +32,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
@@ -45,8 +41,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 〈httpclient〉
@@ -61,7 +59,6 @@ public class HttpClientUtil {
     private static PoolingHttpClientConnectionManager connMgr;
     private static RequestConfig requestConfig;
     private static final int MAX_TIMEOUT = 7000;
-    private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
     static {
         // 设置连接池
@@ -162,11 +159,11 @@ public class HttpClientUtil {
                         .getValue().toString());
                 pairList.add(pair);
             }
-            httpPost.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
+            httpPost.setEntity(new UrlEncodedFormEntity(pairList, HTTP.UTF_8));
             response = httpClient.execute(httpPost);
-//            System.out.println(response.toString());
+            System.out.println(response.toString());
             HttpEntity entity = response.getEntity();
-            log.info(response.toString());
+//            log.info(response.toString());
             httpStr = EntityUtils.toString(entity, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
@@ -357,7 +354,7 @@ public class HttpClientUtil {
      *
      * @param args
      */
-//    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 //        String timePattern2 = "yyyy-MM-dd HH:mm:ss";
 //        SimpleDateFormat df = null;
 //        String returnValue = "";
@@ -383,6 +380,6 @@ public class HttpClientUtil {
 //        map.put("createTime", returnValue);
 //        String result = HttpClientUtil.doPost(url, map);
 //        System.out.print(result);
-//    }
+    }
 
 }
