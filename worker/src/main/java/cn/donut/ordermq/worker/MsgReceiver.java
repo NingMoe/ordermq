@@ -59,7 +59,9 @@ public class MsgReceiver implements MessageListener {
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
-            mqInformation = this.saveMqInfor(mqInformation);
+            mqInformation.setIsPulish((byte) 0);
+            mqInformation.setCreateTime(new Date());
+            mqInformationServiceProvider.insertMqInformation(mqInformation);
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
             return;
@@ -67,16 +69,7 @@ public class MsgReceiver implements MessageListener {
             log.warn("消息中不包含关键字段！或查询不到该信息！", e);
             return;
         }
-
-
-        //附加信息部分
-        HashMap<String, String> attachemts = mqInformation.getAttachments();
-        if (attachemts != null) {
-            this.saveAttachments(mqInformation, attachemts);
-        }
-
-        UserProduct userProduct = new UserProduct();
-        userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
+        UserProduct userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
         Map<String, Object> jsonMap = new HashMap<String, Object>();
         if (null == userProduct) {
             log.warn("没有查询到对应数据！");
@@ -99,10 +92,7 @@ public class MsgReceiver implements MessageListener {
             } else {
                 log.info("不符合条件的ProductLine！");
             }
-
         }
-
-
     }
 
     //UserProduct转为Map<String,Object>
@@ -126,38 +116,6 @@ public class MsgReceiver implements MessageListener {
 
         return jsonMap;
 
-    }
-
-    //保存json中mq消息实体
-    private MqInformation saveMqInfor(MqInformation mqInformation) {
-
-        Date date = new Date();
-        mqInformation.setIsPulish((byte) 0);
-        mqInformation.setCreateTime(date);
-        mqInformation.setIsDelete((byte) 0);
-        mqInformation.setFailCount(0);
-        int id = mqInformationServiceProvider.insertMqInformation(mqInformation);
-        System.out.println("id=" + id);
-        log.info("Message has been saved！ID===>:{}", mqInformation.getId());
-        System.out.println("Message has been saved！ID===>:{}" + mqInformation.getId());
-
-        return mqInformation;
-    }
-
-    //保存附加信息
-    private void saveAttachments(MqInformation mqInformation, HashMap<String, String> attachemts) {
-        Date date = new Date();
-        for (Map.Entry<String, String> entry : attachemts.entrySet()) {
-            MqAttachments mqAttachments = new MqAttachments();
-            System.out.println(entry.getKey() + ":" + entry.getValue());
-            mqAttachments.setTheKey(entry.getKey());
-            mqAttachments.setTheValue(entry.getValue());
-            mqAttachments.setMqInformId(mqInformation.getId());
-            mqAttachments.setCreateTime(date);
-            mqAttachments.setIsDelete((byte) 0);
-            mqAttachmentsServiceProvider.insertMqAttachments(mqAttachments);
-            log.info("Attachments has been saved！ID===>:{}", mqAttachments.getId());
-        }
     }
 
     public MqInformationServiceProvider getMqInformationServiceProvider() {
