@@ -77,7 +77,6 @@ public class MsgReceiver implements MessageListener {
 
         UserProduct userProduct = new UserProduct();
         userProduct = iUserProductService.getById(mqInformation.getPrimaryKey());
-        JSONObject jsonObject = new JSONObject();
         Map<String, Object> jsonMap = new HashMap<String, Object>();
         if (null == userProduct) {
             log.warn("没有查询到对应数据！");
@@ -86,14 +85,13 @@ public class MsgReceiver implements MessageListener {
             log.info("userProduct：{}", userProduct);
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
                 jsonMap = this.Object2Json(userProduct);
-                //发送数据 url：https://doabc.leanapp.cn/api/v1/web/yc/apply/status   method:post
-//                Configuration config = new PropertiesConfiguration("com/styspace/config.properties");
                 String content = HttpClientUtil.doPost(url, jsonMap);
-                log.info(content);
+                log.info("httpClient返回消息",content);
                 if (StringUtils.isNotEmpty(content)) {
                     //回写推送字段
                     mqInformation.setIsPulish((byte) 1);
                     mqInformation.setPushTime(new Date());
+                    mqInformation.setUpdateTime(new Date());
                     this.mqInformationServiceProvider.updateMqInformation(mqInformation);
                 }
             } else {
