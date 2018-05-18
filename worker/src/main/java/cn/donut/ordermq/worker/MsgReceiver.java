@@ -59,7 +59,7 @@ public class MsgReceiver implements MessageListener {
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
-            this.saveMqInfor(mqInformation);
+            mqInformation = this.saveMqInfor(mqInformation);
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
             return;
@@ -68,7 +68,7 @@ public class MsgReceiver implements MessageListener {
             return;
         }
 
-        log.info("Message has been saved！ID===>:{}", mqInformation.getId());
+
         //附加信息部分
         HashMap<String, String> attachemts = mqInformation.getAttachments();
         if (attachemts != null) {
@@ -86,13 +86,15 @@ public class MsgReceiver implements MessageListener {
             if (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) {
                 jsonMap = this.Object2Json(userProduct);
                 String content = HttpClientUtil.doPost(url, jsonMap);
-                log.info("httpClient返回消息",content);
+                log.info("httpClient返回消息", content);
+                System.out.println("httpClient返回消息" + content);
                 if (StringUtils.isNotEmpty(content)) {
                     //回写推送字段
                     mqInformation.setIsPulish((byte) 1);
                     mqInformation.setPushTime(new Date());
                     mqInformation.setUpdateTime(new Date());
                     this.mqInformationServiceProvider.updateMqInformation(mqInformation);
+                    System.out.println("pushed");
                 }
             } else {
                 log.info("不符合条件的ProductLine！");
@@ -127,7 +129,7 @@ public class MsgReceiver implements MessageListener {
     }
 
     //保存json中mq消息实体
-    private void saveMqInfor(MqInformation mqInformation) {
+    private MqInformation saveMqInfor(MqInformation mqInformation) {
 
         Date date = new Date();
         mqInformation.setIsPulish((byte) 0);
@@ -135,7 +137,9 @@ public class MsgReceiver implements MessageListener {
         mqInformation.setIsDelete((byte) 0);
         mqInformation.setFailCount(0);
         mqInformationServiceProvider.insertMqInformation(mqInformation);
-
+        log.info("Message has been saved！ID===>:{}", mqInformation.getId());
+        System.out.println("Message has been saved！ID===>:{}" + mqInformation.getId());
+        return mqInformation;
     }
 
     //保存附加信息
