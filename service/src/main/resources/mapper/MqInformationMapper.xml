@@ -96,17 +96,7 @@
     from mq_information
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from mq_information
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <delete id="deleteByExample" parameterType="cn.donut.ordermq.entity.MqInformationExample">
-    delete from mq_information
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqInformation">
+  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqInformation" useGeneratedKeys="true" keyColumn="id">
     insert into mq_information (id, change_type, data_type, 
       primary_key, product_line, is_pulish, 
       create_time, push_time, update_time, 
@@ -116,85 +106,6 @@
       #{createTime,jdbcType=TIMESTAMP}, #{pushTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{failCount,jdbcType=INTEGER}, #{isDelete,jdbcType=TINYINT})
   </insert>
-  <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.MqInformation">
-    insert into mq_information
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="changeType != null">
-        change_type,
-      </if>
-      <if test="dataType != null">
-        data_type,
-      </if>
-      <if test="primaryKey != null">
-        primary_key,
-      </if>
-      <if test="productLine != null">
-        product_line,
-      </if>
-      <if test="isPulish != null">
-        is_pulish,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-      <if test="pushTime != null">
-        push_time,
-      </if>
-      <if test="updateTime != null">
-        update_time,
-      </if>
-      <if test="failCount != null">
-        fail_count,
-      </if>
-      <if test="isDelete != null">
-        is_delete,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="changeType != null">
-        #{changeType,jdbcType=TINYINT},
-      </if>
-      <if test="dataType != null">
-        #{dataType,jdbcType=VARCHAR},
-      </if>
-      <if test="primaryKey != null">
-        #{primaryKey,jdbcType=INTEGER},
-      </if>
-      <if test="productLine != null">
-        #{productLine,jdbcType=INTEGER},
-      </if>
-      <if test="isPulish != null">
-        #{isPulish,jdbcType=TINYINT},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="pushTime != null">
-        #{pushTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="failCount != null">
-        #{failCount,jdbcType=INTEGER},
-      </if>
-      <if test="isDelete != null">
-        #{isDelete,jdbcType=TINYINT},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="cn.donut.ordermq.entity.MqInformationExample" resultType="java.lang.Integer">
-    select count(*) from mq_information
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
   <update id="updateByExampleSelective" parameterType="map">
     update mq_information
     <set>
