@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>donut-ordermq-worker</artifactId>
-
+    <version>1.0.0-RELEASE</version>
     <dependencies>
         <dependency>
             <groupId>com.koolearn</groupId>
