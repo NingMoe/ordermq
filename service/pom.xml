@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>  
   <groupId>cn.donut</groupId>  
   <artifactId>donut-ordermq-service</artifactId>  
-  <version>1.0.0-RELEASE</version>
+  <version>1.0.0-SNAPSHOT</version>
   <dependencies>
     <dependency>
       <groupId>com.koolearn</groupId>
