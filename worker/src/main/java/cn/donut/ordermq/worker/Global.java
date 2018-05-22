@@ -22,7 +22,7 @@ public class Global {
 
     final static String NODE_URL_PRODUCT = "https://abc.leanapp.cn/api/v1/web/yc/apply/status";
 
-    final static String NODE_URL_TEST = "http://do.abc.leanapp.cn/api/v1/web/yc/apply/status";
+    final static String NODE_URL_TEST = "http://doabc.leanapp.cn/api/v1/web/yc/apply/status";
 
     final static String PRODUCTID = "5960,5856,5866,5868,5869,5860,6258,7054,7563,7564";
 
