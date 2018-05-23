@@ -13,7 +13,7 @@
        default-autowire="byName" default-lazy-init="false">
     <context:annotation-config/>
     <tx:annotation-driven/>
-    <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+    <bean id="connectionFactory" class="com.koolearn.amqp.core.KooCachingConnectionFactory" init-method="initMethod" destroy-method="destroyMethod">
         <property name="addresses" value="${rabbit.addresses}"/>
         <property name="username" value="${rabbit.username}"/>
         <property name="password" value="${rabbit.password}"/>
@@ -24,7 +24,7 @@
     <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
     <rabbit:admin connection-factory="connectionFactory"/>
 
-    <rabbit:template id="amqpTemplate" connection-factory="connectionFactory"/>
+
 
 
     <!--定义queue  说明：durable:是否持久化 exclusive: 仅创建者可以使用的私有队列，断开后自动删除 auto_delete: 当所有消费客户端连接断开后，是否自动删除队列-->
