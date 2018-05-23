@@ -26,13 +26,5 @@ public class Global {
 
     final static String PRODUCTID = "5960,5856,5866,5868,5869,5860,6258,7054,7563,7564";
 
-    public static void main(String[] args) {
-        int id = 5960;
-        if (Global.PRODUCTID.contains(id + "")) {
-            System.out.println(22);
-        }else {
-            System.out.println(1);
-        }
-    }
 
 }
