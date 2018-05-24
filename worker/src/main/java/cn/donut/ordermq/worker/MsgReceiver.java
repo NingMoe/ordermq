@@ -49,6 +49,7 @@ public class MsgReceiver implements MessageListener {
     @Override
     public void onMessage(Message msg) {
         log.info("Received the message===>:{}", msg.toString());
+        System.out.println("Received the message===>:{}" + msg.toString());
         MqInformation mqInformation;
         String json;
         MqInformation mq;
@@ -69,10 +70,15 @@ public class MsgReceiver implements MessageListener {
             log.warn("没有查询到对应数据！");
             jsonMap.put("userProduct", "");
         } else {
-            log.info("userProduct：{}", userProduct);
+            log.info("userProductId:{}", userProduct.toString());
+            System.out.println(userProduct.toString());
             if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
 //            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
                 jsonMap = this.Object2Json(userProduct);
+                log.info("jsonMap:{}", jsonMap.toString());
+                log.info("Url:{}", Global.NODE_URL_PRODUCT);
+                System.out.println("jsonMap:{}" + jsonMap.toString());
+                System.out.println("Url:{}" + Global.NODE_URL_PRODUCT);
                 String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
                 log.info("httpClient返回消息", content);
                 System.out.println("httpClient返回消息" + content);
