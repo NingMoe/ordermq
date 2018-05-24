@@ -13,7 +13,7 @@
        default-autowire="byName" default-lazy-init="false">
     <context:annotation-config/>
     <tx:annotation-driven/>
-    <bean id="connectionFactory" class="com.koolearn.amqp.core.KooCachingConnectionFactory" init-method="initMethod" destroy-method="destroyMethod">
+    <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory" >
         <property name="addresses" value="${rabbit.addresses}"/>
         <property name="username" value="${rabbit.username}"/>
         <property name="password" value="${rabbit.password}"/>
