@@ -70,7 +70,8 @@ public class MsgReceiver implements MessageListener {
             log.warn("没有查询到对应数据！");
             jsonMap.put("userProduct", "");
         } else {
-            log.info("userProductId:{}", userProduct.getId());
+            log.info("userProductId:{}", userProduct.toString());
+            System.out.println(userProduct.toString());
             if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
 //            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
                 jsonMap = this.Object2Json(userProduct);
