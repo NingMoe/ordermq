@@ -48,7 +48,7 @@ public class MsgReceiver implements MessageListener {
      */
     @Override
     public void onMessage(Message msg) {
-        log.info("Received the message===>:{}", msg.toString());
+        log.warn("Received the message===>:{}", msg.toString());
         System.out.println("Received the message===>:{}" + msg.toString());
         MqInformation mqInformation;
         String json;
@@ -70,17 +70,17 @@ public class MsgReceiver implements MessageListener {
             log.warn("没有查询到对应数据！");
             jsonMap.put("userProduct", "");
         } else {
-            log.info("userProductId:{}", userProduct.toString());
+            log.warn("userProductId:{}", userProduct.toString());
             System.out.println(userProduct.toString());
             if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
 //            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
                 jsonMap = this.Object2Json(userProduct);
-                log.info("jsonMap:{}", jsonMap.toString());
-                log.info("Url:{}", Global.NODE_URL_PRODUCT);
+                log.warn("jsonMap:{}", jsonMap.toString());
+                log.warn("Url:{}", Global.NODE_URL_PRODUCT);
                 System.out.println("jsonMap:{}" + jsonMap.toString());
                 System.out.println("Url:{}" + Global.NODE_URL_PRODUCT);
                 String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
-                log.info("httpClient返回消息", content);
+                log.warn("httpClient返回消息", content);
                 System.out.println("httpClient返回消息" + content);
                 if (StringUtils.isNotEmpty(content)) {
                     //回写推送字段
@@ -92,7 +92,7 @@ public class MsgReceiver implements MessageListener {
                     System.out.println("pushed");
                 }
             } else {
-                log.info("不符合条件的ProductLine！");
+                log.warn("不符合条件的ProductLine！");
             }
         }
     }
