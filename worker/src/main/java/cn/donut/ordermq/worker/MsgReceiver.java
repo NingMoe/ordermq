@@ -76,10 +76,10 @@ public class MsgReceiver implements MessageListener {
 //            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
                 jsonMap = this.Object2Json(userProduct);
                 log.info("jsonMap:{}", jsonMap.toString());
-                log.info("Url:{}", Global.NODE_URL_TEST);
+                log.info("Url:{}", Global.NODE_URL_PRODUCT);
                 System.out.println("jsonMap:{}" + jsonMap.toString());
-                System.out.println("Url:{}" + Global.NODE_URL_TEST);
-                String content = HttpClientUtil.doPost(Global.NODE_URL_TEST, jsonMap);
+                System.out.println("Url:{}" + Global.NODE_URL_PRODUCT);
+                String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
                 log.info("httpClient返回消息", content);
                 System.out.println("httpClient返回消息" + content);
                 if (StringUtils.isNotEmpty(content)) {
