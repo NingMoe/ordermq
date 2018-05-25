@@ -57,6 +57,7 @@ public class MsgReceiver implements MessageListener {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
             mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
+            log.warn("mqInformation saved!");
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
             return;
