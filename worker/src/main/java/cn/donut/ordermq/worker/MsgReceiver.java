@@ -49,7 +49,6 @@ public class MsgReceiver implements MessageListener {
     @Override
     public void onMessage(Message msg) {
         log.warn("Received the message===>:{}", msg.toString());
-        System.out.println("Received the message===>:{}" + msg.toString());
         MqInformation mqInformation;
         String json;
         MqInformation mq;
