@@ -55,7 +55,7 @@ public class MsgReceiver implements MessageListener {
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
-            mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
+
             log.warn("mqInformation saved!");
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
@@ -73,7 +73,8 @@ public class MsgReceiver implements MessageListener {
             log.warn("userProductId:{}", userProduct.toString());
             System.out.println(userProduct.toString());
             if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
-//            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
+                //数据存库
+                mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
                 jsonMap = this.Object2Json(userProduct);
                 log.warn("jsonMap:{}", jsonMap.toString());
                 log.warn("Url:{}", Global.NODE_URL_PRODUCT);
@@ -91,8 +92,6 @@ public class MsgReceiver implements MessageListener {
                     mqInformationServiceProvider.updateMqInformation(mqInformation);
                     System.out.println("pushed");
                 }
-            } else {
-                log.warn("不符合条件的ProductLine！");
             }
         }
     }
