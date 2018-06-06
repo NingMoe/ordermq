@@ -83,7 +83,7 @@ public class MsgReceiver implements MessageListener {
                 String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
                 log.warn("httpClient返回消息", content);
                 System.out.println("httpClient返回消息" + content);
-                if (StringUtils.isNotEmpty(content)) {
+                if (StringUtils.isNotEmpty(content) && content.contains("成功")) {
                     //回写推送字段
                     mqInformation.setId(mq.getId());
                     mqInformation.setIsPulish((byte) 1);
