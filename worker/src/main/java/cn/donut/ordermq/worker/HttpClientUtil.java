@@ -14,7 +14,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,12 +21,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +47,8 @@ public class HttpClientUtil {
 
     private static PoolingHttpClientConnectionManager connMgr;
     private static RequestConfig requestConfig;
-    private static final int MAX_TIMEOUT = 7000;
+    private static final int MAX_TIMEOUT = 3000;
+    private static final Logger log = LoggerFactory.getLogger(HttpClientUtil.class);
 
     static {
         // 设置连接池
@@ -90,29 +91,48 @@ public class HttpClientUtil {
         StringBuffer param = new StringBuffer();
         int i = 0;
         for (String key : params.keySet()) {
-            if (i == 0)
+            if (i == 0) {
                 param.append("?");
-            else
+            } else {
                 param.append("&");
-            param.append(key).append("=").append(params.get(key));
-            i++;
+                param.append(key).append("=").append(params.get(key));
+                i++;
+            }
         }
         apiUrl += param;
         String result = null;
-        HttpClient httpclient = new DefaultHttpClient();
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpPost = new HttpGet(apiUrl);
+        httpPost.setConfig(requestConfig);
+        HttpResponse response = null;
         try {
-            HttpGet httpPost = new HttpGet(apiUrl);
-            HttpResponse response = httpclient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-
-            System.out.println("执行状态码 : " + statusCode);
-
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                result = EntityUtils.toString(entity, "UTF-8");
+            response = httpClient.execute(httpPost);
+//            int statusCode = response.getStatusLine().getStatusCode();
+//            log.warn("执行状态码 : " + statusCode);
+        } catch (Exception e) {
+            log.warn("请求异常", e);
+            try {
+                httpClient.close();
+            } catch (IOException e1) {
+                log.warn("请求异常", e1);
+                return "{msg:'失败'}";
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            return "{msg:'失败'}";
+        }
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            try {
+                result = EntityUtils.toString(entity, "UTF-8");
+            } catch (IOException e) {
+                log.warn("请求异常", e);
+                return "{msg:'失败'}";
+            } finally {
+                try {
+                    httpClient.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return result;
     }
@@ -139,32 +159,37 @@ public class HttpClientUtil {
         String httpStr = null;
         HttpPost httpPost = new HttpPost(apiUrl);
         CloseableHttpResponse response = null;
-
+        httpPost.setConfig(requestConfig);
+        List<NameValuePair> pairList = new ArrayList<NameValuePair>(params.size());
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            NameValuePair pair = new BasicNameValuePair(entry.getKey(), entry
+                    .getValue().toString());
+            pairList.add(pair);
+        }
         try {
-            httpPost.setConfig(requestConfig);
-            List<NameValuePair> pairList = new ArrayList<NameValuePair>(params.size());
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                NameValuePair pair = new BasicNameValuePair(entry.getKey(), entry
-                        .getValue().toString());
-                pairList.add(pair);
-            }
             httpPost.setEntity(new UrlEncodedFormEntity(pairList, HTTP.UTF_8));
             response = httpClient.execute(httpPost);
-            System.out.println(response.toString());
-            HttpEntity entity = response.getEntity();
-//            log.info(response.toString());
+//            int statusCode = response.getStatusLine().getStatusCode();
+//            log.warn("执行状态码 : " + statusCode);
+
+        } catch (Exception e) {
+            log.warn("请求异常", e);
+            try {
+                httpClient.close();
+            } catch (IOException e1) {
+                log.warn("请求异常", e1);
+                return "{msg:'失败'}";
+            }
+            return "{msg:'失败'}";
+        }
+        HttpEntity entity = response.getEntity();
+        try {
             httpStr = EntityUtils.toString(entity, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (response != null) {
-                try {
-                    EntityUtils.consume(response.getEntity());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            log.warn("请求异常", e);
+            return "{msg:'失败'}";
         }
+
         return httpStr;
     }
 
@@ -180,32 +205,38 @@ public class HttpClientUtil {
         String httpStr = null;
         HttpPost httpPost = new HttpPost(apiUrl);
         CloseableHttpResponse response = null;
+        httpPost.setConfig(requestConfig);
+        StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");//解决中文乱码问题
+        stringEntity.setContentEncoding("UTF-8");
+        stringEntity.setContentType("application/json;charset=utf-8");
+        httpPost.setEntity(stringEntity);
 
         try {
-            httpPost.setConfig(requestConfig);
-            StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");//解决中文乱码问题
-            stringEntity.setContentEncoding("UTF-8");
-            stringEntity.setContentType("application/json;charset=utf-8");
-            httpPost.setEntity(stringEntity);
             response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                return "{}";
+        } catch (Exception e) {
+            log.warn("请求异常", e);
+            try {
+                httpClient.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                return "{msg:'失败'}";
             }
-            System.out.println(response.getStatusLine().getStatusCode());
-            httpStr = EntityUtils.toString(entity, "UTF-8");
+            return "{msg:'失败'}";
+        }
 
+        HttpEntity entity = response.getEntity();
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            return "{msg:'失败'}";
+        }
+        try {
+            httpStr = EntityUtils.toString(entity, "UTF-8");
+            httpClient.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (response != null) {
-                try {
-                    EntityUtils.consume(response.getEntity());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            return "{msg:'失败'}";
         }
+
+
         return httpStr;
     }
 
@@ -216,31 +247,11 @@ public class HttpClientUtil {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-//        String timePattern2 = "yyyy-MM-dd HH:mm:ss";
-//        SimpleDateFormat df = null;
-//        String returnValue = "";
-//        Date aDate = new Date();
-//        if (aDate == null) {
-//            // log.error("aDate is null!");
-//        } else {
-//            df = new SimpleDateFormat(timePattern2);
-//            returnValue = df.format(aDate);
-//        }
-//        System.out.println(returnValue);
-//        String url = "http://10.155.232.94:3000/api/v1/web/yc/apply/status";
-//        Map<String, Object> map = new HashMap<String, Object>();
-//        map.put("id", "466570");
-//        map.put("userId", "73650910");
-//        map.put("orderNo", "7139918604");
-//        map.put("productId", "9659");
-//        map.put("status", "3");
-//        map.put("failureCount", "0");
-//        map.put("buyTime", returnValue);
-//        map.put("overTime", returnValue);
-//        map.put("freezeTime", returnValue);
-//        map.put("createTime", returnValue);
-//        String result = HttpClientUtil.doPost(url, map);
-//        System.out.print(result);
+
+//        String url = "http://10.155.50.195/test/login";
+        String url = "http://www.baidu.com";
+        String content = HttpClientUtil.doPost(Global.NODE_URL_TEST);
+        System.out.println(content);
     }
 
 }

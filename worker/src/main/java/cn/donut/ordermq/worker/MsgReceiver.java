@@ -1,6 +1,5 @@
 package cn.donut.ordermq.worker;
 
-import cn.donut.ordermq.entity.MqAttachments;
 import cn.donut.ordermq.entity.MqInformation;
 import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import cn.donut.ordermq.service.MqInformationServiceProvider;
@@ -8,14 +7,11 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.clazz.model.UserProduct;
 import com.koolearn.clazz.service.IUserProductService;
-import com.koolearn.common.config.Configuration;
-import com.koolearn.common.config.impl.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -78,11 +74,8 @@ public class MsgReceiver implements MessageListener {
                 jsonMap = this.Object2Json(userProduct);
                 log.warn("jsonMap:{}", jsonMap.toString());
                 log.warn("Url:{}", Global.NODE_URL_PRODUCT);
-                System.out.println("jsonMap:{}" + jsonMap.toString());
-                System.out.println("Url:{}" + Global.NODE_URL_PRODUCT);
                 String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
                 log.warn("httpClient返回消息", content);
-                System.out.println("httpClient返回消息" + content);
                 if (StringUtils.isNotEmpty(content) && content.contains("成功")) {
                     //回写推送字段
                     mqInformation.setId(mq.getId());
