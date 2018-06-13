@@ -68,7 +68,7 @@ public class MsgReceiver implements MessageListener {
         } else {
             log.warn("userProductId:{}", userProduct.toString());
             System.out.println(userProduct.toString());
-            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
+            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && AddressInfo.map.containsKey(userProduct.getProductId())) {
                 //数据存库
                 mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
                 jsonMap = this.Object2Json(userProduct);
