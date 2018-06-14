@@ -73,8 +73,8 @@ public class MsgReceiver implements MessageListener {
                 mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
                 jsonMap = this.Object2Json(userProduct);
                 log.warn("jsonMap:{}", jsonMap.toString());
-                log.warn("Url:{}", Global.NODE_URL_PRODUCT);
-                String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
+                log.warn("Url:{}", AddressInfo.map.get(userProduct.getProductId()));
+                String content = HttpClientUtil.doPost(AddressInfo.map.get(userProduct.getProductId()), jsonMap);
                 log.warn("httpClient返回消息", content);
                 if (StringUtils.isNotEmpty(content) && content.contains("成功")) {
                     //回写推送字段
