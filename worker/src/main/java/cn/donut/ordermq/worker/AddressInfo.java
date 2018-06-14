@@ -28,6 +28,8 @@ public class AddressInfo {
     private static final String NODE_URL_PRODUCT = "https://abc.leanapp.cn/api/v1/web/yc/apply/status";
     //年课升级包 299
     private static final String NODE_URL_MEMBER = "https://abc.leanapp.cn/api/v1/web/yc/member/status";
+    //9.9活动
+    private static final String NODE_URL_DROP = "https://api.donut.cn/api/wk/apply/drop";
 
     static Map<Integer, String> map = Maps.newHashMap();
 
@@ -45,9 +47,10 @@ public class AddressInfo {
         map.put(8310, NODE_URL_PRODUCT);
         map.put(8283, NODE_URL_PRODUCT);
         map.put(8431, NODE_URL_PRODUCT);
-        map.put(8492,NODE_URL_PRODUCT);
-        map.put(8496,NODE_URL_PRODUCT);
-        map.put(8493,NODE_URL_MEMBER);
+        map.put(8492, NODE_URL_PRODUCT);
+        map.put(8496, NODE_URL_PRODUCT);
+        map.put(8493, NODE_URL_MEMBER);
+        map.put(8691, NODE_URL_DROP);
 
     }
 }
