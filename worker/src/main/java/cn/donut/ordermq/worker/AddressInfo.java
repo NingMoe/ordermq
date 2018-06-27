@@ -36,26 +36,26 @@ public class AddressInfo {
     static Map<Integer, String> map = Maps.newHashMap();
 
     static {
-//        map.put(5960, NODE_URL_PRODUCT);
-//        map.put(5856, NODE_URL_PRODUCT);
-//        map.put(5866, NODE_URL_PRODUCT);
-//        map.put(5868, NODE_URL_PRODUCT);
-//        map.put(5869, NODE_URL_PRODUCT);
-//        map.put(5860, NODE_URL_PRODUCT);
-//        map.put(6258, NODE_URL_PRODUCT);
-//        map.put(7054, NODE_URL_PRODUCT);
-//        map.put(7563, NODE_URL_PRODUCT);
-//        map.put(7564, NODE_URL_PRODUCT);
-//        map.put(8310, NODE_URL_PRODUCT);
-//        map.put(8283, NODE_URL_PRODUCT);
-//        map.put(8431, NODE_URL_PRODUCT);
-//        map.put(8492, NODE_URL_PRODUCT);
-//        map.put(8496, NODE_URL_PRODUCT);
-//        map.put(8493, NODE_URL_MEMBER);
-//        map.put(8691, NODE_URL_DROP);
-//        map.put(8713, NODE_URL_PRODUCT);//华为899【彩虹会员】
-//        map.put(8711, NODE_URL_PRODUCT);// 华为609
-        map.put(8712, test);
+        map.put(5960, NODE_URL_PRODUCT);
+        map.put(5856, NODE_URL_PRODUCT);
+        map.put(5866, NODE_URL_PRODUCT);
+        map.put(5868, NODE_URL_PRODUCT);
+        map.put(5869, NODE_URL_PRODUCT);
+        map.put(5860, NODE_URL_PRODUCT);
+        map.put(6258, NODE_URL_PRODUCT);
+        map.put(7054, NODE_URL_PRODUCT);
+        map.put(7563, NODE_URL_PRODUCT);
+        map.put(7564, NODE_URL_PRODUCT);
+        map.put(8310, NODE_URL_PRODUCT);
+        map.put(8283, NODE_URL_PRODUCT);
+        map.put(8431, NODE_URL_PRODUCT);
+        map.put(8492, NODE_URL_PRODUCT);
+        map.put(8496, NODE_URL_PRODUCT);
+        map.put(8493, NODE_URL_MEMBER);
+        map.put(8691, NODE_URL_DROP);
+        map.put(8713, NODE_URL_PRODUCT);//华为899【彩虹会员】
+        map.put(8711, NODE_URL_PRODUCT);// 华为609
+        map.put(8712, NODE_URL_MEMBER);
 
     }
 }
