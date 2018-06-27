@@ -72,9 +72,7 @@ public class MqInformationServiceProviderImpl implements MqInformationServicePro
         mqInformation.setIsDelete((byte) 0);
         mqInformation.setFailCount(0);
         mqInformationDao.insert(mqInformation);
-        log.info("Message has been saved！ID===>:{}", mqInformation.getId());
-        System.out.println("Message has been saved！ID===>:{}" + mqInformation.getId());
-
+        log.warn("Message has been saved！ID===>:{}", mqInformation.getId());
         return mqInformation;
     }
 
@@ -90,7 +88,7 @@ public class MqInformationServiceProviderImpl implements MqInformationServicePro
             mqAttachments.setCreateTime(date);
             mqAttachments.setIsDelete((byte) 0);
             mqAttachmentsDao.insert(mqAttachments);
-            log.info("Attachments has been saved！ID===>:{}", mqAttachments.getId());
+            log.warn("Attachments has been saved！ID===>:{}", mqAttachments.getId());
         }
     }
 

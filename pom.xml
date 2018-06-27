@@ -14,5 +14,6 @@
     <module>api</module>  
     <module>service</module>
     <module>worker</module>
+    <module>webapp-manage</module>
   </modules> 
 </project>

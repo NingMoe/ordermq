@@ -1,6 +1,5 @@
 package cn.donut.ordermq.worker;
 
-import cn.donut.ordermq.entity.MqAttachments;
 import cn.donut.ordermq.entity.MqInformation;
 import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import cn.donut.ordermq.service.MqInformationServiceProvider;
@@ -8,14 +7,11 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.clazz.model.UserProduct;
 import com.koolearn.clazz.service.IUserProductService;
-import com.koolearn.common.config.Configuration;
-import com.koolearn.common.config.impl.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -48,15 +44,15 @@ public class MsgReceiver implements MessageListener {
      */
     @Override
     public void onMessage(Message msg) {
-        log.info("Received the message===>:{}", msg.toString());
-        System.out.println("Received the message===>:{}" + msg.toString());
+        log.warn("Received the message===>:{}", msg.toString());
         MqInformation mqInformation;
         String json;
         MqInformation mq;
         try {
             json = new String(msg.getBody(), Charset.defaultCharset());
             mqInformation = JSONObject.parseObject(json, MqInformation.class);
-            mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
+
+            log.warn("mqInformation saved!");
         } catch (JSONException e) {
             log.warn("消息格式不是JSON!", e);
             return;
@@ -70,19 +66,16 @@ public class MsgReceiver implements MessageListener {
             log.warn("没有查询到对应数据！");
             jsonMap.put("userProduct", "");
         } else {
-            log.info("userProductId:{}", userProduct.toString());
-            System.out.println(userProduct.toString());
-            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && Global.PRODUCTID.contains(userProduct.getProductId() + "")) {
-//            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) ) {
+            log.warn("userProductId:{}", userProduct.toString());
+            if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && AddressInfo.map.containsKey(userProduct.getProductId())) {
+                //数据存库
+                mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
                 jsonMap = this.Object2Json(userProduct);
-                log.info("jsonMap:{}", jsonMap.toString());
-                log.info("Url:{}", Global.NODE_URL_PRODUCT);
-                System.out.println("jsonMap:{}" + jsonMap.toString());
-                System.out.println("Url:{}" + Global.NODE_URL_PRODUCT);
-                String content = HttpClientUtil.doPost(Global.NODE_URL_PRODUCT, jsonMap);
-                log.info("httpClient返回消息", content);
-                System.out.println("httpClient返回消息" + content);
-                if (StringUtils.isNotEmpty(content)) {
+                log.warn("jsonMap:{}", jsonMap.toString());
+                log.warn("Url:{}", AddressInfo.map.get(userProduct.getProductId()));
+                String content = HttpClientUtil.doPost(AddressInfo.map.get(userProduct.getProductId()), jsonMap);
+                log.warn("httpClient返回消息", content);
+                if (StringUtils.isNotEmpty(content) && content.contains("成功")) {
                     //回写推送字段
                     mqInformation.setId(mq.getId());
                     mqInformation.setIsPulish((byte) 1);
@@ -91,8 +84,6 @@ public class MsgReceiver implements MessageListener {
                     mqInformationServiceProvider.updateMqInformation(mqInformation);
                     System.out.println("pushed");
                 }
-            } else {
-                log.info("不符合条件的ProductLine！");
             }
         }
     }
