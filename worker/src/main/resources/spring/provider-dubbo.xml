@@ -46,6 +46,9 @@
     <dubbo:reference id="mqInformationServiceProvider"
                      interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
     <dubbo:reference id="iUserProductService" interface="com.koolearn.clazz.service.IUserProductService"/>
-
+    <dubbo:reference id="mqRecordService"
+                     interface="cn.donut.ordermq.service.MqRecordService"/>
+    <dubbo:reference id="iOrderService" interface="cn.donut.ordermq.service.order.IOrderService"/>
+    <dubbo:reference id="iOrderProductService" interface="cn.donut.ordermq.service.order.IOrderProductService"/>
 
 </beans>

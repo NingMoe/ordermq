@@ -2,8 +2,6 @@ package cn.donut.ordermq.service.order;
 
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 
-import java.util.List;
-
 /**
  * @author wangjiahao
  * @date 2018/6/28 18:35
@@ -37,12 +35,5 @@ public interface IOrderService {
      * @return
      */
     MqOrderInfo editOrder(MqOrderInfo orderInfo);
-
-    /**
-     * 批量删除--假删除
-     * @param orderIds
-     * @return
-     */
-    Boolean deleteOrders(List<Integer> orderIds);
 
 }

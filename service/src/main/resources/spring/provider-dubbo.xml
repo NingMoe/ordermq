@@ -14,5 +14,12 @@
     <dubbo:service interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider" ref="MqAttachmentsServiceProvider"/>
     <bean id="MqAttachmentsServiceProvider" class="cn.donut.ordermq.impl.MqAttachmentsServiceProviderImpl" />
 
+    <dubbo:service interface="cn.donut.ordermq.service.MqRecordService" ref="mqRecordService"/>
+    <bean id="mqRecordService" class="cn.donut.ordermq.impl.order.MqRecordServiceImpl" />
 
+    <dubbo:service interface="cn.donut.ordermq.service.order.IOrderService" ref="iOrderService"/>
+    <bean id="iOrderService" class="cn.donut.ordermq.impl.order.IOrderServiceImpl" />
+
+    <dubbo:service interface="cn.donut.ordermq.service.order.IOrderProductService" ref="iOrderProductService"/>
+    <bean id="iOrderProductService" class="cn.donut.ordermq.impl.order.IOrderProductServiceImpl" />
 </beans>

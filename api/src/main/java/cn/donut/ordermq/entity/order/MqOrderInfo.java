@@ -1,9 +1,10 @@
 package cn.donut.ordermq.entity.order;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class MqOrderInfo {
+public class MqOrderInfo implements Serializable {
     private Integer id;
 
     private String orderNo;
@@ -36,7 +37,7 @@ public class MqOrderInfo {
 
     private BigDecimal originalPrice;
 
-    private BigDecimal originalPriceNetValue;
+    private BigDecimal netValue;
 
     private BigDecimal strikePrice;
 
@@ -172,12 +173,12 @@ public class MqOrderInfo {
         this.originalPrice = originalPrice;
     }
 
-    public BigDecimal getOriginalPriceNetValue() {
-        return originalPriceNetValue;
+    public BigDecimal getNetValue() {
+        return netValue;
     }
 
-    public void setOriginalPriceNetValue(BigDecimal originalPriceNetValue) {
-        this.originalPriceNetValue = originalPriceNetValue;
+    public void setNetValue(BigDecimal netValue) {
+        this.netValue = netValue;
     }
 
     public BigDecimal getStrikePrice() {

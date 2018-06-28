@@ -117,7 +117,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" >
+  <insert id="insert" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" useGeneratedKeys="true" keyProperty="id">
     insert into mq_order_info (id, order_no, user_id, 
       campus_id, agent_new_id, agent_account_id, 
       agent_account_version_id, agent_ssoId, partner_id, 
@@ -133,7 +133,7 @@
       #{originalPrice,jdbcType=DECIMAL}, #{originalPriceNetValue,jdbcType=DECIMAL}, #{strikePrice,jdbcType=DECIMAL}, 
       #{isBasicOrder,jdbcType=TINYINT}, #{basicOrderId,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" >
+  <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" useGeneratedKeys="true" keyProperty="id">
     insert into mq_order_info
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >

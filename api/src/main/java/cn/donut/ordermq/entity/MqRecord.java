@@ -1,8 +1,9 @@
 package cn.donut.ordermq.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class MqRecord {
+public class MqRecord implements Serializable {
     private Integer id;
 
     private String jsonContent;

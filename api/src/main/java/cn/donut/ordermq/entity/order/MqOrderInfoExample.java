@@ -1086,63 +1086,63 @@ public class MqOrderInfoExample {
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueIsNull() {
-            addCriterion("original_price-net_value is null");
+        public Criteria andNetValueIsNull() {
+            addCriterion("net_value is null");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueIsNotNull() {
-            addCriterion("original_price-net_value is not null");
+        public Criteria andNetValueIsNotNull() {
+            addCriterion("net_value is not null");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueEqualTo(BigDecimal value) {
-            addCriterion("original_price-net_value =", value, "originalPriceNetValue");
+        public Criteria andNetValueEqualTo(BigDecimal value) {
+            addCriterion("net_value =", value, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueNotEqualTo(BigDecimal value) {
-            addCriterion("original_price-net_value <>", value, "originalPriceNetValue");
+        public Criteria andNetValueNotEqualTo(BigDecimal value) {
+            addCriterion("net_value <>", value, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueGreaterThan(BigDecimal value) {
-            addCriterion("original_price-net_value >", value, "originalPriceNetValue");
+        public Criteria andNetValueGreaterThan(BigDecimal value) {
+            addCriterion("net_value >", value, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("original_price-net_value >=", value, "originalPriceNetValue");
+        public Criteria andNetValueGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("net_value >=", value, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueLessThan(BigDecimal value) {
-            addCriterion("original_price-net_value <", value, "originalPriceNetValue");
+        public Criteria andNetValueLessThan(BigDecimal value) {
+            addCriterion("net_value <", value, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("original_price-net_value <=", value, "originalPriceNetValue");
+        public Criteria andNetValueLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("net_value <=", value, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueIn(List<BigDecimal> values) {
-            addCriterion("original_price-net_value in", values, "originalPriceNetValue");
+        public Criteria andNetValueIn(List<BigDecimal> values) {
+            addCriterion("net_value in", values, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueNotIn(List<BigDecimal> values) {
-            addCriterion("original_price-net_value not in", values, "originalPriceNetValue");
+        public Criteria andNetValueNotIn(List<BigDecimal> values) {
+            addCriterion("net_value not in", values, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("original_price-net_value between", value1, value2, "originalPriceNetValue");
+        public Criteria andNetValueBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("net_value between", value1, value2, "netValue");
             return (Criteria) this;
         }
 
-        public Criteria andOriginalPriceNetValueNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("original_price-net_value not between", value1, value2, "originalPriceNetValue");
+        public Criteria andNetValueNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("net_value not between", value1, value2, "netValue");
             return (Criteria) this;
         }
 

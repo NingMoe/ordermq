@@ -1,8 +1,9 @@
 package cn.donut.ordermq.entity.order;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class MqOrderProduct {
+public class MqOrderProduct  implements Serializable {
     private Integer id;
 
     private String orderno;
