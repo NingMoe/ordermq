@@ -15,6 +15,8 @@ import cn.donut.ordermq.entity.MqAttachmentsExample;
 import cn.donut.ordermq.mapper.MqAttachmentsDao;
 import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -47,6 +49,7 @@ public class MqAttachmentsServiceProviderImpl implements MqAttachmentsServicePro
 
     //新增
     @Override
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
     public void insertMqAttachments(MqAttachments mqAttachments) {
         this.mqAttachmentsDao.insert(mqAttachments);
     }
