@@ -58,7 +58,8 @@ public class MqRecordServiceImpl implements MqRecordService {
 
     @Override
     public MqRecord findOneByid(Integer id) {
-        return null;
+        MqRecord mqRecord = mqRecordMapper.selectByPrimaryKey(id);
+        return mqRecord;
     }
 
     @Override
