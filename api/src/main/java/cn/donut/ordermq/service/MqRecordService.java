@@ -30,7 +30,7 @@ public interface MqRecordService {
 
     MqRecord delete(MqRecord mqRecord);
 
-    MqRecord findOneByid(Integer id);
+    MqRecord findOneById(Integer id);
 
     List<MqRecord> findMqRecords();
 
