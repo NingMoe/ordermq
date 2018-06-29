@@ -108,6 +108,8 @@ public class OrderCancelReceiver implements MessageListener {
             log.error("JSON格式有误！", e);
         } catch (NullPointerException e) {
             log.error("JSON缺少关键字！", e);
+        }catch (Exception e){
+            log.error("其他异常！",e);
         }
         return null;
     }
