@@ -6,21 +6,23 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
+import com.koolearn.ordercenter.model.MQMessage;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
+import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
+import com.koolearn.ordercenter.queue.Queue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.Charset;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.List;
  * @date 2018/6/29 9:31
  */
 @Slf4j
-public class OrderPaySuccessReceiver implements MessageListener {
+public class OrderPaySuccessReceiver {
 
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
@@ -45,13 +47,14 @@ public class OrderPaySuccessReceiver implements MessageListener {
     @Autowired
     private IOrderProductService iOrderProductService;
 
-    @Override
-    public void onMessage(final Message msg) {
-
+    public void executor(final OrderPaySuccessQueue queue) {
         taskExecutor.execute(new Runnable() {
+
             @Override
             public void run() {
-                String json = new String(msg.getBody(), Charset.defaultCharset());
+                MQMessage message = buildMQMessage(queue);
+                System.out.println("queue = " + queue.toString());
+                String json = JSON.toJSONString(queue);
                 log.info("收到消息：==>{}" + json);
 //                转换
                 MqOrderInfo orderInfo = parse(json);
@@ -74,8 +77,8 @@ public class OrderPaySuccessReceiver implements MessageListener {
                         }
                     }
                 }
-                // TODO: 2018/6/29 做出分发
-                // TODO: 2018/6/29 分发记录
+//         TODO: 2018/6/29 做出分发
+//         TODO: 2018/6/29 分发记录
             }
         });
 
@@ -93,7 +96,7 @@ public class OrderPaySuccessReceiver implements MessageListener {
         record.setJsonContent(json);
         record.setCreateTime(new Date());
         record.setPersist((byte) 0);
-        record.setRoutingKey("order.create");
+        record.setRoutingKey("order.pay.success");
         return mqRecordService.insert(record);
     }
 
@@ -124,8 +127,8 @@ public class OrderPaySuccessReceiver implements MessageListener {
      * @param orderInfo
      * @return MqOrderInfo
      */
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
-    public MqOrderInfo updateData(MqOrderInfo orderInfo){
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    public MqOrderInfo updateData(MqOrderInfo orderInfo) {
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
         BeanUtils.copyProperties(orderInfo, info);
         MqOrderInfo order = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
@@ -135,11 +138,11 @@ public class OrderPaySuccessReceiver implements MessageListener {
             result = iOrderService.editOrder(orderInfo);
             try {
                 List<MqOrderProduct> products = updateProducts(info);
-                if(products!=null&&products.size()>0){
+                if (products != null && products.size() > 0) {
                     result.setMqOrderProducts(products);
                 }
             } catch (Exception e) {
-                log.error("修改产品状态失败！",e);
+                log.error("修改产品状态失败！", e);
                 return null;
             }
         } else {
@@ -147,25 +150,26 @@ public class OrderPaySuccessReceiver implements MessageListener {
             result = iOrderService.insertOrder(orderInfo);
             try {
                 List<MqOrderProduct> products = saveProducts(info);
-                if(products!=null&&products.size()>0){
+                if (products != null && products.size() > 0) {
                     result.setMqOrderProducts(products);
                 }
             } catch (Exception e) {
-               log.error("插入产品信息失败！",e);
-               return null;
+                log.error("插入产品信息失败！", e);
+                return null;
             }
         }
-        return  result;
+        return result;
     }
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
-        if(orderBasicInfo.getOrderProductBasicInfos()!=null&&orderBasicInfo.getOrderProductBasicInfos().size()>0) {
+        if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
             List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
             for (OrderProductBasicInfo i : basicInfos) {
                 MqOrderProduct product = new MqOrderProduct();
                 product.setProductstatus(i.getProductStatus());
                 Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);
-                if(!flag){
+                if (!flag) {
                     throw new Exception("修改产品状态失败！");
                 }
             }
@@ -174,9 +178,9 @@ public class OrderPaySuccessReceiver implements MessageListener {
         return null;
     }
 
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public List<MqOrderProduct> saveProducts(OrderBasicInfo info) throws Exception {
-        if(info.getOrderProductBasicInfos()!=null&&info.getOrderProductBasicInfos().size()>0) {
+        if (info.getOrderProductBasicInfos() != null && info.getOrderProductBasicInfos().size() > 0) {
             List<MqOrderProduct> list = new ArrayList<MqOrderProduct>();
             for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
                 MqOrderProduct product = new MqOrderProduct();
@@ -192,4 +196,26 @@ public class OrderPaySuccessReceiver implements MessageListener {
         }
         return null;
     }
+
+    public static String ip() {
+        String ip = "";
+        try {
+            //获得本机IP　　
+            ip = InetAddress.getLocalHost().getHostAddress().toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ip;
+    }
+
+
+    private MQMessage buildMQMessage(Queue queue) {
+        return new MQMessage()
+                .setExchange(queue.exchange())
+                .setRoutingKey(queue.routingKey())
+                .setQueueName("donut.order.pay.success")
+                .setMessageBody(JSONObject.toJSONString(queue))
+                .setConsumerIp(ip());
+    }
+
 }

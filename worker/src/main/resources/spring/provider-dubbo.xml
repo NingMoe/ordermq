@@ -35,11 +35,12 @@
 
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
     <rabbit:listener-container connection-factory="connectionFactory">
+        <rabbit:listener ref="orderPaySuccessReceiver" method="executor" queue-names="donut.order.pay.success" />
         <rabbit:listener queue-names="sharks.data.change-donut" ref="consumer"/>
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
         <rabbit:listener queue-names="donut.order.create" ref="orderCreateReceiver" />
         <rabbit:listener queue-names="donut.order.cancel" ref="orderCancelReceiver" />
-        <rabbit:listener queue-names="donut.order.pay.success" ref="orderPaySuccessReceiver" />
+        <!--<rabbit:listener queue-names="donut.order.pay.success" ref="orderPaySuccessReceiver" />-->
         <rabbit:listener queue-names="donut.order.refund" ref="orderRefundReceiver" />
     </rabbit:listener-container>
 
