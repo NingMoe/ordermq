@@ -28,8 +28,8 @@ import java.util.Date;
  * 创建订单监听
  *
  * @author wangjiahao
- * 〈一句话功能简述〉<br>
- * 〈订单创建-MQ消息接受处理〉
+ *         〈一句话功能简述〉<br>
+ *         〈订单创建-MQ消息接受处理〉
  * @author LiYuAn
  * @create 2018/6/28
  * @sice 1.0.0
@@ -148,8 +148,8 @@ public class OrderCreateReceiver implements MessageListener {
             MqOrderInfo order = iOrderService.insertOrder(orderInfo);
             for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
                 MqOrderProduct product = new MqOrderProduct();
-                BeanUtils.copyProperties(product, productBasicInfo);
-                product.setId(null);
+
+                product = copyProperties(product, productBasicInfo);
                 MqOrderProduct orderProduct = iOrderProductService.insertOrderProduct(product);
                 if (orderProduct == null) {
                     throw new Exception("插入产品失败！");
@@ -159,6 +159,22 @@ public class OrderCreateReceiver implements MessageListener {
             return order;
         }
         return null;
+    }
+
+    private MqOrderProduct copyProperties(MqOrderProduct product, OrderProductBasicInfo productBasicInfo) {
+
+        product.setProductstatus(productBasicInfo.getProductStatus());
+        product.setExamseasonid(productBasicInfo.getExamSeasonId());
+        product.setIsgiveproduct(productBasicInfo.getIsGiveProduct());
+        product.setOrderno(productBasicInfo.getOrderNo());
+        product.setOriginalprice(productBasicInfo.getOriginalPrice());
+        product.setOriginalpricenetvalue(productBasicInfo.getOriginalPriceNetValue());
+        product.setProductid(productBasicInfo.getProductId());
+        product.setProductline(productBasicInfo.getProductLine());
+        product.setProductname(productBasicInfo.getProductName());
+        product.setProducttype(productBasicInfo.getProductType());
+        product.setStrikeprice(productBasicInfo.getStrikePrice());
+        return product;
     }
 
 }

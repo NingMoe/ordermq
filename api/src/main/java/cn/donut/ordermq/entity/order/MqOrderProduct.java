@@ -3,25 +3,23 @@ package cn.donut.ordermq.entity.order;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class MqOrderProduct implements Serializable {
+public class MqOrderProduct  implements Serializable {
     private Integer id;
 
     private String orderno;
 
-    //产品ID
     private Integer productid;
 
     private String productname;
 
     private Integer productline;
 
-    //产品类型
     private Integer producttype;
-    //产品考季id
+
     private Integer examseasonid;
-    //产品状态：0：未支付,1：已支付,2:取消;3:冻结;4:退课中;5:已退课;6:过期;7:休学中;8:换课中;9:已换课
+
     private Integer productstatus;
-    //是否是赠送产品：是否是赠送产品，0：否，1：是
+
     private Integer isgiveproduct;
 
     private BigDecimal originalprice;
