@@ -47,4 +47,12 @@ public interface IOrderService {
      * @return
      */
     MqOrderInfo saveOrder(MqOrderInfo orderInfo) throws Exception;
+
+    /**
+     * 修改订单和产品
+     * @param orderInfo
+     * @return
+     * @throws Exception
+     */
+    MqOrderInfo editOrderAndProduct(MqOrderInfo orderInfo) throws Exception;
 }

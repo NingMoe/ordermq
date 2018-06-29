@@ -10,6 +10,8 @@ import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,6 +27,8 @@ import java.util.List;
 @Service
 public class IOrderServiceImpl implements IOrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(IOrderServiceImpl.class);
+
     @Autowired
     private MqOrderInfoMapper orderInfoMapper;
 
@@ -33,6 +37,46 @@ public class IOrderServiceImpl implements IOrderService {
 
     @Autowired
     private IOrderProductService iOrderProductService;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    public MqOrderInfo editOrderAndProduct(MqOrderInfo orderInfo) throws Exception {
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+
+        MqOrderInfo one = findOneByOrderNo(info.getOrderNo());
+
+        BeanUtils.copyProperties(info, orderInfo);
+        info.setId(one.getId());
+
+        MqOrderInfo order = editOrder(orderInfo);
+        try {
+            List<MqOrderProduct> products = updateProducts(info);
+            if (products != null && products.size() > 0) {
+                order.setMqOrderProducts(products);
+            }
+            return order;
+        } catch (Exception e) {
+            log.error("修改产品信息失败！", e);
+            return null;
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
+        if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
+            List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
+            for (OrderProductBasicInfo i : basicInfos) {
+                MqOrderProduct product = new MqOrderProduct();
+                product.setProductstatus(i.getProductStatus());
+                Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);
+                if (!flag) {
+                    throw new Exception("修改产品状态失败！");
+                }
+            }
+            return iOrderProductService.findProductsByOrderNo(orderBasicInfo.getOrderNo());
+        }
+        return null;
+    }
 
     @Override
     public MqOrderInfo findOneByOrderNo(String orderNo) {
