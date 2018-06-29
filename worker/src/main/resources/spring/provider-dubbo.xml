@@ -28,7 +28,10 @@
     <rabbit:listener-container connection-factory="connectionFactory">
         <rabbit:listener queue-names="sharks.data.change-donut" ref="consumer"/>
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
-        <rabbit:listener queue-names="order.create" ref="orderConsumer" />
+        <rabbit:listener queue-names="order.create" ref="orderCreateReceiver" />
+        <rabbit:listener queue-names="order.cancel" ref="orderCancelReceiver" />
+        <rabbit:listener queue-names="order.pay.success" ref="orderPaySuccessReceiver" />
+        <rabbit:listener queue-names="order.refund" ref="orderRefundReceiver" />
     </rabbit:listener-container>
 
     <!-- 消息接收者 -->
@@ -39,7 +42,10 @@
     </bean>
 
     <!-- 消息接收者 -->
-    <bean id="orderConsumer" class="cn.donut.ordermq.worker.order.OrderCreateReceiver"/>
+    <bean id="orderCreateReceiver" class="cn.donut.ordermq.worker.order.OrderCreateReceiver"/>
+    <bean id="orderCancelReceiver" class="cn.donut.ordermq.worker.order.OrderCancelReceiver"/>
+    <bean id="orderPaySuccessReceiver" class="cn.donut.ordermq.worker.order.OrderPaySuccessReceiver"/>
+    <bean id="orderRefundReceiver" class="cn.donut.ordermq.worker.order.OrderRefundReceiver"/>
 
     <dubbo:reference id="mqAttachmentsServiceProvider"
                      interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>

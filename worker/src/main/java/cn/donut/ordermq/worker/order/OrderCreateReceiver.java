@@ -4,6 +4,7 @@ package cn.donut.ordermq.worker.order;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -13,13 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.nio.charset.Charset;
 
 /**
- * 订单消息接收
- *
+ * 创建订单监听
  * @author wangjiahao
  */
+@Slf4j
 public class OrderCreateReceiver implements MessageListener {
-
-    private static final Logger log = LoggerFactory.getLogger(OrderCreateReceiver.class);
 
     @Autowired
     private IOrderService iOrderService;
@@ -34,6 +33,12 @@ public class OrderCreateReceiver implements MessageListener {
         System.out.println("json = " + json);
         MqOrderInfo one = iOrderService.findOneByOrderId(1);
 //        MqRecord record = mqRecordService.findOneByid(1);
+
+//        1.接收消息-->包括解析，存入消息数据库
+
+//        2.拿到解析后的数据，处理
+//        3.分发
+//        4.做出记录
 
     }
 }
