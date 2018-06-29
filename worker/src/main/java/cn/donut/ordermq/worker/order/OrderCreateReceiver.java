@@ -22,7 +22,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 创建订单监听
@@ -146,6 +148,7 @@ public class OrderCreateReceiver implements MessageListener {
         MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
         if (mqOrderInfo == null) {
             MqOrderInfo order = iOrderService.insertOrder(orderInfo);
+            List<MqOrderProduct> list = new ArrayList<MqOrderProduct>();
             for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
                 MqOrderProduct product = new MqOrderProduct();
 
@@ -154,8 +157,10 @@ public class OrderCreateReceiver implements MessageListener {
                 if (orderProduct == null) {
                     throw new Exception("插入产品失败！");
                 }
-                order.getMqOrderProducts().add(orderProduct);
+                list.add(orderProduct);
+
             }
+            order.setMqOrderProducts(list);
             return order;
         }
         return null;
