@@ -87,9 +87,11 @@ public class OrderCancelReceiver implements MessageListener {
             JSONObject jsonObject = JSONObject.parseObject(json);
             String orderNo = jsonObject.get("orderNo").toString();
             Integer userId = (Integer) jsonObject.get("userId");
+
             MqOrderInfo orderInfo = new MqOrderInfo();
             orderInfo.setOrderNo(orderNo);
             orderInfo.setUserId(userId);
+
             return orderInfo;
         } catch (JsonParseException e) {
             log.error("JSON格式有误！", e);
@@ -107,7 +109,11 @@ public class OrderCancelReceiver implements MessageListener {
      */
     private MqOrderInfo updateData(MqOrderInfo orderInfo) {
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), false);
+
+        MqOrderInfo one = iOrderService.findOneByOrderNo(info.getOrderNo());
+
         BeanUtils.copyProperties(info, orderInfo);
+        info.setId(one.getId());
         return iOrderService.editOrder(orderInfo);
     }
 }

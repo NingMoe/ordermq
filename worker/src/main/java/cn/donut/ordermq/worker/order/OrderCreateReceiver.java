@@ -7,7 +7,6 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
@@ -15,8 +14,6 @@ import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 创建订单监听
