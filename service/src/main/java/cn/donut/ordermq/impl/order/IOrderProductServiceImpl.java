@@ -6,6 +6,8 @@ import cn.donut.ordermq.mapper.order.MqOrderProductMapper;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,15 +34,26 @@ public class IOrderProductServiceImpl implements IOrderProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
     public MqOrderProduct insertOrderProduct(MqOrderProduct product) {
         int i = productMapper.insertSelective(product);
         return i>0?product:null;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
     public MqOrderProduct editOrderProduct(MqOrderProduct product) {
         int i = productMapper.updateByPrimaryKeySelective(product);
         MqOrderProduct orderProduct = productMapper.selectByPrimaryKey(product.getId());
         return i>0?orderProduct:null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    public Boolean editProductsByOrderNo(String orderNo, MqOrderProduct product) {
+        MqOrderProductExample example = new MqOrderProductExample();
+        example.createCriteria().andOrdernoEqualTo(orderNo);
+        int i = productMapper.updateByExampleSelective(product, example);
+        return i>0;
     }
 }

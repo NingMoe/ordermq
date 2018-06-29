@@ -11,6 +11,11 @@ import java.util.List;
 public interface IOrderProductService {
 
     /**
+     * 按订单号批量修改产品状态
+     */
+   Boolean editProductsByOrderNo(String orderNo, MqOrderProduct product);
+
+    /**
      * 按产品ID查询产品
      * @param id
      * @return
