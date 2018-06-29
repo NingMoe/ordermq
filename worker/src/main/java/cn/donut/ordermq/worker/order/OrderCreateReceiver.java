@@ -67,7 +67,7 @@ public class OrderCreateReceiver implements MessageListener {
             public void run() {
                 String json = new String(msg.getBody(), Charset.defaultCharset());
                 log.info("收到消息：==>{}" + json);
-//                转换
+                //转换
                 MqOrderInfo orderInfo = parse(json);
                 if (orderInfo != null) {
                     //保存
