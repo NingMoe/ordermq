@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,14 +28,17 @@ import java.util.Date;
  * 创建订单监听
  *
  * @author wangjiahao
- * 〈一句话功能简述〉<br>
- * 〈订单创建-MQ消息接受处理〉
+ *         〈一句话功能简述〉<br>
+ *         〈订单创建-MQ消息接受处理〉
  * @author LiYuAn
  * @create 2018/6/28
  * @sice 1.0.0
  */
 @Slf4j
 public class OrderCreateReceiver implements MessageListener {
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
     private IOrderService iOrderService;
@@ -56,27 +60,38 @@ public class OrderCreateReceiver implements MessageListener {
      * @param msg
      */
     @Override
-    public void onMessage(Message msg) {
-        log.info("收到消息：==>{}" + msg.toString());
-        MqRecord mqRecord = saveMsg(msg);
-        if (mqRecord != null) {
-            MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
-            if (orderInfo != null) {
-                try {
-                    MqOrderInfo order = saveData(orderInfo);
-                    if (order != null) {
-                        //回写消息状态
-                        mqRecord.setPersist((byte) 1);
-                        mqRecordService.edit(mqRecord);
-                        log.info("订单创建已完成！订单号：{}", order.getOrderNo());
-                    }else {
-                        log.info("订单已存在！");
+    public void onMessage(final Message msg) {
+
+        taskExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                log.info("收到消息：==>{}" + msg.toString());
+                //保存
+                MqRecord mqRecord = saveMsg(msg);
+                if (mqRecord != null) {
+                    MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
+                    if (orderInfo != null) {
+                        try {
+                            MqOrderInfo order = saveData(orderInfo);
+                            if (order != null) {
+                                //回写消息状态
+                                mqRecord.setPersist((byte) 1);
+                                mqRecordService.edit(mqRecord);
+                                log.info("订单创建已完成！订单号：{}", order.getOrderNo());
+                            } else {
+                                log.info("订单已存在！");
+                            }
+                        } catch (Exception e) {
+                            log.error("插入订单和产品失败！", e);
+                        }
                     }
-                } catch (Exception e) {
-                    log.error("插入订单和产品失败！",e);
                 }
+                // TODO: 2018/6/29 做出分发
+                // TODO: 2018/6/29 分发记录
             }
-        }
+        });
+
+
     }
 
     /**
@@ -125,7 +140,7 @@ public class OrderCreateReceiver implements MessageListener {
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public MqOrderInfo saveData(MqOrderInfo orderInfo) throws Exception {
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
-        BeanUtils.copyProperties(orderInfo,info);
+        BeanUtils.copyProperties(orderInfo, info);
         orderInfo.setId(null);
         MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
         if (mqOrderInfo == null) {
