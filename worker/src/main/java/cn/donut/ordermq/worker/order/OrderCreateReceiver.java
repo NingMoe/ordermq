@@ -9,6 +9,7 @@ import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
@@ -19,16 +20,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.List;
 
 /**
  * 创建订单监听
+ *
  * @author wangjiahao
  * 〈一句话功能简述〉<br>
  * 〈订单创建-MQ消息接受处理〉
- *
  * @author LiYuAn
  * @create 2018/6/28
  * @sice 1.0.0
@@ -57,60 +61,92 @@ public class OrderCreateReceiver implements MessageListener {
      */
     @Override
     public void onMessage(Message msg) {
-        //
         log.info("收到消息：==>{}" + msg.toString());
-        String json = "";
-        JSONObject jsStr;
-        //TODO:具体处理
+        MqRecord mqRecord = saveMsg(msg);
+        if (mqRecord != null) {
+            MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
+            if (orderInfo != null) {
+                try {
+                    MqOrderInfo order = saveData(orderInfo);
+                    if (order != null) {
+                        //回写消息状态
+                        mqRecord.setPersist((byte) 1);
+                        mqRecordService.edit(mqRecord);
+                        log.info("订单创建已完成！订单号：{}", order.getOrderNo());
+                    }else {
+                        log.info("订单已存在！");
+                    }
+                } catch (Exception e) {
+                    log.error("插入订单和产品失败！",e);
+                }
+            }
+        }
+    }
+
+    /**
+     * 接收消息，将消息存入数据库，转换成订单对象并返回
+     *
+     * @param message
+     * @return MqOrderInfo
+     */
+    private MqRecord saveMsg(Message message) {
+
+        String json = new String(message.getBody(), Charset.defaultCharset());
+
+        MqRecord record = new MqRecord();
+        record.setJsonContent(json);
+        record.setCreateTime(new Date());
+        record.setPersist((byte) 0);
+        record.setRoutingKey("order.create");
+        return mqRecordService.insert(record);
+    }
+
+    private MqOrderInfo parse(String json) {
         try {
-            json = new String(msg.getBody(), Charset.defaultCharset());
-            jsStr = JSONObject.parseObject(json);
-            log.warn("mqInformation saved!");
-        } catch (JSONException e) {
-            log.warn("消息格式不是JSON!", e);
-            return;
+            JSONObject jsonObject = JSONObject.parseObject(json);
+            String orderNo = jsonObject.get("orderNo").toString();
+            Integer userId = (Integer) jsonObject.get("userId");
+
+            MqOrderInfo orderInfo = new MqOrderInfo();
+            orderInfo.setOrderNo(orderNo);
+            orderInfo.setUserId(userId);
+
+            return orderInfo;
+        } catch (JsonParseException e) {
+            log.error("JSON格式有误！", e);
         } catch (NullPointerException e) {
-            log.warn("消息中不包含关键字段！或查询不到该信息！", e);
-            return;
+            log.error("JSON缺少关键字！", e);
         }
-        //入库解析后的json
-        MqRecord mqRecord = new MqRecord();
-        mqRecord.setJsonContent(json);
-        //未持久化
-        mqRecord.setPersist((byte) 0);
-        mqRecord.setRoutingKey("order.create");
-        mqRecord = mqRecordService.insert(mqRecord);
-        if (null != mqRecord && jsStr != null) {
-            if (jsStr.containsKey("orderNo")) {
-                boolean flag = saveMqOrder(jsStr.get("orderNo").toString());
-                if (flag) {
-                    mqRecord.setPersist((byte) 1);
-                    mqRecordService.edit(mqRecord);
-                }
-            }
-
-        }
+        return null;
     }
 
-    //查出订单和产品详情，并入库
-    private boolean saveMqOrder(String orderNo) {
-        OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderNo, true);
-        if (null != orderBasicInfo) {
-            MqOrderInfo mqOrderInfo = new MqOrderInfo();
-            BeanUtils.copyProperties(mqOrderInfo, orderBasicInfo);
-            mqOrderInfo = iOrderService.insertOrder(mqOrderInfo);
-            if (null != mqOrderInfo) {
-                List<OrderProductBasicInfo> infos = orderBasicInfo.getOrderProductBasicInfos();
-                for (OrderProductBasicInfo temp : infos) {
-                    MqOrderProduct mqOrderProduct = new MqOrderProduct();
-                    BeanUtils.copyProperties(mqOrderProduct, temp);
-                    iOrderProductService.insertOrderProduct(mqOrderProduct);
+    /**
+     * 从订单中心拿到订单具体信息，插入我方数据库数据
+     *
+     * @param orderInfo
+     * @return MqOrderInfo
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    public MqOrderInfo saveData(MqOrderInfo orderInfo) throws Exception {
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+        BeanUtils.copyProperties(orderInfo,info);
+        orderInfo.setId(null);
+        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
+        if (mqOrderInfo == null) {
+            MqOrderInfo order = iOrderService.insertOrder(orderInfo);
+            for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
+                MqOrderProduct product = new MqOrderProduct();
+                BeanUtils.copyProperties(product, productBasicInfo);
+                product.setId(null);
+                MqOrderProduct orderProduct = iOrderProductService.insertOrderProduct(product);
+                if (orderProduct == null) {
+                    throw new Exception("插入产品失败！");
                 }
-                return true;
-            } else {
-                return false;
+                order.getMqOrderProducts().add(orderProduct);
             }
+            return order;
         }
-        return false;
+        return null;
     }
+
 }
