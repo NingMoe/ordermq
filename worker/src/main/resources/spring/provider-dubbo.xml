@@ -28,7 +28,7 @@
     <rabbit:listener-container connection-factory="connectionFactory">
         <rabbit:listener queue-names="sharks.data.change-donut" ref="consumer"/>
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
-        <rabbit:listener queue-names="order.create" ref="orderConsumer" />
+        <rabbit:listener queue-names="order.create" ref="orderConsumer"/>
     </rabbit:listener-container>
 
     <!-- 消息接收者 -->
@@ -43,13 +43,20 @@
 
     <dubbo:reference id="mqAttachmentsServiceProvider"
                      interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
+
     <dubbo:reference id="mqInformationServiceProvider"
                      interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
+
+    <!--产品变更mq-->
     <dubbo:reference id="iUserProductService" interface="com.koolearn.clazz.service.IUserProductService"/>
+
     <dubbo:reference id="mqRecordService"
                      interface="cn.donut.ordermq.service.MqRecordService"/>
+
     <dubbo:reference id="iOrderService" interface="cn.donut.ordermq.service.order.IOrderService"/>
+
     <dubbo:reference id="iOrderProductService" interface="cn.donut.ordermq.service.order.IOrderProductService"/>
 
-
+    <!--订单状态消息变更MQ消息-->
+    <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
 </beans>
