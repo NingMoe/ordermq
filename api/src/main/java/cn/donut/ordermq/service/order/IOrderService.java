@@ -10,6 +10,7 @@ public interface IOrderService {
 
     /**
      * 按订单号查询订单
+     *
      * @param orderNo
      * @return
      */
@@ -17,6 +18,7 @@ public interface IOrderService {
 
     /**
      * 按订单ID查询订单
+     *
      * @param orderId
      * @return
      */
@@ -24,6 +26,7 @@ public interface IOrderService {
 
     /**
      * 插入订单
+     *
      * @param orderInfo
      * @return
      */
@@ -31,9 +34,17 @@ public interface IOrderService {
 
     /**
      * 修改订单
+     *
      * @param orderInfo
      * @return
      */
     MqOrderInfo editOrder(MqOrderInfo orderInfo);
 
+
+    /**
+     * 插入订单和产品
+     * @param orderInfo
+     * @return
+     */
+    MqOrderInfo saveOrder(MqOrderInfo orderInfo) throws Exception;
 }

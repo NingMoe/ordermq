@@ -37,6 +37,16 @@
     <dependency> 
       <groupId>com.alibaba</groupId>  
       <artifactId>fastjson</artifactId> 
-    </dependency> 
+    </dependency>
+
+    <dependency>
+      <groupId>com.koolearn</groupId>
+      <artifactId>koo-ordercenter-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.koolearn</groupId>
+      <artifactId>koo-ordercenter-queue</artifactId>
+    </dependency>
+
   </dependencies> 
 </project>

@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
+import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,9 @@ public class OrderCreateReceiver implements MessageListener {
     @Override
     public void onMessage(final Message msg) {
 
+        OrderPaySuccessQueue temp = new OrderPaySuccessQueue();
+        temp.isCanConsumer("donut.order.pay.success");
+
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -76,7 +80,8 @@ public class OrderCreateReceiver implements MessageListener {
                     MqRecord mqRecord = saveMsg(json);
                     if (mqRecord != null) {
                         try {
-                            MqOrderInfo order = saveData(orderInfo);
+                            MqOrderInfo order = iOrderService.saveOrder(orderInfo);
+//                            MqOrderInfo order = saveData(orderInfo);
                             if (order != null) {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
