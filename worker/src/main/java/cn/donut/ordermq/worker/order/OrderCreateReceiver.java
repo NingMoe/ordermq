@@ -28,8 +28,8 @@ import java.util.Date;
  * 创建订单监听
  *
  * @author wangjiahao
- *         〈一句话功能简述〉<br>
- *         〈订单创建-MQ消息接受处理〉
+ * 〈一句话功能简述〉<br>
+ * 〈订单创建-MQ消息接受处理〉
  * @author LiYuAn
  * @create 2018/6/28
  * @sice 1.0.0
@@ -65,12 +65,14 @@ public class OrderCreateReceiver implements MessageListener {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                log.info("收到消息：==>{}" + msg.toString());
-                //保存
-                MqRecord mqRecord = saveMsg(msg);
-                if (mqRecord != null) {
-                    MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
-                    if (orderInfo != null) {
+                String json = new String(msg.getBody(), Charset.defaultCharset());
+                log.info("收到消息：==>{}" + json);
+//                转换
+                MqOrderInfo orderInfo = parse(json);
+                if (orderInfo != null) {
+                    //保存
+                    MqRecord mqRecord = saveMsg(json);
+                    if (mqRecord != null) {
                         try {
                             MqOrderInfo order = saveData(orderInfo);
                             if (order != null) {
@@ -97,13 +99,10 @@ public class OrderCreateReceiver implements MessageListener {
     /**
      * 接收消息，将消息存入数据库，转换成订单对象并返回
      *
-     * @param message
+     * @param json
      * @return MqOrderInfo
      */
-    private MqRecord saveMsg(Message message) {
-
-        String json = new String(message.getBody(), Charset.defaultCharset());
-        System.out.println("json = " + json);
+    private MqRecord saveMsg(String json) {
         MqRecord record = new MqRecord();
         record.setJsonContent(json);
         record.setCreateTime(new Date());
@@ -127,8 +126,8 @@ public class OrderCreateReceiver implements MessageListener {
             log.error("JSON格式有误！", e);
         } catch (NullPointerException e) {
             log.error("JSON缺少关键字！", e);
-        } catch (Exception e){
-            log.error("其他异常！",e);
+        } catch (Exception e) {
+            log.error("其他异常！", e);
         }
         return null;
     }

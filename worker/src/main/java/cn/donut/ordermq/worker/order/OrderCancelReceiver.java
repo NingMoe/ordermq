@@ -52,12 +52,13 @@ public class OrderCancelReceiver implements MessageListener {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                log.info("收到消息：==>{}" + message.toString());
-                //保存
-                MqRecord mqRecord = saveMsg(message);
-                if (mqRecord != null) {
-                    //转化
-                    MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
+                String json = new String(message.getBody(), Charset.defaultCharset());
+                log.info("收到消息：==>{}" + json);
+                //转化
+                MqOrderInfo orderInfo = parse(json);
+                if (orderInfo != null) {
+                    //保存
+                    MqRecord mqRecord = saveMsg(json);
                     if (orderInfo != null) {
                         //更新订单数据库
                         MqOrderInfo order = updateData(orderInfo);
@@ -69,22 +70,19 @@ public class OrderCancelReceiver implements MessageListener {
                         }
                     }
                 }
-                // TODO: 2018/6/29 做出分发
-                // TODO: 2018/6/29 分发记录
             }
+            // TODO: 2018/6/29 做出分发
+            // TODO: 2018/6/29 分发记录
         });
     }
 
     /**
      * 接收消息，将消息存入数据库，转换成订单对象并返回
      *
-     * @param message
+     * @param json
      * @return MqOrderInfo
      */
-    private MqRecord saveMsg(Message message) {
-
-        String json = new String(message.getBody(), Charset.defaultCharset());
-
+    private MqRecord saveMsg(String json) {
         MqRecord record = new MqRecord();
         record.setJsonContent(json);
         record.setCreateTime(new Date());
@@ -108,8 +106,8 @@ public class OrderCancelReceiver implements MessageListener {
             log.error("JSON格式有误！", e);
         } catch (NullPointerException e) {
             log.error("JSON缺少关键字！", e);
-        }catch (Exception e){
-            log.error("其他异常！",e);
+        } catch (Exception e) {
+            log.error("其他异常！", e);
         }
         return null;
     }
