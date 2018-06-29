@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -25,6 +26,10 @@ import java.util.Date;
  */
 @Slf4j
 public class OrderCancelReceiver implements MessageListener {
+
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
     private MqRecordService mqRecordService;
@@ -42,26 +47,32 @@ public class OrderCancelReceiver implements MessageListener {
 
 
     @Override
-    public void onMessage(Message message) {
-        log.info("收到消息：==>{}" + message.toString());
-        //保存
-        MqRecord mqRecord = saveMsg(message);
-        if (mqRecord != null) {
-            //转化
-            MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
-            if (orderInfo != null) {
-                //更新订单数据库
-                MqOrderInfo order = updateData(orderInfo);
-                if (order != null) {
-                    //回写消息状态
-                    mqRecord.setPersist((byte) 1);
-                    mqRecordService.edit(mqRecord);
-                    log.info("订单取消已更新！订单号：{}", order.getOrderNo());
+    public void onMessage(final Message message) {
+
+        taskExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                log.info("收到消息：==>{}" + message.toString());
+                //保存
+                MqRecord mqRecord = saveMsg(message);
+                if (mqRecord != null) {
+                    //转化
+                    MqOrderInfo orderInfo = parse(mqRecord.getJsonContent());
+                    if (orderInfo != null) {
+                        //更新订单数据库
+                        MqOrderInfo order = updateData(orderInfo);
+                        if (order != null) {
+                            //回写消息状态
+                            mqRecord.setPersist((byte) 1);
+                            mqRecordService.edit(mqRecord);
+                            log.info("订单取消已更新！订单号：{}", order.getOrderNo());
+                        }
+                    }
                 }
+                // TODO: 2018/6/29 做出分发
+                // TODO: 2018/6/29 分发记录
             }
-        }
-        // TODO: 2018/6/29 做出分发
-        // TODO: 2018/6/29 分发记录
+        });
     }
 
     /**

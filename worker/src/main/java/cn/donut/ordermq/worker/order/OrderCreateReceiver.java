@@ -88,7 +88,7 @@ public class OrderCreateReceiver implements MessageListener {
     private MqRecord saveMsg(Message message) {
 
         String json = new String(message.getBody(), Charset.defaultCharset());
-
+        System.out.println("json = " + json);
         MqRecord record = new MqRecord();
         record.setJsonContent(json);
         record.setCreateTime(new Date());

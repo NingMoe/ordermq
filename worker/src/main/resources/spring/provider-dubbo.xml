@@ -20,6 +20,15 @@
         <property name="virtualHost" value="${rabbit.vhost}"/>
     </bean>
 
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="10"/>
+        <property name="maxPoolSize" value="10"/>
+        <property name="queueCapacity" value="10"/>
+        <property name="keepAliveSeconds" value ="300"/>
+        <property name="rejectedExecutionHandler">
+            <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy"/>
+        </property>
+    </bean>
 
     <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
     <rabbit:admin connection-factory="connectionFactory"/>
