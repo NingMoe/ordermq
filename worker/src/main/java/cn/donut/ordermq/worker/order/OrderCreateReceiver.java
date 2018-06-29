@@ -1,6 +1,6 @@
 package cn.donut.ordermq.worker.order;
 
-import cn.donut.ordermq.entity.MqRecord;
+
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
@@ -17,9 +17,9 @@ import java.nio.charset.Charset;
  *
  * @author wangjiahao
  */
-public class OrderMsgReceiver implements MessageListener {
+public class OrderCreateReceiver implements MessageListener {
 
-    private static final Logger log = LoggerFactory.getLogger(OrderMsgReceiver.class);
+    private static final Logger log = LoggerFactory.getLogger(OrderCreateReceiver.class);
 
     @Autowired
     private IOrderService iOrderService;

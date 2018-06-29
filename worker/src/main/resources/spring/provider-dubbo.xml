@@ -39,7 +39,7 @@
     </bean>
 
     <!-- 消息接收者 -->
-    <bean id="orderConsumer" class="cn.donut.ordermq.worker.order.OrderMsgReceiver"/>
+    <bean id="orderConsumer" class="cn.donut.ordermq.worker.order.OrderCreateReceiver"/>
 
     <dubbo:reference id="mqAttachmentsServiceProvider"
                      interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
@@ -50,5 +50,6 @@
                      interface="cn.donut.ordermq.service.MqRecordService"/>
     <dubbo:reference id="iOrderService" interface="cn.donut.ordermq.service.order.IOrderService"/>
     <dubbo:reference id="iOrderProductService" interface="cn.donut.ordermq.service.order.IOrderProductService"/>
+
 
 </beans>

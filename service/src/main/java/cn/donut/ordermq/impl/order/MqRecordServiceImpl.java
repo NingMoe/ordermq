@@ -39,8 +39,8 @@ public class MqRecordServiceImpl implements MqRecordService {
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public MqRecord insert(MqRecord mqRecord) {
         mqRecord.setCreateTime(new Date());
-        mqRecordMapper.insert(mqRecord);
-        return mqRecord;
+        int i = mqRecordMapper.insert(mqRecord);
+        return i > 0 ? mqRecord : null;
     }
 
     @Override
