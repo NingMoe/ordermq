@@ -4,13 +4,12 @@ package cn.donut.ordermq.worker.order;
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
-import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
-import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
-import com.koolearn.ordercenter.service.IOrderBasicInfoService;
+import com.koolearn.ordercenter.model.OrderDistributionInfo;
+import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
@@ -19,6 +18,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 创建订单监听
@@ -43,10 +43,10 @@ public class OrderCreateReceiver implements MessageListener {
     private MqRecordService mqRecordService;
 
     @Autowired
-    private IOrderBasicInfoService iOrderBasicInfoService;
+    private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
     @Autowired
-    private IOrderProductService iOrderProductService;
+    private IOrderDistributionInfoService iOrderDistributionInfoService;
 
     /**
      * 1.接受消息--->存库、实例化
@@ -58,8 +58,6 @@ public class OrderCreateReceiver implements MessageListener {
     @Override
     public void onMessage(final Message msg) {
 
-        OrderPaySuccessQueue temp = new OrderPaySuccessQueue();
-        temp.isCanConsumer("donut.order.pay.success");
 
         taskExecutor.execute(new Runnable() {
             @Override
@@ -136,4 +134,26 @@ public class OrderCreateReceiver implements MessageListener {
         return null;
     }
 
+
+    //回写状态
+    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+        DrOrderInfo drOrderInfo = new DrOrderInfo();
+        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        if (map.size() > 0 && map.containsKey("orderInfo")) {
+            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //待支付
+            drOrderInfo.setStatus((byte) 0);
+            drOrderInfo.setUpdateTime(new Date());
+            //通过订单号反查订单，关联分销员id
+            OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
+            if (null != orderDistributionInfo) {
+                drOrderInfo.setRetailMemberId(orderDistributionInfo.getId());
+            }
+            return iRetailmOrderService.editOrder(drOrderInfo);
+        } else {
+            return false;
+        }
+
+    }
 }

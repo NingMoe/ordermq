@@ -12,15 +12,18 @@
     <artifactId>donut-ordermq-worker</artifactId>
     <version>1.0.0-RELEASE</version>
     <dependencies>
+
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-ordercenter-api</artifactId>
             <version>1.0.0-dev-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-ordercenter-queue</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-sharks-api</artifactId>
@@ -133,16 +136,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <version>4.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.koolearn</groupId>
-            <artifactId>koo-ordercenter-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.koolearn</groupId>
-            <artifactId>koo-ordercenter-queue</artifactId>
         </dependency>
 
     </dependencies>
