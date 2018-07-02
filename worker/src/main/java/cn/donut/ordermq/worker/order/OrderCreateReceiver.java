@@ -3,29 +3,22 @@ package cn.donut.ordermq.worker.order;
 
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
-import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.retailm.entity.domain.DrOrderInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
-import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
-import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
-import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 创建订单监听
@@ -87,6 +80,8 @@ public class OrderCreateReceiver implements MessageListener {
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
+
+
                             } else {
                                 log.info("订单已存在！");
                             }
@@ -94,6 +89,8 @@ public class OrderCreateReceiver implements MessageListener {
                             log.error("插入订单和产品失败！", e);
                         }
                     }
+
+
                 }
                 // TODO: 2018/6/29 做出分发
                 // TODO: 2018/6/29 分发记录
@@ -137,54 +134,6 @@ public class OrderCreateReceiver implements MessageListener {
             log.error("其他异常！", e);
         }
         return null;
-    }
-
-    /**
-     * 从订单中心拿到订单具体信息，插入我方数据库数据
-     *
-     * @param orderInfo
-     * @return MqOrderInfo
-     */
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-    public MqOrderInfo saveData(MqOrderInfo orderInfo) throws Exception {
-        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
-        BeanUtils.copyProperties(orderInfo, info);
-        orderInfo.setId(null);
-        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
-        if (mqOrderInfo == null) {
-            MqOrderInfo order = iOrderService.insertOrder(orderInfo);
-            List<MqOrderProduct> list = new ArrayList<MqOrderProduct>();
-            for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
-                MqOrderProduct product = new MqOrderProduct();
-
-                product = copyProperties(product, productBasicInfo);
-                MqOrderProduct orderProduct = iOrderProductService.insertOrderProduct(product);
-                if (orderProduct == null) {
-                    throw new Exception("插入产品失败！");
-                }
-                list.add(orderProduct);
-
-            }
-            order.setMqOrderProducts(list);
-            return order;
-        }
-        return null;
-    }
-
-    private MqOrderProduct copyProperties(MqOrderProduct product, OrderProductBasicInfo productBasicInfo) {
-
-        product.setProductstatus(productBasicInfo.getProductStatus());
-        product.setExamseasonid(productBasicInfo.getExamSeasonId());
-        product.setIsgiveproduct(productBasicInfo.getIsGiveProduct());
-        product.setOrderno(productBasicInfo.getOrderNo());
-        product.setOriginalprice(productBasicInfo.getOriginalPrice());
-        product.setOriginalpricenetvalue(productBasicInfo.getOriginalPriceNetValue());
-        product.setProductid(productBasicInfo.getProductId());
-        product.setProductline(productBasicInfo.getProductLine());
-        product.setProductname(productBasicInfo.getProductName());
-        product.setProducttype(productBasicInfo.getProductType());
-        product.setStrikeprice(productBasicInfo.getStrikePrice());
-        return product;
     }
 
 }

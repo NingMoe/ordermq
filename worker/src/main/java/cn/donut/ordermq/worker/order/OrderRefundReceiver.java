@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.retailm.entity.domain.DrOrderInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
@@ -21,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单退课监听
@@ -47,6 +50,9 @@ public class OrderRefundReceiver implements MessageListener {
     @Autowired
     private IOrderProductService iOrderProductService;
 
+    @Autowired
+    private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
+
     @Override
     public void onMessage(final Message msg) {
         taskExecutor.execute(new Runnable() {
@@ -69,6 +75,11 @@ public class OrderRefundReceiver implements MessageListener {
                                         //回写消息状态
                                         mqRecord.setPersist((byte) 1);
                                         mqRecordService.edit(mqRecord);
+                                        if (editRetailm(order)) {
+                                            log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
+                                        } else {
+                                            log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
+                                        }
                                         log.info("订单更新已完成！订单号：{}", order.getOrderNo());
                                     } else {
                                         log.info("订单更新失败！");
@@ -154,6 +165,23 @@ public class OrderRefundReceiver implements MessageListener {
         }
 
         return order;
+
+    }
+
+    //回写状态
+    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+        DrOrderInfo drOrderInfo = new DrOrderInfo();
+        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        if (map.size() > 0 && map.containsKey("orderInfo")) {
+            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //已退款
+            drOrderInfo.setStatus((byte) 2);
+            drOrderInfo.setUpdateTime(new Date());
+            return iRetailmOrderService.editOrder(drOrderInfo);
+        } else {
+            return false;
+        }
 
     }
 }

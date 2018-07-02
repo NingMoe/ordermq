@@ -69,10 +69,11 @@
     <dubbo:reference id="mqRecordService"
                      interface="cn.donut.ordermq.service.MqRecordService"/>
 
-    <dubbo:reference id="iOrderService" interface="cn.donut.ordermq.service.order.IOrderService"/>
+    <dubbo:reference id="iRetailmOrderService" interface="cn.donut.ordermq.service.order.IOrderService"/>
 
     <dubbo:reference id="iOrderProductService" interface="cn.donut.ordermq.service.order.IOrderProductService"/>
 
     <!--订单状态消息变更MQ消息-->
     <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
+
 </beans>

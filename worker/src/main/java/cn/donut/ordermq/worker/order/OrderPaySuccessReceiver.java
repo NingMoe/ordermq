@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.retailm.entity.domain.DrOrderInfo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
@@ -26,6 +27,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 支付成功监听
@@ -46,6 +48,9 @@ public class OrderPaySuccessReceiver {
     private IOrderBasicInfoService iOrderBasicInfoService;
     @Autowired
     private IOrderProductService iOrderProductService;
+
+    @Autowired
+    private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
     public void executor(final OrderPaySuccessQueue queue) {
         taskExecutor.execute(new Runnable() {
@@ -68,6 +73,11 @@ public class OrderPaySuccessReceiver {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
+                                if (editRetailm(order)) {
+                                    log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
+                                } else {
+                                    log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
+                                }
                                 log.info("订单支付已完成！订单号：{}", order.getOrderNo());
                             } else {
                                 log.info("订单支付记录插入或修改失败！");
@@ -216,6 +226,24 @@ public class OrderPaySuccessReceiver {
                 .setQueueName("donut.order.pay.success")
                 .setMessageBody(JSONObject.toJSONString(queue))
                 .setConsumerIp(ip());
+    }
+
+
+    //回写状态
+    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+        DrOrderInfo drOrderInfo = new DrOrderInfo();
+        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        if (map.size() > 0 && map.containsKey("orderInfo")) {
+            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //已支付
+            drOrderInfo.setStatus((byte) 1);
+            drOrderInfo.setUpdateTime(new Date());
+            return iRetailmOrderService.editOrder(drOrderInfo);
+        } else {
+            return false;
+        }
+
     }
 
 }
