@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.retailm.entity.domain.DrOrderInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
@@ -69,19 +70,13 @@ public class OrderCancelReceiver implements MessageListener {
                     MqRecord mqRecord = saveMsg(json);
                     if (orderInfo != null) {
                         //更新订单和相关产品数据库
-                        MqOrderInfo order = null;
-                        try {
-                            order = iOrderService.editOrderAndProduct(orderInfo);
-                            if (order != null) {
-                                //回写消息状态
-                                mqRecord.setPersist((byte) 1);
-                                mqRecordService.edit(mqRecord);
-                                log.info("订单取消已更新！订单号：{}", order.getOrderNo());
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        MqOrderInfo order = updateOrder(orderInfo);
+                        if (order != null) {
+                            //回写消息状态
+                            mqRecord.setPersist((byte) 1);
+                            mqRecordService.edit(mqRecord);
+                            log.info("订单取消已更新！订单号：{}", order.getOrderNo());
                         }
-
                     }
                 }
             }
@@ -125,4 +120,50 @@ public class OrderCancelReceiver implements MessageListener {
         }
         return null;
     }
+
+    /**
+     * 从订单中心拿到订单具体信息，更新我方数据库数据
+     *
+     * @param orderInfo
+     * @return MqOrderInfo
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    public MqOrderInfo updateOrder(MqOrderInfo orderInfo) {
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+
+        MqOrderInfo one = iOrderService.findOneByOrderNo(info.getOrderNo());
+
+        BeanUtils.copyProperties(info, orderInfo);
+        info.setId(one.getId());
+
+        MqOrderInfo order = iOrderService.editOrder(orderInfo);
+        try {
+            List<MqOrderProduct> products = updateProducts(info);
+            if (products != null && products.size() > 0) {
+                order.setMqOrderProducts(products);
+            }
+            return order;
+        } catch (Exception e) {
+            log.error("修改产品信息失败！", e);
+            return null;
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
+        if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
+            List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
+            for (OrderProductBasicInfo i : basicInfos) {
+                MqOrderProduct product = new MqOrderProduct();
+                product.setProductstatus(i.getProductStatus());
+                Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);
+                if (!flag) {
+                    throw new Exception("修改产品状态失败！");
+                }
+            }
+            return iOrderProductService.findProductsByOrderNo(orderBasicInfo.getOrderNo());
+        }
+        return null;
+    }
+
 }

@@ -11,6 +11,7 @@
 package cn.donut.ordermq.worker;
 
 import com.google.common.collect.Maps;
+import com.koolearn.ordercenter.enums.OrderEnums;
 
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class AddressInfo {
     private static final String test = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
 
     static Map<Integer, String> map = Maps.newHashMap();
+
 
     static {
 //        map.put(5960, NODE_URL_PRODUCT);
