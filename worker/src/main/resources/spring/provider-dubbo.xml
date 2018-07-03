@@ -75,5 +75,7 @@
 
     <!--订单状态消息变更MQ消息-->
     <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
+    <!--加密解密-->
+    <dubbo:reference id="msgEncryptionService" interface="cn.donut.retailm.service.common.MsgEncryptionService"/>
 
 </beans>

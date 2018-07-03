@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
+import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.OrderDistributionInfo;
@@ -47,6 +48,9 @@ public class OrderCreateReceiver implements MessageListener {
 
     @Autowired
     private IOrderDistributionInfoService iOrderDistributionInfoService;
+
+    @Autowired
+    private MsgEncryptionService msgEncryptionService;
 
     /**
      * 1.接受消息--->存库、实例化
@@ -148,7 +152,10 @@ public class OrderCreateReceiver implements MessageListener {
             //通过订单号反查订单，关联分销员id
             OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
             if (null != orderDistributionInfo) {
-                drOrderInfo.setRetailMemberId(orderDistributionInfo.getId());
+                //解密分销员id
+                String id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
+                drOrderInfo.setRetailMemberId(Integer.valueOf(id));
+//                drOrderInfo.setRetailMemberId(orderDistributionInfo.getDistributionUser());
             }
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
