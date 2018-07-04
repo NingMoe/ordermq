@@ -233,14 +233,14 @@ public class OrderPaySuccessReceiver {
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
-        if (map.size() > 0 && map.containsKey("orderInfo")) {
+        if (null != map  && map.containsKey("orderInfo")){
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已支付
             drOrderInfo.setStatus((byte) 1);
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
-        } else {
+        } else{
             return false;
         }
 
