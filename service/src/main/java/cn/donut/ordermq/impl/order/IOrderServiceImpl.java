@@ -39,7 +39,7 @@ public class IOrderServiceImpl implements IOrderService {
     private IOrderProductService iOrderProductService;
 
     @Override
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public MqOrderInfo editOrderAndProduct(MqOrderInfo orderInfo) throws Exception {
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
 
@@ -61,7 +61,7 @@ public class IOrderServiceImpl implements IOrderService {
         }
     }
 
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
         if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
             List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
@@ -142,7 +142,8 @@ public class IOrderServiceImpl implements IOrderService {
         return null;
     }
 
-    private MqOrderProduct copyProperties(MqOrderProduct product, OrderProductBasicInfo productBasicInfo) {
+    @Override
+    public MqOrderProduct copyProperties(MqOrderProduct product, OrderProductBasicInfo productBasicInfo) {
 
         product.setProductstatus(productBasicInfo.getProductStatus());
         product.setExamseasonid(productBasicInfo.getExamSeasonId());
@@ -157,4 +158,27 @@ public class IOrderServiceImpl implements IOrderService {
         product.setStrikeprice(productBasicInfo.getStrikePrice());
         return product;
     }
+
+
+    @Override
+    public Boolean checkProLine(MqOrderInfo orderInfo) {
+        MqOrderInfo mqOrderInfo = new MqOrderInfo();
+        //去鲨鱼查询订单
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+        if (null == info) {
+            return false;
+        }
+        List<OrderProductBasicInfo> list = info.getOrderProductBasicInfos();
+        if (null != list && list.size() > 0) {
+            //判断产品线：订单包含产品要么全是多纳的，要么都不是多纳的
+            if (list.get(0).getProductLine() == 49 || list.get(0).getProductLine() == 58) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+
 }

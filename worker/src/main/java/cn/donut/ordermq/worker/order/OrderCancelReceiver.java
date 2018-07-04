@@ -65,12 +65,20 @@ public class OrderCancelReceiver implements MessageListener {
                 log.info("收到消息：==>{}" + json);
                 //转化
                 MqOrderInfo orderInfo = parse(json);
-                if (orderInfo != null) {
+                //是否多纳订单
+                boolean flag = iOrderService.checkProLine(orderInfo);
+                if (orderInfo != null && flag) {
                     //保存
                     MqRecord mqRecord = saveMsg(json);
                     if (orderInfo != null) {
                         //更新订单和相关产品数据库
-                        MqOrderInfo order = updateOrder(orderInfo);
+                        MqOrderInfo order = null;
+                        try {
+                            order = updateOrder(orderInfo);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            log.error("修改产品信息失败！");
+                        }
                         if (order != null) {
                             //回写消息状态
                             mqRecord.setPersist((byte) 1);
@@ -128,41 +136,50 @@ public class OrderCancelReceiver implements MessageListener {
      * @return MqOrderInfo
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-    public MqOrderInfo updateOrder(MqOrderInfo orderInfo) {
-        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+    public MqOrderInfo updateOrder(MqOrderInfo orderInfo) throws Exception {
 
+        //从鲨鱼拿到订单并复制
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
         MqOrderInfo one = iOrderService.findOneByOrderNo(info.getOrderNo());
 
         BeanUtils.copyProperties(info, orderInfo);
-        System.out.println("参数"+orderInfo.toString());
-        System.out.println("查询"+info.toString());
-        System.out.println("本地订单"+one.toString());
-        orderInfo.setId(one.getId());
-
-        MqOrderInfo order = iOrderService.editOrder(orderInfo);
-        if (null != order) {
-            try {
-                List<MqOrderProduct> products = updateProducts(info);
-                if (products != null && products.size() > 0) {
-                    order.setMqOrderProducts(products);
+        MqOrderInfo order;
+        //如果本地没有数据，执行新增，外层已执行产品线校验
+        if (null != one) {
+            orderInfo.setId(one.getId());
+            order = iOrderService.editOrder(orderInfo);
+            if (null != order) {
+                try {
+                    List<MqOrderProduct> products = updateProducts(info);
+                    if (products != null && products.size() > 0) {
+                        order.setMqOrderProducts(products);
+                    }
+                    return order;
+                } catch (Exception e) {
+                    log.error("修改产品信息失败！", e);
+                    return null;
                 }
-                return order;
-            } catch (Exception e) {
-                log.error("修改产品信息失败！", e);
+            } else {
+                log.error("修改产品信息失败！");
                 return null;
             }
-        }else {
-            log.error("修改产品信息失败！");
-            return  null;
+        } else {//新增
+            orderInfo.setId(null);
+            order = iOrderService.saveOrder(orderInfo);
+            return order;
         }
+
 
     }
 
+
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
+        //判空
         if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
             List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
             for (OrderProductBasicInfo i : basicInfos) {
+                //拿到产品，遍历
                 MqOrderProduct product = new MqOrderProduct();
                 product.setProductstatus(i.getProductStatus());
                 Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);

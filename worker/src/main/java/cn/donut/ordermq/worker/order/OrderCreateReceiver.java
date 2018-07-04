@@ -70,7 +70,9 @@ public class OrderCreateReceiver implements MessageListener {
                 log.info("收到消息：==>{}" + json);
                 //转换
                 MqOrderInfo orderInfo = parse(json);
-                if (orderInfo != null) {
+                //是否多纳订单
+                boolean flag = iOrderService.checkProLine(orderInfo);
+                if (orderInfo != null && flag) {
                     //保存
                     MqRecord mqRecord = saveMsg(json);
                     if (mqRecord != null) {

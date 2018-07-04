@@ -61,9 +61,11 @@ public class OrderPaySuccessReceiver {
                 System.out.println("queue = " + queue.toString());
                 String json = JSON.toJSONString(queue);
                 log.info("收到消息：==>{}" + json);
-//                转换
+                //转换
                 MqOrderInfo orderInfo = parse(json);
-                if (orderInfo != null) {
+                //是否多纳订单
+                boolean flag = iOrderService.checkProLine(orderInfo);
+                if (orderInfo != null && flag) {
                     //保存
                     MqRecord mqRecord = saveMsg(json);
                     if (mqRecord != null) {
@@ -138,37 +140,48 @@ public class OrderPaySuccessReceiver {
      * @return MqOrderInfo
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-    public MqOrderInfo updateData(MqOrderInfo orderInfo) {
+    public MqOrderInfo updateData(MqOrderInfo orderInfo) throws Exception {
+
+        //从鲨鱼拿到订单并复制
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+        MqOrderInfo one = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
+
         BeanUtils.copyProperties(orderInfo, info);
-        MqOrderInfo order = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
-        MqOrderInfo result;
-        if (order != null) {
-            orderInfo.setId(order.getId());
-            result = iOrderService.editOrder(orderInfo);
-            try {
-                List<MqOrderProduct> products = updateProducts(info);
-                if (products != null && products.size() > 0) {
-                    result.setMqOrderProducts(products);
+        MqOrderInfo order;
+        //如果本地没有数据，执行新增，外层已执行产品线校验
+        if (one != null) {
+            orderInfo.setId(one.getId());
+            order = iOrderService.editOrder(orderInfo);
+            if (null != order) {
+                try {
+                    List<MqOrderProduct> products = updateProducts(info);
+                    if (products != null && products.size() > 0) {
+                        order.setMqOrderProducts(products);
+                    }
+                    return order;
+                } catch (Exception e) {
+                    log.error("修改产品状态失败！", e);
+                    return null;
                 }
-            } catch (Exception e) {
-                log.error("修改产品状态失败！", e);
+            }else {
+                log.error("修改产品信息失败！");
                 return null;
             }
-        } else {
+
+        } else {//新增
             orderInfo.setId(null);
-            result = iOrderService.insertOrder(orderInfo);
-            try {
-                List<MqOrderProduct> products = saveProducts(info);
-                if (products != null && products.size() > 0) {
-                    result.setMqOrderProducts(products);
-                }
-            } catch (Exception e) {
-                log.error("插入产品信息失败！", e);
-                return null;
-            }
+            order = iOrderService.saveOrder(orderInfo);
+//            try {
+//                List<MqOrderProduct> products = saveProducts(info);
+//                if (products != null && products.size() > 0) {
+//                    order.setMqOrderProducts(products);
+//                }
+//            } catch (Exception e) {
+//                log.error("插入产品信息失败！", e);
+//                return null;
+//            }
         }
-        return result;
+        return order;
     }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -233,14 +246,14 @@ public class OrderPaySuccessReceiver {
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
-        if (null != map  && map.containsKey("orderInfo")){
+        if (null != map && map.containsKey("orderInfo")) {
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已支付
             drOrderInfo.setStatus((byte) 1);
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
-        } else{
+        } else {
             return false;
         }
 

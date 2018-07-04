@@ -1,6 +1,8 @@
 package cn.donut.ordermq.service.order;
 
 import cn.donut.ordermq.entity.order.MqOrderInfo;
+import cn.donut.ordermq.entity.order.MqOrderProduct;
+import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 
 /**
  * @author wangjiahao
@@ -55,4 +57,22 @@ public interface IOrderService {
      * @throws Exception
      */
     MqOrderInfo editOrderAndProduct(MqOrderInfo orderInfo) throws Exception;
+
+    /**
+     * 复制实体
+     * @param product
+     * @param productBasicInfo
+     * @return
+     */
+
+    MqOrderProduct copyProperties(MqOrderProduct product, OrderProductBasicInfo productBasicInfo);
+
+    /**
+     * 判断是否为多纳订单
+     * @param orderInfo
+     * @return
+     */
+    Boolean checkProLine(MqOrderInfo orderInfo);
+
+
 }
