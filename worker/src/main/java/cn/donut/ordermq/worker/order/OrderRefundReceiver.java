@@ -172,7 +172,7 @@ public class OrderRefundReceiver implements MessageListener {
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
-        if (map.size() > 0 && map.containsKey("orderInfo")) {
+        if (map != null && map.containsKey("orderInfo")) {
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已退款
