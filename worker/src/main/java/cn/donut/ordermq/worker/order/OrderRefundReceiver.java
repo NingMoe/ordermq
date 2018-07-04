@@ -65,7 +65,9 @@ public class OrderRefundReceiver implements MessageListener {
                         log.info("收到消息：==>{}" + json);
                         //转换
                         MqOrderInfo orderInfo = parse(json);
-                        if (orderInfo != null) {
+                        //是否多纳订单
+                        boolean flag = iOrderService.checkProLine(orderInfo);
+                        if (orderInfo != null && flag) {
                             //保存
                             MqRecord mqRecord = saveMsg(json);
                             if (mqRecord != null) {
@@ -143,28 +145,40 @@ public class OrderRefundReceiver implements MessageListener {
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public MqOrderInfo updateData(MqOrderInfo orderInfo) throws Exception {
-        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
 
+        //从鲨鱼拿到订单并复制
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
         //查询本地数据
         MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
-        if (null == mqOrderInfo) {
-            return null;
-        }
-        Integer tempId = mqOrderInfo.getId();
-        BeanUtils.copyProperties(mqOrderInfo, info);
-        mqOrderInfo.setId(tempId);
-        //更新数据
-        MqOrderInfo order = iOrderService.editOrder(mqOrderInfo);
-        if (null != order) {
-            List<MqOrderProduct> list = iOrderProductService.findProductsByOrderNo(order.getOrderNo());
-            //TODO 是否要判空
-            for (MqOrderProduct product : list) {
-                product.setProductstatus(5);
-                iOrderProductService.editOrderProduct(product);
+        //订单不为空时，要判断订单状态是否为支付成功
+        MqOrderInfo order;
+        if (null != mqOrderInfo && mqOrderInfo.getStatus() == 1) {
+            Integer tempId = mqOrderInfo.getId();
+            BeanUtils.copyProperties(mqOrderInfo, info);
+            mqOrderInfo.setId(tempId);
+            //更新数据
+            order = iOrderService.editOrder(mqOrderInfo);
+            if (null != order) {
+                List<MqOrderProduct> list = iOrderProductService.findProductsByOrderNo(order.getOrderNo());
+                //TODO 是否要判空
+                for (MqOrderProduct product : list) {
+                    product.setProductstatus(5);
+                    iOrderProductService.editOrderProduct(product);
+                }
+                order.setMqOrderProducts(list);
+                return order;
+            } else {
+                return order;
             }
-        }
 
-        return order;
+        } else {
+
+            //订单为空时，应去鲨鱼查询订单是否存在，因外层已做产品线校验，直接新增就行
+            BeanUtils.copyProperties(mqOrderInfo, info);
+            mqOrderInfo.setId(null);
+            order = iOrderService.saveOrder(mqOrderInfo);
+            return order;
+        }
 
     }
 
