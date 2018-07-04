@@ -137,16 +137,22 @@ public class OrderCancelReceiver implements MessageListener {
         info.setId(one.getId());
 
         MqOrderInfo order = iOrderService.editOrder(orderInfo);
-        try {
-            List<MqOrderProduct> products = updateProducts(info);
-            if (products != null && products.size() > 0) {
-                order.setMqOrderProducts(products);
+        if (null != order) {
+            try {
+                List<MqOrderProduct> products = updateProducts(info);
+                if (products != null && products.size() > 0) {
+                    order.setMqOrderProducts(products);
+                }
+                return order;
+            } catch (Exception e) {
+                log.error("修改产品信息失败！", e);
+                return null;
             }
-            return order;
-        } catch (Exception e) {
-            log.error("修改产品信息失败！", e);
-            return null;
+        }else {
+            log.error("修改产品信息失败！");
+            return  null;
         }
+
     }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
