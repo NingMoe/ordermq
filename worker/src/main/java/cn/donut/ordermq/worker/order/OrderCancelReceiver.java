@@ -134,7 +134,7 @@ public class OrderCancelReceiver implements MessageListener {
         MqOrderInfo one = iOrderService.findOneByOrderNo(info.getOrderNo());
 
         BeanUtils.copyProperties(info, orderInfo);
-        info.setId(one.getId());
+        orderInfo.setId(one.getId());
 
         MqOrderInfo order = iOrderService.editOrder(orderInfo);
         if (null != order) {
