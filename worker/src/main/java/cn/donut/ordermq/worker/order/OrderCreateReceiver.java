@@ -17,6 +17,7 @@ import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
@@ -155,7 +156,13 @@ public class OrderCreateReceiver implements MessageListener {
             OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
             if (null != orderDistributionInfo) {
                 //解密分销员id
-                String id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
+                String id = null;
+                try {
+                    id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
+                    System.out.println("分销员id=" + id);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 drOrderInfo.setRetailMemberId(Integer.valueOf(id));
 //                drOrderInfo.setRetailMemberId(orderDistributionInfo.getDistributionUser());
             }
