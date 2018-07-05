@@ -12,9 +12,7 @@ import cn.donut.retailm.entity.model.OrderModel;
 import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.MQMessage;
-import com.koolearn.ordercenter.model.OrderDistributionInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
@@ -58,17 +56,10 @@ public class OrderPaySuccessReceiver {
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
     @Autowired
-    private IOrderDistributionInfoService iOrderDistributionInfoService;
-
-    @Autowired
-    private MsgEncryptionService msgEncryptionService;
-
-    @Autowired
     private MqUtil mqUtil;
 
     public void executor(final OrderPaySuccessQueue queue) {
         taskExecutor.execute(new Runnable() {
-
             @Override
             public void run() {
                 MQMessage message = buildMQMessage(queue);
@@ -81,7 +72,7 @@ public class OrderPaySuccessReceiver {
                 boolean flag = iOrderService.checkProLine(orderInfo);
                 if (orderInfo != null && flag) {
                     //保存
-                    MqRecord mqRecord = saveMsg(json);
+                    MqRecord mqRecord = mqUtil.saveMsg(json, "order.pay.success");
                     if (mqRecord != null) {
                         try {
                             MqOrderInfo order = updateData(orderInfo);
@@ -111,24 +102,9 @@ public class OrderPaySuccessReceiver {
 
     }
 
-    /**
-     * 接收消息，将消息存入数据库，转换成订单对象并返回
-     *
-     * @param json
-     * @return MqOrderInfo
-     */
-    private MqRecord saveMsg(String json) {
-        MqRecord record = new MqRecord();
-        record.setJsonContent(json);
-        record.setCreateTime(new Date());
-        record.setPersist((byte) 0);
-        record.setRoutingKey("order.pay.success");
-        return mqRecordService.insert(record);
-    }
-
 
     /**
-     * 从订单中心拿到订单具体信息，插入我方数据库数据
+     * 业务处理:根据订单号查询最新实体，并更新本地数据
      *
      * @param orderInfo
      * @return MqOrderInfo
@@ -138,6 +114,7 @@ public class OrderPaySuccessReceiver {
 
         //从鲨鱼拿到订单并复制
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+        //查询本地数据
         MqOrderInfo one = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
 
         BeanUtils.copyProperties(orderInfo, info);
@@ -227,15 +204,19 @@ public class OrderPaySuccessReceiver {
     }
 
 
-    //回写状态
+    //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+
         if (null != map && map.containsKey("orderInfo")) {
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已支付
             drOrderInfo.setStatus((byte) 1);
+            //分销员id
+            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {

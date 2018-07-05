@@ -8,8 +8,7 @@ import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
-import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonParseException;
+import cn.donut.retailm.entity.model.OrderModel;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +71,7 @@ public class OrderRefundReceiver implements MessageListener {
                         boolean flag = iOrderService.checkProLine(orderInfo);
                         if (orderInfo != null && flag) {
                             //保存
-                            MqRecord mqRecord = saveMsg(json);
+                            MqRecord mqRecord = mqUtil.saveMsg(json,"order.refund");
                             if (mqRecord != null) {
                                 try {
                                     MqOrderInfo order = updateData(orderInfo);
@@ -103,20 +101,6 @@ public class OrderRefundReceiver implements MessageListener {
         });
     }
 
-    /**
-     * 接收消息，将消息存入数据库，转换成订单对象并返回
-     *
-     * @param json
-     * @return MqOrderInfo
-     */
-    private MqRecord saveMsg(String json) {
-        MqRecord record = new MqRecord();
-        record.setJsonContent(json);
-        record.setCreateTime(new Date());
-        record.setPersist((byte) 0);
-        record.setRoutingKey("order.refund");
-        return mqRecordService.insert(record);
-    }
 
 
     /**
@@ -176,6 +160,21 @@ public class OrderRefundReceiver implements MessageListener {
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
+            //没订单数据，就要新增了
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //分销员id
+            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setUpdateTime(new Date());
+            drOrderInfo.setStatus((byte) 2);
+            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
+            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
+            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
+            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
+            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+            if (null != orderModel && null != orderModel.getId()) {
+                return true;
+            }
             return false;
         }
 

@@ -67,14 +67,15 @@ public class OrderCancelReceiver implements MessageListener {
             public void run() {
                 String json = new String(message.getBody(), Charset.defaultCharset());
                 log.info("收到消息：==>{}" + json);
-                //转化
+                //转换并校验json格式
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单
                 boolean flag = iOrderService.checkProLine(orderInfo);
                 if (orderInfo != null && flag) {
                     //保存
-                    MqRecord mqRecord = saveMsg(json);
-                    if (orderInfo != null) {
+                    MqRecord mqRecord = mqUtil.saveMsg(json, "order.cancel");
+                    if (mqRecord != null) {
+
                         //更新订单和相关产品数据库
                         MqOrderInfo order = null;
                         try {
@@ -88,6 +89,8 @@ public class OrderCancelReceiver implements MessageListener {
                             mqRecord.setPersist((byte) 1);
                             mqRecordService.edit(mqRecord);
                             log.info("订单取消已更新！订单号：{}", order.getOrderNo());
+                        }else {
+                            log.info("订单已存在！");
                         }
                     }
                 }
@@ -95,21 +98,6 @@ public class OrderCancelReceiver implements MessageListener {
             // TODO: 2018/6/29 做出分发
             // TODO: 2018/6/29 分发记录
         });
-    }
-
-    /**
-     * 接收消息，将消息存入数据库，转换成订单对象并返回
-     *
-     * @param json
-     * @return MqOrderInfo
-     */
-    private MqRecord saveMsg(String json) {
-        MqRecord record = new MqRecord();
-        record.setJsonContent(json);
-        record.setCreateTime(new Date());
-        record.setPersist((byte) 0);
-        record.setRoutingKey("order.cancel");
-        return mqRecordService.insert(record);
     }
 
 

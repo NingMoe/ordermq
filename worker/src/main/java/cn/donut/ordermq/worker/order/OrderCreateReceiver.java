@@ -78,9 +78,7 @@ public class OrderCreateReceiver implements MessageListener {
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
-                                //同步数据到分销员系统
-                                editRetailm(order);
-
+                                //TODO: 下单暂时不需要同步到分销系统
                             } else {
                                 log.info("订单已存在！");
                             }
@@ -100,43 +98,43 @@ public class OrderCreateReceiver implements MessageListener {
     }
 
     //回写分销系统状态
-    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
-
-        DrOrderInfo drOrderInfo = new DrOrderInfo();
-        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
-
-        if (null != map && map.containsKey("orderInfo")) {
-            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
-            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
-            //待支付
-            drOrderInfo.setStatus((byte) 0);
-            drOrderInfo.setUpdateTime(new Date());
-
-            Integer id = mqUtil.getRetailMemberId(mqOrderInfo);
-            if (null != id) {
-                drOrderInfo.setRetailMemberId(id);
-            }
-
-            return iRetailmOrderService.insertOrder(drOrderInfo) != null;
-        } else {
-            //没订单数据，就要新增了
-            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
-            //分销员id
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
-            drOrderInfo.setUpdateTime(new Date());
-            //待支付
-            drOrderInfo.setStatus((byte) 0);
-            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
-            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
-            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
-            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
-            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
-            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
-            if (null != orderModel && null != orderModel.getId()) {
-                return true;
-            }
-            return false;
-        }
-
-    }
+//    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+//
+//        DrOrderInfo drOrderInfo = new DrOrderInfo();
+//        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+//
+//        if (null != map && map.containsKey("orderInfo")) {
+//            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
+//            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+//            //待支付
+//            drOrderInfo.setStatus((byte) 0);
+//            drOrderInfo.setUpdateTime(new Date());
+//
+//            Integer id = mqUtil.getRetailMemberId(mqOrderInfo);
+//            if (null != id) {
+//                drOrderInfo.setRetailMemberId(id);
+//            }
+//
+//            return iRetailmOrderService.insertOrder(drOrderInfo) != null;
+//        } else {
+//            //没订单数据，就要新增了
+//            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+//            //分销员id
+//            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+//            drOrderInfo.setUpdateTime(new Date());
+//            //待支付
+//            drOrderInfo.setStatus((byte) 0);
+//            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
+//            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
+//            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
+//            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
+//            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+//            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+//            if (null != orderModel && null != orderModel.getId()) {
+//                return true;
+//            }
+//            return false;
+//        }
+//
+//    }
 }
