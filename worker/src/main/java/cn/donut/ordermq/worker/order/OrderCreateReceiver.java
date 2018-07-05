@@ -8,18 +8,12 @@ import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.model.OrderModel;
-import cn.donut.retailm.service.common.MsgEncryptionService;
-import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonParseException;
-import com.koolearn.ordercenter.model.OrderDistributionInfo;
-import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
@@ -50,12 +44,6 @@ public class OrderCreateReceiver implements MessageListener {
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
     @Autowired
-    private IOrderDistributionInfoService iOrderDistributionInfoService;
-
-    @Autowired
-    private MsgEncryptionService msgEncryptionService;
-
-    @Autowired
     private MqUtil mqUtil;
 
     /**
@@ -80,16 +68,17 @@ public class OrderCreateReceiver implements MessageListener {
                 boolean flag = iOrderService.checkProLine(orderInfo);
                 if (orderInfo != null && flag) {
                     //保存
-                    MqRecord mqRecord = saveMsg(json);
+                    MqRecord mqRecord = mqUtil.saveMsg(json, "order.create");
                     if (mqRecord != null) {
                         try {
+                            //保存订单
                             MqOrderInfo order = iOrderService.saveOrder(orderInfo);
-//                            MqOrderInfo order = saveData(orderInfo);
                             if (order != null) {
-                                //回写消息状态
+                                //回写消息状态为实例化成功
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
+                                //同步数据到分销员系统
                                 editRetailm(order);
 
                             } else {
@@ -110,22 +99,7 @@ public class OrderCreateReceiver implements MessageListener {
 
     }
 
-    /**
-     * 接收消息，将消息存入数据库，转换成订单对象并返回
-     *
-     * @param json
-     * @return MqOrderInfo
-     */
-    private MqRecord saveMsg(String json) {
-        MqRecord record = new MqRecord();
-        record.setJsonContent(json);
-        record.setCreateTime(new Date());
-        record.setPersist((byte) 0);
-        record.setRoutingKey("order.create");
-        return mqRecordService.insert(record);
-    }
-
-    //回写状态
+    //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
 
         DrOrderInfo drOrderInfo = new DrOrderInfo();

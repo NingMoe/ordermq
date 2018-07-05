@@ -10,7 +10,9 @@
  */
 package cn.donut.ordermq.worker;
 
+import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
+import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
@@ -18,6 +20,8 @@ import com.koolearn.ordercenter.model.OrderDistributionInfo;
 import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -36,7 +40,15 @@ public class MqUtil {
     @Autowired
     private MsgEncryptionService msgEncryptionService;
 
+    @Autowired
+    private MqRecordService mqRecordService;
 
+    /**
+     * json转化实体
+     *
+     * @param json
+     * @return
+     */
     public MqOrderInfo Json2Order(String json) {
         try {
             JSONObject jsonObject = JSONObject.parseObject(json);
@@ -58,6 +70,12 @@ public class MqUtil {
         return null;
     }
 
+    /**
+     * 获取解密后的分销员id
+     *
+     * @param mqOrderInfo
+     * @return
+     */
     public Integer getRetailMemberId(MqOrderInfo mqOrderInfo) {
         OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
         if (null != orderDistributionInfo) {
@@ -72,5 +90,20 @@ public class MqUtil {
             return Integer.valueOf(id);
         }
         return null;
+    }
+
+    /**
+     * 接收消息，将消息存入数据库，转换成订单对象并返回
+     *
+     * @param json
+     * @return MqOrderInfo
+     */
+    public MqRecord saveMsg(String json, String routingKey) {
+        MqRecord record = new MqRecord();
+        record.setJsonContent(json);
+        record.setCreateTime(new Date());
+        record.setPersist((byte) 0);
+        record.setRoutingKey(routingKey);
+        return mqRecordService.insert(record);
     }
 }
