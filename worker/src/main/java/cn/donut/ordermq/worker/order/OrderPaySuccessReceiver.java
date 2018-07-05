@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.model.OrderModel;
 import cn.donut.retailm.service.common.MsgEncryptionService;
@@ -62,6 +63,9 @@ public class OrderPaySuccessReceiver {
     @Autowired
     private MsgEncryptionService msgEncryptionService;
 
+    @Autowired
+    private MqUtil mqUtil;
+
     public void executor(final OrderPaySuccessQueue queue) {
         taskExecutor.execute(new Runnable() {
 
@@ -72,7 +76,7 @@ public class OrderPaySuccessReceiver {
                 String json = JSON.toJSONString(queue);
                 log.info("收到消息：==>{}" + json);
                 //转换
-                MqOrderInfo orderInfo = parse(json);
+                MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单
                 boolean flag = iOrderService.checkProLine(orderInfo);
                 if (orderInfo != null && flag) {
@@ -122,26 +126,6 @@ public class OrderPaySuccessReceiver {
         return mqRecordService.insert(record);
     }
 
-    private MqOrderInfo parse(String json) {
-        try {
-            JSONObject jsonObject = JSONObject.parseObject(json);
-            String orderNo = jsonObject.get("orderNo").toString();
-            Integer userId = (Integer) jsonObject.get("userId");
-
-            MqOrderInfo orderInfo = new MqOrderInfo();
-            orderInfo.setOrderNo(orderNo);
-            orderInfo.setUserId(userId);
-
-            return orderInfo;
-        } catch (JsonParseException e) {
-            log.error("JSON格式有误！", e);
-        } catch (NullPointerException e) {
-            log.error("JSON缺少关键字！", e);
-        } catch (Exception e) {
-            log.error("其他异常！", e);
-        }
-        return null;
-    }
 
     /**
      * 从订单中心拿到订单具体信息，插入我方数据库数据
@@ -181,15 +165,6 @@ public class OrderPaySuccessReceiver {
         } else {//新增
             orderInfo.setId(null);
             order = iOrderService.saveOrder(orderInfo);
-//            try {
-//                List<MqOrderProduct> products = saveProducts(info);
-//                if (products != null && products.size() > 0) {
-//                    order.setMqOrderProducts(products);
-//                }
-//            } catch (Exception e) {
-//                log.error("插入产品信息失败！", e);
-//                return null;
-//            }
         }
         return order;
     }
@@ -267,7 +242,7 @@ public class OrderPaySuccessReceiver {
             //没订单数据，就要新增了
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
-            drOrderInfo.setRetailMemberId(getId(mqOrderInfo));
+            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setStatus((byte) 1);
             drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
@@ -282,25 +257,6 @@ public class OrderPaySuccessReceiver {
             return false;
         }
 
-    }
-
-
-    private Integer getId(MqOrderInfo mqOrderInfo) {
-        //通过订单号反查订单，关联分销员id
-        OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
-        if (null != orderDistributionInfo) {
-            //解密分销员id
-            String id = null;
-            try {
-                id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
-                System.out.println("分销员id=" + id);
-                return Integer.valueOf(id);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-        return null;
     }
 
 }

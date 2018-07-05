@@ -5,7 +5,9 @@ import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
+import cn.donut.retailm.entity.model.OrderModel;
 import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
@@ -53,6 +55,9 @@ public class OrderCreateReceiver implements MessageListener {
     @Autowired
     private MsgEncryptionService msgEncryptionService;
 
+    @Autowired
+    private MqUtil mqUtil;
+
     /**
      * 1.接受消息--->存库、实例化
      * 2.对信息进行业务处理
@@ -69,8 +74,8 @@ public class OrderCreateReceiver implements MessageListener {
             public void run() {
                 String json = new String(msg.getBody(), Charset.defaultCharset());
                 log.info("收到消息：==>{}" + json);
-                //转换
-                MqOrderInfo orderInfo = parse(json);
+                //转换并校验json格式
+                MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单
                 boolean flag = iOrderService.checkProLine(orderInfo);
                 if (orderInfo != null && flag) {
@@ -120,54 +125,42 @@ public class OrderCreateReceiver implements MessageListener {
         return mqRecordService.insert(record);
     }
 
-    private MqOrderInfo parse(String json) {
-        try {
-            JSONObject jsonObject = JSONObject.parseObject(json);
-            String orderNo = jsonObject.get("orderNo").toString();
-            Integer userId = (Integer) jsonObject.get("userId");
-
-            MqOrderInfo orderInfo = new MqOrderInfo();
-            orderInfo.setOrderNo(orderNo);
-            orderInfo.setUserId(userId);
-
-            return orderInfo;
-        } catch (JsonParseException e) {
-            log.error("JSON格式有误！", e);
-        } catch (NullPointerException e) {
-            log.error("JSON缺少关键字！", e);
-        } catch (Exception e) {
-            log.error("其他异常！", e);
-        }
-        return null;
-    }
-
-
     //回写状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+
         if (null != map && map.containsKey("orderInfo")) {
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //待支付
             drOrderInfo.setStatus((byte) 0);
             drOrderInfo.setUpdateTime(new Date());
-            //通过订单号反查订单，关联分销员id
-            OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
-            if (null != orderDistributionInfo) {
-                //解密分销员id
-                String id = null;
-                try {
-                    id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
-                    System.out.println("分销员id=" + id);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                drOrderInfo.setRetailMemberId(Integer.valueOf(id));
-//                drOrderInfo.setRetailMemberId(orderDistributionInfo.getDistributionUser());
+
+            Integer id = mqUtil.getRetailMemberId(mqOrderInfo);
+            if (null != id) {
+                drOrderInfo.setRetailMemberId(id);
             }
+
             return iRetailmOrderService.insertOrder(drOrderInfo) != null;
         } else {
+            //没订单数据，就要新增了
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //分销员id
+            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setUpdateTime(new Date());
+            //待支付
+            drOrderInfo.setStatus((byte) 0);
+            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
+            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
+            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
+            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
+            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+            if (null != orderModel && null != orderModel.getId()) {
+                return true;
+            }
             return false;
         }
 

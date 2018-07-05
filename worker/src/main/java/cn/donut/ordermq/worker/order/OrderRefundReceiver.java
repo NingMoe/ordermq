@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
@@ -53,6 +54,9 @@ public class OrderRefundReceiver implements MessageListener {
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
+    @Autowired
+    private MqUtil mqUtil;
+
     @Override
     public void onMessage(final Message msg) {
         taskExecutor.execute(new Runnable() {
@@ -64,7 +68,7 @@ public class OrderRefundReceiver implements MessageListener {
                         String json = new String(msg.getBody(), Charset.defaultCharset());
                         log.info("收到消息：==>{}" + json);
                         //转换
-                        MqOrderInfo orderInfo = parse(json);
+                        MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                         //是否多纳订单
                         boolean flag = iOrderService.checkProLine(orderInfo);
                         if (orderInfo != null && flag) {
@@ -112,28 +116,6 @@ public class OrderRefundReceiver implements MessageListener {
         record.setPersist((byte) 0);
         record.setRoutingKey("order.refund");
         return mqRecordService.insert(record);
-    }
-
-
-    private MqOrderInfo parse(String json) {
-        try {
-            JSONObject jsonObject = JSONObject.parseObject(json);
-            String orderNo = jsonObject.get("orderNo").toString();
-            Integer userId = (Integer) jsonObject.get("userId");
-
-            MqOrderInfo orderInfo = new MqOrderInfo();
-            orderInfo.setOrderNo(orderNo);
-            orderInfo.setUserId(userId);
-
-            return orderInfo;
-        } catch (JsonParseException e) {
-            log.error("JSON格式有误！", e);
-        } catch (NullPointerException e) {
-            log.error("JSON缺少关键字！", e);
-        } catch (Exception e) {
-            log.error("其他异常！", e);
-        }
-        return null;
     }
 
 
