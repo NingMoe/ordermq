@@ -4,21 +4,17 @@ import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
-import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.model.OrderModel;
-import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.ordercenter.model.MQMessage;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
-import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
 import com.koolearn.ordercenter.queue.Queue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
-import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +23,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +44,6 @@ public class OrderPaySuccessReceiver {
     private MqRecordService mqRecordService;
     @Autowired
     private IOrderBasicInfoService iOrderBasicInfoService;
-    @Autowired
-    private IOrderProductService iOrderProductService;
 
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
@@ -125,7 +118,7 @@ public class OrderPaySuccessReceiver {
             order = iOrderService.editOrder(orderInfo);
             if (null != order) {
                 try {
-                    List<MqOrderProduct> products = updateProducts(info);
+                    List<MqOrderProduct> products = mqUtil.updateProducts(info);
                     if (products != null && products.size() > 0) {
                         order.setMqOrderProducts(products);
                     }
@@ -146,41 +139,6 @@ public class OrderPaySuccessReceiver {
         return order;
     }
 
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-    public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
-        if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
-            List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
-            for (OrderProductBasicInfo i : basicInfos) {
-                MqOrderProduct product = new MqOrderProduct();
-                product.setProductstatus(i.getProductStatus());
-                Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);
-                if (!flag) {
-                    throw new Exception("修改产品状态失败！");
-                }
-            }
-            return iOrderProductService.findProductsByOrderNo(orderBasicInfo.getOrderNo());
-        }
-        return null;
-    }
-
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-    public List<MqOrderProduct> saveProducts(OrderBasicInfo info) throws Exception {
-        if (info.getOrderProductBasicInfos() != null && info.getOrderProductBasicInfos().size() > 0) {
-            List<MqOrderProduct> list = new ArrayList<MqOrderProduct>();
-            for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
-                MqOrderProduct product = new MqOrderProduct();
-                BeanUtils.copyProperties(product, productBasicInfo);
-                product.setId(null);
-                MqOrderProduct orderProduct = iOrderProductService.insertOrderProduct(product);
-                if (orderProduct == null) {
-                    throw new Exception("插入产品失败！");
-                }
-                list.add(orderProduct);
-            }
-            return list;
-        }
-        return null;
-    }
 
     public static String ip() {
         String ip = "";
@@ -206,11 +164,12 @@ public class OrderPaySuccessReceiver {
 
     //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
-
+        System.out.println("回写分销系统");
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
 
         if (null != map && map.containsKey("orderInfo")) {
+            System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已支付
@@ -231,8 +190,11 @@ public class OrderPaySuccessReceiver {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            System.out.println("分销系统没有该订单，执行新增");
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+
             if (null != orderModel && null != orderModel.getId()) {
+                System.out.println("分销系统订单新增成功");
                 return true;
             }
             return false;

@@ -12,16 +12,23 @@ package cn.donut.ordermq.worker;
 
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
+import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
+import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.OrderDistributionInfo;
+import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
+import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -42,6 +49,9 @@ public class MqUtil {
 
     @Autowired
     private MqRecordService mqRecordService;
+
+    @Autowired
+    private IOrderProductService iOrderProductService;
 
     /**
      * json转化实体
@@ -105,5 +115,31 @@ public class MqUtil {
         record.setPersist((byte) 0);
         record.setRoutingKey(routingKey);
         return mqRecordService.insert(record);
+    }
+
+
+    /**
+     * 更新订单时，要同时更新产品
+     * @param orderBasicInfo
+     * @return
+     * @throws Exception
+     */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+    public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
+        //判空
+        if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
+            List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
+            for (OrderProductBasicInfo i : basicInfos) {
+                //拿到产品，遍历
+                MqOrderProduct product = new MqOrderProduct();
+                product.setProductstatus(i.getProductStatus());
+                Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);
+                if (!flag) {
+                    throw new Exception("修改产品状态失败！");
+                }
+            }
+            return iOrderProductService.findProductsByOrderNo(orderBasicInfo.getOrderNo());
+        }
+        return null;
     }
 }

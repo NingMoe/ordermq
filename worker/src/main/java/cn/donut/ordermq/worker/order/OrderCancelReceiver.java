@@ -44,8 +44,6 @@ public class OrderCancelReceiver implements MessageListener {
 
     @Autowired
     private IOrderService iOrderService;
-    @Autowired
-    private IOrderProductService iOrderProductService;
 
     @Autowired
     private IOrderBasicInfoService iOrderBasicInfoService;
@@ -89,7 +87,7 @@ public class OrderCancelReceiver implements MessageListener {
                             mqRecord.setPersist((byte) 1);
                             mqRecordService.edit(mqRecord);
                             log.info("订单取消已更新！订单号：{}", order.getOrderNo());
-                        }else {
+                        } else {
                             log.info("订单已存在！");
                         }
                     }
@@ -122,7 +120,7 @@ public class OrderCancelReceiver implements MessageListener {
             order = iOrderService.editOrder(orderInfo);
             if (null != order) {
                 try {
-                    List<MqOrderProduct> products = updateProducts(info);
+                    List<MqOrderProduct> products = mqUtil.updateProducts(info);
                     if (products != null && products.size() > 0) {
                         order.setMqOrderProducts(products);
                     }
@@ -137,6 +135,7 @@ public class OrderCancelReceiver implements MessageListener {
             }
         } else {//新增
             orderInfo.setId(null);
+            //插入订单和产品
             order = iOrderService.saveOrder(orderInfo);
             return order;
         }
@@ -144,24 +143,5 @@ public class OrderCancelReceiver implements MessageListener {
 
     }
 
-
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-    public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
-        //判空
-        if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
-            List<OrderProductBasicInfo> basicInfos = orderBasicInfo.getOrderProductBasicInfos();
-            for (OrderProductBasicInfo i : basicInfos) {
-                //拿到产品，遍历
-                MqOrderProduct product = new MqOrderProduct();
-                product.setProductstatus(i.getProductStatus());
-                Boolean flag = iOrderProductService.editProductsByOrderNo(orderBasicInfo.getOrderNo(), product);
-                if (!flag) {
-                    throw new Exception("修改产品状态失败！");
-                }
-            }
-            return iOrderProductService.findProductsByOrderNo(orderBasicInfo.getOrderNo());
-        }
-        return null;
-    }
 
 }

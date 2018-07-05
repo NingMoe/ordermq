@@ -71,7 +71,7 @@ public class OrderRefundReceiver implements MessageListener {
                         boolean flag = iOrderService.checkProLine(orderInfo);
                         if (orderInfo != null && flag) {
                             //保存
-                            MqRecord mqRecord = mqUtil.saveMsg(json,"order.refund");
+                            MqRecord mqRecord = mqUtil.saveMsg(json, "order.refund");
                             if (mqRecord != null) {
                                 try {
                                     MqOrderInfo order = updateData(orderInfo);
@@ -102,7 +102,6 @@ public class OrderRefundReceiver implements MessageListener {
     }
 
 
-
     /**
      * 业务处理:根据订单号查询最新实体，并更新本地数据
      *
@@ -115,37 +114,37 @@ public class OrderRefundReceiver implements MessageListener {
         //从鲨鱼拿到订单并复制
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
         //查询本地数据
-        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
-        //订单不为空时，要判断订单状态是否为支付成功
+        MqOrderInfo one = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
+
+        BeanUtils.copyProperties(orderInfo, info);
         MqOrderInfo order;
-        if (null != mqOrderInfo && mqOrderInfo.getStatus() == 1) {
-            Integer tempId = mqOrderInfo.getId();
-            BeanUtils.copyProperties(mqOrderInfo, info);
-            mqOrderInfo.setId(tempId);
-            //更新数据
-            order = iOrderService.editOrder(mqOrderInfo);
+        //如果本地没有数据，执行新增，外层已执行产品线校验
+        if (one != null) {
+            orderInfo.setId(one.getId());
+            order = iOrderService.editOrder(orderInfo);
             if (null != order) {
-                List<MqOrderProduct> list = iOrderProductService.findProductsByOrderNo(order.getOrderNo());
-                //TODO 是否要判空
-                for (MqOrderProduct product : list) {
-                    product.setProductstatus(5);
-                    iOrderProductService.editOrderProduct(product);
+                try {
+                    List<MqOrderProduct> list = mqUtil.updateProducts(info);
+                    //TODO 是否要判空
+                    if (list != null && list.size() > 0) {
+                        order.setMqOrderProducts(list);
+                    }
+                    return order;
+
+                } catch (Exception e) {
+                    log.error("修改产品状态失败！", e);
+                    return null;
                 }
-                order.setMqOrderProducts(list);
-                return order;
             } else {
-                return order;
+                log.error("修改产品信息失败！");
+                return null;
             }
 
-        } else {
-
-            //订单为空时，应去鲨鱼查询订单是否存在，因外层已做产品线校验，直接新增就行
-            BeanUtils.copyProperties(mqOrderInfo, info);
-            mqOrderInfo.setId(null);
-            order = iOrderService.saveOrder(mqOrderInfo);
-            return order;
+        } else {//新增
+            orderInfo.setId(null);
+            order = iOrderService.saveOrder(orderInfo);
         }
-
+        return order;
     }
 
     //回写状态
@@ -153,6 +152,7 @@ public class OrderRefundReceiver implements MessageListener {
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         if (map != null && map.containsKey("orderInfo")) {
+            System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已退款
@@ -171,6 +171,7 @@ public class OrderRefundReceiver implements MessageListener {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            System.out.println("分销系统没有该订单，执行新增");
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
             if (null != orderModel && null != orderModel.getId()) {
                 return true;

@@ -6,8 +6,6 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
-import cn.donut.retailm.entity.domain.DrOrderInfo;
-import cn.donut.retailm.entity.model.OrderModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
@@ -15,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * 创建订单监听
@@ -71,7 +67,7 @@ public class OrderCreateReceiver implements MessageListener {
                     MqRecord mqRecord = mqUtil.saveMsg(json, "order.create");
                     if (mqRecord != null) {
                         try {
-                            //保存订单
+                            //保存订单和产品
                             MqOrderInfo order = iOrderService.saveOrder(orderInfo);
                             if (order != null) {
                                 //回写消息状态为实例化成功
@@ -97,44 +93,5 @@ public class OrderCreateReceiver implements MessageListener {
 
     }
 
-    //回写分销系统状态
-//    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
-//
-//        DrOrderInfo drOrderInfo = new DrOrderInfo();
-//        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
-//
-//        if (null != map && map.containsKey("orderInfo")) {
-//            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
-//            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
-//            //待支付
-//            drOrderInfo.setStatus((byte) 0);
-//            drOrderInfo.setUpdateTime(new Date());
-//
-//            Integer id = mqUtil.getRetailMemberId(mqOrderInfo);
-//            if (null != id) {
-//                drOrderInfo.setRetailMemberId(id);
-//            }
-//
-//            return iRetailmOrderService.insertOrder(drOrderInfo) != null;
-//        } else {
-//            //没订单数据，就要新增了
-//            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
-//            //分销员id
-//            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
-//            drOrderInfo.setUpdateTime(new Date());
-//            //待支付
-//            drOrderInfo.setStatus((byte) 0);
-//            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
-//            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
-//            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
-//            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
-//            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
-//            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
-//            if (null != orderModel && null != orderModel.getId()) {
-//                return true;
-//            }
-//            return false;
-//        }
-//
-//    }
+
 }
