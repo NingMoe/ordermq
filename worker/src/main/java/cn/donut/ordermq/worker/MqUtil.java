@@ -24,6 +24,7 @@ import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @Slf4j
+@Controller
 public class MqUtil {
 
     @Autowired
