@@ -7,15 +7,19 @@ import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
+import cn.donut.retailm.entity.model.OrderModel;
+import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.MQMessage;
+import com.koolearn.ordercenter.model.OrderDistributionInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
 import com.koolearn.ordercenter.queue.Queue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
+import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +55,12 @@ public class OrderPaySuccessReceiver {
 
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
+
+    @Autowired
+    private IOrderDistributionInfoService iOrderDistributionInfoService;
+
+    @Autowired
+    private MsgEncryptionService msgEncryptionService;
 
     public void executor(final OrderPaySuccessQueue queue) {
         taskExecutor.execute(new Runnable() {
@@ -163,7 +173,7 @@ public class OrderPaySuccessReceiver {
                     log.error("修改产品状态失败！", e);
                     return null;
                 }
-            }else {
+            } else {
                 log.error("修改产品信息失败！");
                 return null;
             }
@@ -254,9 +264,43 @@ public class OrderPaySuccessReceiver {
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
+            //没订单数据，就要新增了
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //分销员id
+            drOrderInfo.setRetailMemberId(getId(mqOrderInfo));
+            drOrderInfo.setUpdateTime(new Date());
+            drOrderInfo.setStatus((byte) 1);
+            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
+            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
+            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
+            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
+            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+            if (null != orderModel && null != orderModel.getId()) {
+                return true;
+            }
             return false;
         }
 
+    }
+
+
+    private Integer getId(MqOrderInfo mqOrderInfo) {
+        //通过订单号反查订单，关联分销员id
+        OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
+        if (null != orderDistributionInfo) {
+            //解密分销员id
+            String id = null;
+            try {
+                id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
+                System.out.println("分销员id=" + id);
+                return Integer.valueOf(id);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        return null;
     }
 
 }
