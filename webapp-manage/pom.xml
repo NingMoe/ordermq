@@ -137,6 +137,14 @@
             <version>1.1.0</version>
         </dependency>
         <!--swagger end-->
+        <!--鲨鱼订单-->
+        <dependency>
+            <groupId>com.koolearn</groupId>
+            <artifactId>koo-sharks-api</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+
     </dependencies>
 
     <profiles>

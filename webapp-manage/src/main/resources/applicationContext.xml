@@ -11,8 +11,12 @@
     <context:annotation-config/>
     <import resource="applicationContext-service-config.xml"/>
 
+    <context:component-scan base-package="cn.donut.ordermq"/>
     <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
 
 
+    <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
+
+    <dubbo:reference id="iProductService"  interface="com.koolearn.sharks.service.IProductService"/>
 
 </beans>
