@@ -13,7 +13,7 @@
        default-autowire="byName" default-lazy-init="false">
     <context:annotation-config/>
     <tx:annotation-driven/>
-    <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+    <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory" >
         <property name="addresses" value="${rabbit.addresses}"/>
         <property name="username" value="${rabbit.username}"/>
         <property name="password" value="${rabbit.password}"/>
@@ -27,8 +27,6 @@
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
     <rabbit:listener-container connection-factory="connectionFactory">
         <rabbit:listener queue-names="sharks.data.change-donut" ref="consumer"/>
-        <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
-        <rabbit:listener queue-names="order.create" ref="orderConsumer" />
     </rabbit:listener-container>
 
     <!-- 消息接收者 -->
@@ -38,14 +36,10 @@
         <property name="iUserProductService" ref="iUserProductService"/>
     </bean>
 
-    <!-- 消息接收者 -->
-    <bean id="orderConsumer" class="cn.donut.ordermq.worker.order.OrderMsgReceiver"/>
+    <dubbo:reference id="mqAttachmentsServiceProvider" interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
+    <dubbo:reference id="mqInformationServiceProvider" interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
+    <dubbo:reference id="iUserProductService" interface = "com.koolearn.clazz.service.IUserProductService"/>
 
-    <dubbo:reference id="mqAttachmentsServiceProvider"
-                     interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
-    <dubbo:reference id="mqInformationServiceProvider"
-                     interface="cn.donut.ordermq.service.MqInformationServiceProvider"/>
-    <dubbo:reference id="iUserProductService" interface="com.koolearn.clazz.service.IUserProductService"/>
 
 
 </beans>
