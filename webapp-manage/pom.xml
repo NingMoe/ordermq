@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.donut</groupId>
-    <artifactId>donut-ordermq-webapp-manage</artifactId>
+    <artifactId>donut-webapp-ordermq-manage</artifactId>
     <packaging>war</packaging>
     <version>1.0.0-RELEASE</version>
     <url>http://maven.apache.org</url>
