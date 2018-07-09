@@ -162,6 +162,9 @@ public class IOrderServiceImpl implements IOrderService {
 
     @Override
     public Boolean checkProLine(MqOrderInfo orderInfo) {
+        if (orderInfo == null) {
+            return false;
+        }
         MqOrderInfo mqOrderInfo = new MqOrderInfo();
         //去鲨鱼查询订单
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
