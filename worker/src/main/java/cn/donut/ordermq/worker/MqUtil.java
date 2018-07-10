@@ -126,7 +126,7 @@ public class MqUtil {
      * @return
      * @throws Exception
      */
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+//    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
         //判空
         if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
