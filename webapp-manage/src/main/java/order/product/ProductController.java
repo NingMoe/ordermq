@@ -33,7 +33,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Controller
-@RequestMapping("/product")
+@RequestMapping("transfer/product")
 public class ProductController {
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
@@ -44,11 +44,11 @@ public class ProductController {
 
     @RequestMapping(value = "/url", method = RequestMethod.GET)
     @ResponseBody
-    public Object getUrl(@RequestParam Integer productId) {
+    public Map<String, String> getUrl(@RequestParam Integer productId) {
         Map<String, String> map = Maps.newHashMap();
         map.put("url", "");
         if (productId == null) {
-            return null;
+            return map;
         }
         Product product = productService.findProductById(productId);
         if (null != product) {
