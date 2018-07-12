@@ -57,6 +57,7 @@ public class AddressInfo {
         map.put(8711, NODE_URL_PRODUCT);// 华为609
         map.put(8712, NODE_URL_MEMBER);
         map.put(9170, NODE_URL_PRODUCT);
+        map.put(9218, NODE_URL_PRODUCT);
 
 
     }
