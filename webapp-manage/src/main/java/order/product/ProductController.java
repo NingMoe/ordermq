@@ -10,6 +10,7 @@
  */
 package order.product;
 
+import com.google.common.collect.Maps;
 import com.koolearn.sharks.model.Product;
 import com.koolearn.sharks.service.IProductService;
 import org.slf4j.Logger;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -41,15 +44,18 @@ public class ProductController {
 
     @RequestMapping(value = "/url", method = RequestMethod.GET)
     @ResponseBody
-    public String getUrl(@RequestParam Integer productId) {
+    public Object getUrl(@RequestParam Integer productId) {
+        Map<String, String> map = Maps.newHashMap();
+        map.put("url", "");
         if (productId == null) {
             return null;
         }
         Product product = productService.findProductById(productId);
         if (null != product) {
-            return product.getProductInfoUrl();
+            map.put("url", product.getProductInfoUrl());
+            return map;
         }
 
-        return null;
+        return map;
     }
 }
