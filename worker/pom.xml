@@ -12,11 +12,10 @@
     <artifactId>donut-ordermq-worker</artifactId>
     <version>1.0.0-RELEASE</version>
     <dependencies>
-
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-ordercenter-api</artifactId>
-            <version>1.0.0-dev-SNAPSHOT</version>
+            <version>1.0.0-test-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -137,6 +136,25 @@
             <artifactId>httpcore</artifactId>
             <version>4.4</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
 
     </dependencies>
 

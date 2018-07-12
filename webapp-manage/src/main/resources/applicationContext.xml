@@ -11,8 +11,26 @@
     <context:annotation-config/>
     <import resource="applicationContext-service-config.xml"/>
 
+    <context:component-scan base-package="order.product"/>
     <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
 
 
+    <dubbo:reference id="iProductService"  interface="com.koolearn.sharks.service.IProductService"/>
 
+    <dubbo:reference id="mqRecordService"
+                     interface="cn.donut.ordermq.service.MqRecordService"/>
+
+    <dubbo:reference id="iOrderService" interface="cn.donut.ordermq.service.order.IOrderService"/>
+
+    <dubbo:reference id="iOrderProductService" interface="cn.donut.ordermq.service.order.IOrderProductService"/>
+
+    <!--订单状态消息变更MQ消息-->
+    <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
+    <!--加密解密-->
+    <dubbo:reference id="msgEncryptionService" interface="cn.donut.retailm.service.common.MsgEncryptionService"/>
+    <!--分销系统-->
+    <dubbo:reference id="iRetailmOrderService" interface="cn.donut.retailm.service.order.IOrderService"/>
+    <!--查询订单分销员信息-->
+    <dubbo:reference id="iOrderDistributionInfoService"
+                     interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
 </beans>

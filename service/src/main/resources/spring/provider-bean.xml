@@ -23,11 +23,13 @@
             </list>
         </property>
     </bean>
+
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="cn.donut.ordermq.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
         <property name="annotationClass" value="com.koolearn.framework.mybatis.annotation.DAO"/>
     </bean>
+
     <bean id="transactionManager" class="com.koolearn.framework.mybatis.datasource.KooDataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
