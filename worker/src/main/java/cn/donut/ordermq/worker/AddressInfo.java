@@ -58,6 +58,7 @@ public class AddressInfo {
         map.put(8712, NODE_URL_MEMBER);
         map.put(9170, NODE_URL_PRODUCT);
         map.put(9218, NODE_URL_PRODUCT);
+        map.put(9223, NODE_URL_PRODUCT);
 
 
     }
