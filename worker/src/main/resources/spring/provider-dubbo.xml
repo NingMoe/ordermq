@@ -84,5 +84,10 @@
     <!--查询订单分销员信息-->
     <dubbo:reference id="iOrderDistributionInfoService"
                      interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
+    <!--查询订单分销员信息-->
+    <dubbo:reference id="systemAllocationService"
+                     interface="cn.donut.crm.service.SystemAllocationService"/>
+
+
 
 </beans>
