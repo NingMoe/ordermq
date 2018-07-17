@@ -31,6 +31,8 @@ public class AddressInfo {
     //    //9.9活动
     private static final String NODE_URL_DROP = "https://api.donut.cn/api/wk/apply/drop";
 
+    private static final String NODE_URL_REFUND = "https://abc.leanapp.cn/api/user/vip/refund";
+
     private static final String test = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
 
     static Map<Integer, String> map = Maps.newHashMap();
@@ -60,9 +62,9 @@ public class AddressInfo {
         map.put(9218, NODE_URL_PRODUCT);
         map.put(9223, NODE_URL_PRODUCT);
         map.put(9171, NODE_URL_PRODUCT);// 无礼盒-彩虹会员【 v6.5】
-        map.put(9172, NODE_URL_PRODUCT);// 视频vip【 v6.5】
-        map.put(9173, NODE_URL_PRODUCT);// 绘本vip【 v6.5】
-        map.put(9174, NODE_URL_PRODUCT);  // 玩英语vip【 v6.5】
+        map.put(9172, NODE_URL_REFUND);// 视频vip【 v6.5】
+        map.put(9173, NODE_URL_REFUND);// 绘本vip【 v6.5】
+        map.put(9174, NODE_URL_REFUND);  // 玩英语vip【 v6.5】
         map.put(9189, NODE_URL_PRODUCT);        // 华为899 【彩虹会员】无实物【 v6.5】
         map.put(9208, NODE_URL_MEMBER);        // 华为899 【彩虹会员】无实物【 v6.5】
 
