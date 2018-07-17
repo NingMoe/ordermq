@@ -88,6 +88,10 @@
     <dubbo:reference id="systemAllocationService"
                      interface="cn.donut.crm.service.SystemAllocationService"/>
 
+    <!--查询客户信息-->
+    <dubbo:reference id="OpenService"
+                     interface="com.koolearn.sso.service.IOpenService"/>
+
 
 
 </beans>

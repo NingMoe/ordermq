@@ -15,6 +15,8 @@ import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
 import com.koolearn.ordercenter.queue.Queue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
+import com.koolearn.sso.dto.UsersDTO;
+import com.koolearn.sso.service.IOpenService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class OrderPaySuccessReceiver {
 
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
+
+    @Autowired
+    private IOpenService iOpenService;
 
     @Autowired
     private MqUtil mqUtil;
@@ -115,6 +120,7 @@ public class OrderPaySuccessReceiver {
         //如果本地没有数据，执行新增，外层已执行产品线校验
         if (one != null) {
             orderInfo.setId(one.getId());
+            orderInfo.setNetValue(info.getOriginalPriceNetValue());
             order = iOrderService.editOrder(orderInfo);
             if (null != order) {
                 try {
@@ -134,6 +140,7 @@ public class OrderPaySuccessReceiver {
 
         } else {//新增
             orderInfo.setId(null);
+            orderInfo.setNetValue(info.getOriginalPriceNetValue());
             order = iOrderService.saveOrder(orderInfo);
         }
         return order;
@@ -176,6 +183,13 @@ public class OrderPaySuccessReceiver {
             drOrderInfo.setStatus((byte) 1);
             //分销员id
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
+
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
@@ -190,6 +204,13 @@ public class OrderPaySuccessReceiver {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
+
             System.out.println("分销系统没有该订单，执行新增");
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
 

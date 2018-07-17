@@ -93,6 +93,7 @@ public class MqUtil {
             try {
                 id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
                 System.out.println("分销员id=" + id);
+                System.out.println(orderDistributionInfo.toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
