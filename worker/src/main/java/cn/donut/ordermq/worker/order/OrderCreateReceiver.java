@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * 创建订单监听
@@ -61,7 +62,8 @@ public class OrderCreateReceiver implements MessageListener {
                 //转换并校验json格式
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单
-                boolean flag = iOrderService.checkProLine(orderInfo);
+                Map<String, Object> map = iOrderService.checkProLine(orderInfo);
+                Boolean flag = false;
                 if (orderInfo != null && flag) {
                     //保存
                     MqRecord mqRecord = mqUtil.saveMsg(json, "order.create");

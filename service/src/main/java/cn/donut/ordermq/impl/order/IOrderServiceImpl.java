@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.mapper.order.MqOrderInfoMapper;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import com.google.common.collect.Maps;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangjiahao
@@ -161,26 +163,31 @@ public class IOrderServiceImpl implements IOrderService {
 
 
     @Override
-    public Boolean checkProLine(MqOrderInfo orderInfo) {
+    public Map<String,Object> checkProLine(MqOrderInfo orderInfo) {
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("flag",false);
         if (orderInfo == null) {
-            return false;
+            return map;
         }
         MqOrderInfo mqOrderInfo = new MqOrderInfo();
         //去鲨鱼查询订单
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
         if (null == info) {
-            return false;
+            return map;
         }
         List<OrderProductBasicInfo> list = info.getOrderProductBasicInfos();
         if (null != list && list.size() > 0) {
             //判断产品线：订单包含产品要么全是多纳的，要么都不是多纳的
             if (list.get(0).getProductLine() == 49 || list.get(0).getProductLine() == 58) {
-                return true;
+                map.put("flag",true);
+                map.put("productLine",list.get(0).getProductLine());
+                return map;
             } else {
-                return false;
+                return map;
             }
         }
-        return false;
+
+        return map;
     }
 
 

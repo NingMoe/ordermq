@@ -4,6 +4,8 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 
+import java.util.Map;
+
 /**
  * @author wangjiahao
  * @date 2018/6/28 18:35
@@ -45,6 +47,7 @@ public interface IOrderService {
 
     /**
      * 插入订单和产品
+     *
      * @param orderInfo
      * @return
      */
@@ -52,6 +55,7 @@ public interface IOrderService {
 
     /**
      * 修改订单和产品
+     *
      * @param orderInfo
      * @return
      * @throws Exception
@@ -60,6 +64,7 @@ public interface IOrderService {
 
     /**
      * 复制实体
+     *
      * @param product
      * @param productBasicInfo
      * @return
@@ -69,10 +74,11 @@ public interface IOrderService {
 
     /**
      * 判断是否为多纳订单
+     *
      * @param orderInfo
      * @return
      */
-    Boolean checkProLine(MqOrderInfo orderInfo);
+    Map<String, Object> checkProLine(MqOrderInfo orderInfo);
 
 
 }

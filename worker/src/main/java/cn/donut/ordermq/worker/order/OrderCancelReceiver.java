@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 取消订单监听
@@ -62,7 +63,8 @@ public class OrderCancelReceiver implements MessageListener {
                 //转换并校验json格式
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单
-                boolean flag = iOrderService.checkProLine(orderInfo);
+                Map<String, Object> map = iOrderService.checkProLine(orderInfo);
+                Boolean flag = false;
                 if (orderInfo != null && flag) {
                     //保存
                     MqRecord mqRecord = mqUtil.saveMsg(json, "order.cancel");
