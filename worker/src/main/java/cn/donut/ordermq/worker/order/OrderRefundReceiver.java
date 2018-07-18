@@ -57,48 +57,46 @@ public class OrderRefundReceiver implements MessageListener {
 
     @Override
     public void onMessage(final Message msg) {
+
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                taskExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        String json = new String(msg.getBody(), Charset.defaultCharset());
-                        log.info("收到消息：==>{}" + json);
-                        //转换
-                        MqOrderInfo orderInfo = mqUtil.Json2Order(json);
-                        //是否多纳订单
-                        boolean flag = iOrderService.checkProLine(orderInfo);
-                        if (orderInfo != null && flag) {
-                            //保存
-                            MqRecord mqRecord = mqUtil.saveMsg(json, "order.refund");
-                            if (mqRecord != null) {
-                                try {
-                                    MqOrderInfo order = updateData(orderInfo);
-                                    if (order != null) {
-                                        //回写消息状态
-                                        mqRecord.setPersist((byte) 1);
-                                        mqRecordService.edit(mqRecord);
-                                        if (editRetailm(order)) {
-                                            log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
-                                        } else {
-                                            log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
-                                        }
-                                        log.info("订单更新已完成！订单号：{}", order.getOrderNo());
-                                    } else {
-                                        log.info("订单更新失败！");
-                                    }
-                                } catch (Exception e) {
-                                    log.error("更新订单和产品失败！", e);
+                String json = new String(msg.getBody(), Charset.defaultCharset());
+                log.info("收到消息：==>{}" + json);
+                //转换
+                MqOrderInfo orderInfo = mqUtil.Json2Order(json);
+                //是否多纳订单
+                boolean flag = iOrderService.checkProLine(orderInfo);
+                if (orderInfo != null && flag) {
+                    //保存
+                    MqRecord mqRecord = mqUtil.saveMsg(json, "order.refund");
+                    if (mqRecord != null) {
+                        try {
+                            MqOrderInfo order = updateData(orderInfo);
+                            if (order != null) {
+                                //回写消息状态
+                                mqRecord.setPersist((byte) 1);
+                                mqRecordService.edit(mqRecord);
+                                if (editRetailm(order)) {
+                                    log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
+                                } else {
+                                    log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
                                 }
+                                log.info("订单更新已完成！订单号：{}", order.getOrderNo());
+                            } else {
+                                log.info("订单更新失败！");
                             }
+                        } catch (Exception e) {
+                            log.error("更新订单和产品失败！", e);
                         }
-                        // TODO: 2018/6/29 做出分发
-                        // TODO: 2018/6/29 分发记录
                     }
-                });
+                }
+                // TODO: 2018/6/29 做出分发
+                // TODO: 2018/6/29 分发记录
             }
         });
+
+
     }
 
 

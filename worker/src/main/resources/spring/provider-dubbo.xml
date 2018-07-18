@@ -37,27 +37,34 @@
 
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
     <rabbit:listener-container connection-factory="connectionFactory">
-        <rabbit:listener ref="orderPaySuccessReceiver" method="executor" queue-names="donut.order.pay.success" />
-        <rabbit:listener queue-names="sharks.data.change-donut" ref="consumer"/>
+        <!--产品变更mq-->
+        <rabbit:listener queue-names="sharks.data.change-donut" ref="productReceiver"/>
+
+        <!--订单中心mq-->
+        <rabbit:listener queue-names="donut.order.pay.success"  ref="orderPaySuccessReceiver" method="executor" />
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
         <rabbit:listener queue-names="donut.order.create" ref="orderCreateReceiver" />
         <rabbit:listener queue-names="donut.order.cancel" ref="orderCancelReceiver" />
         <!--<rabbit:listener queue-names="donut.order.pay.success" ref="orderPaySuccessReceiver" />-->
         <rabbit:listener queue-names="donut.order.refund" ref="orderRefundReceiver" />
+
+
     </rabbit:listener-container>
 
     <!-- 消息接收者 -->
-    <bean id="consumer" class="cn.donut.ordermq.worker.MsgReceiver">
-        <property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>
-        <property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>
-        <property name="iUserProductService" ref="iUserProductService"/>
-    </bean>
+    <!--<bean id="consumer" class="cn.donut.ordermq.worker.MsgReceiver">-->
+        <!--<property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>-->
+        <!--<property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>-->
+        <!--<property name="iUserProductService" ref="iUserProductService"/>-->
+    <!--</bean>-->
 
     <!-- 消息接收者 -->
+    <bean id="productReceiver" class="cn.donut.ordermq.worker.MsgReceiver"/>
     <bean id="orderCreateReceiver" class="cn.donut.ordermq.worker.order.OrderCreateReceiver"/>
     <bean id="orderCancelReceiver" class="cn.donut.ordermq.worker.order.OrderCancelReceiver"/>
     <bean id="orderPaySuccessReceiver" class="cn.donut.ordermq.worker.order.OrderPaySuccessReceiver"/>
     <bean id="orderRefundReceiver" class="cn.donut.ordermq.worker.order.OrderRefundReceiver"/>
+
 
     <dubbo:reference id="mqAttachmentsServiceProvider"
                      interface="cn.donut.ordermq.service.MqAttachmentsServiceProvider"/>
