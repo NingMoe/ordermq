@@ -7,11 +7,13 @@ import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
+import cn.donut.retailm.entity.domain.DrOrderProduct;
 import cn.donut.retailm.entity.model.OrderModel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.ordercenter.model.MQMessage;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
+import com.koolearn.ordercenter.model.order.basic.OrderBasicInfoWithPayway;
 import com.koolearn.ordercenter.queue.OrderPaySuccessQueue;
 import com.koolearn.ordercenter.queue.Queue;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
@@ -25,9 +27,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.InetAddress;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.awt.SystemColor.info;
 
 /**
  * 支付成功监听
@@ -115,7 +117,10 @@ public class OrderPaySuccessReceiver {
     public MqOrderInfo updateData(MqOrderInfo orderInfo) throws Exception {
 
         //从鲨鱼拿到订单并复制
-        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+        OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(orderInfo.getOrderNo(), true);
+        OrderBasicInfo info = orderBasicInfoWithPayway.getOrderBasicInfo();
+
+        Map<Integer, String> payWayMap = orderBasicInfoWithPayway.getPayWayMap();
         //查询本地数据
         MqOrderInfo one = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
 
@@ -132,7 +137,6 @@ public class OrderPaySuccessReceiver {
                     if (products != null && products.size() > 0) {
                         order.setMqOrderProducts(products);
                     }
-                    return order;
                 } catch (Exception e) {
                     log.error("修改产品状态失败！", e);
                     return null;
@@ -147,6 +151,7 @@ public class OrderPaySuccessReceiver {
             orderInfo.setNetValue(info.getOriginalPriceNetValue());
             order = iOrderService.saveOrder(orderInfo);
         }
+        order.setPayWayMap(payWayMap);
         return order;
     }
 
@@ -174,11 +179,13 @@ public class OrderPaySuccessReceiver {
 
 
     //回写分销系统状态
-    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+    private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
         System.out.println("回写分销系统");
         DrOrderInfo drOrderInfo = new DrOrderInfo();
-        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
 
+        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
+        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        String payWay = mqUtil.getPayWay(paywayMap);
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
@@ -187,6 +194,7 @@ public class OrderPaySuccessReceiver {
             drOrderInfo.setStatus((byte) 1);
             //分销员id
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
             if (userInfo != null) {
@@ -208,6 +216,7 @@ public class OrderPaySuccessReceiver {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
             if (userInfo != null) {
@@ -217,7 +226,11 @@ public class OrderPaySuccessReceiver {
 
             System.out.println("分销系统没有该订单，执行新增");
             System.out.println("订单信息:" + drOrderInfo.toString());
-            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+            List<MqOrderProduct> mqOrderProducts = mqOrderInfo.getMqOrderProducts();
+            List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
+            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
+            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
+
 
             if (null != orderModel && null != orderModel.getId()) {
                 System.out.println("分销系统订单新增成功");

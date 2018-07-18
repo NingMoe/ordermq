@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class MqOrderInfo implements Serializable {
     private Integer id;
@@ -47,6 +48,8 @@ public class MqOrderInfo implements Serializable {
     private Integer basicOrderId;
     //订单产品信息
     private List<MqOrderProduct> mqOrderProducts;
+    //支付方式
+    Map<Integer, String> payWayMap;
 
     public Integer getId() {
         return id;
@@ -216,6 +219,14 @@ public class MqOrderInfo implements Serializable {
         this.mqOrderProducts = mqOrderProducts;
     }
 
+    public Map<Integer, String> getPayWayMap() {
+        return payWayMap;
+    }
+
+    public void setPayWayMap(Map<Integer, String> payWayMap) {
+        this.payWayMap = payWayMap;
+    }
+
     @Override
     public String toString() {
         return "MqOrderInfo{" +
@@ -240,6 +251,7 @@ public class MqOrderInfo implements Serializable {
                 ", isBasicOrder=" + isBasicOrder +
                 ", basicOrderId=" + basicOrderId +
                 ", mqOrderProducts=" + mqOrderProducts +
+                ", payWayMap=" + payWayMap +
                 '}';
     }
 }

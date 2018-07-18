@@ -27,7 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -141,5 +143,22 @@ public class MqUtil {
             return iOrderProductService.findProductsByOrderNo(orderBasicInfo.getOrderNo());
         }
         return null;
+    }
+
+    public String getPayWay(Map<Integer, String> paywayMap) {
+        String payWay = "";
+        if (payWay == null) {
+            return payWay;
+        }
+
+        Iterator iter = paywayMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            Object key = entry.getKey();
+            Object val = entry.getValue();
+            payWay += val + ",";
+        }
+        payWay = payWay.substring(0, payWay.length() - 1);
+        return payWay;
     }
 }

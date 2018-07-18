@@ -8,8 +8,10 @@ import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
+import cn.donut.retailm.entity.domain.DrOrderProduct;
 import cn.donut.retailm.entity.model.OrderModel;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
+import com.koolearn.ordercenter.model.order.basic.OrderBasicInfoWithPayway;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.sso.dto.UsersDTO;
 import com.koolearn.sso.service.IOpenService;
@@ -23,9 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 订单退课监听
@@ -117,9 +117,11 @@ public class OrderRefundReceiver implements MessageListener {
     public MqOrderInfo updateData(MqOrderInfo orderInfo) throws Exception {
 
         //从鲨鱼拿到订单并复制
-        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
+        OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(orderInfo.getOrderNo(), true);
+        OrderBasicInfo info = orderBasicInfoWithPayway.getOrderBasicInfo();
         //查询本地数据
         MqOrderInfo one = iOrderService.findOneByOrderNo(orderInfo.getOrderNo());
+        Map<Integer, String> payWayMap = orderBasicInfoWithPayway.getPayWayMap();
 
         BeanUtils.copyProperties(orderInfo, info);
         MqOrderInfo order;
@@ -134,7 +136,6 @@ public class OrderRefundReceiver implements MessageListener {
                     if (list != null && list.size() > 0) {
                         order.setMqOrderProducts(list);
                     }
-                    return order;
 
                 } catch (Exception e) {
                     log.error("修改产品状态失败！", e);
@@ -149,13 +150,19 @@ public class OrderRefundReceiver implements MessageListener {
             orderInfo.setId(null);
             order = iOrderService.saveOrder(orderInfo);
         }
+        order.setPayWayMap(payWayMap);
         return order;
     }
 
     //回写状态
-    private Boolean editRetailm(MqOrderInfo mqOrderInfo) {
+    private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
+
+        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(mqOrderInfo.getOrderNo(), true);
+
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
+        String payWay = mqUtil.getPayWay(paywayMap);
         if (map != null && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
@@ -163,6 +170,7 @@ public class OrderRefundReceiver implements MessageListener {
             //已退款
             drOrderInfo.setStatus((byte) 2);
             drOrderInfo.setUpdateTime(new Date());
+            drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
             if (userInfo != null) {
@@ -182,6 +190,7 @@ public class OrderRefundReceiver implements MessageListener {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
             if (userInfo != null) {
@@ -189,7 +198,11 @@ public class OrderRefundReceiver implements MessageListener {
                 drOrderInfo.setConsumerPhone(userInfo.getMobile());
             }
             System.out.println("分销系统没有该订单，执行新增");
-            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+            System.out.println("订单信息:" + drOrderInfo.toString());
+            List<MqOrderProduct> mqOrderProducts = mqOrderInfo.getMqOrderProducts();
+            List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
+            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
+            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
             if (null != orderModel && null != orderModel.getId()) {
                 return true;
             }
@@ -197,4 +210,5 @@ public class OrderRefundReceiver implements MessageListener {
         }
 
     }
+
 }
