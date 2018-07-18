@@ -8,21 +8,18 @@
  * <author>          <time>          <version>          <desc>
  * 作者姓名           修改时间           版本号              描述
  */
-package product;
+package donut.product;
 
 import cn.donut.ordermq.entity.order.MqOrderInfo;
-import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.model.OrderModel;
 import com.google.common.collect.Maps;
-import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.sharks.model.Product;
 import com.koolearn.sharks.service.IProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
