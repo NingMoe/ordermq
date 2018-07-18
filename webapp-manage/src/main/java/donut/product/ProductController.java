@@ -83,61 +83,61 @@ public class ProductController {
 
 
 
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    @ResponseBody
-    public Boolean test(@RequestParam Integer orderId) {
-        System.out.println("回写分销系统");
-        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderId(orderId);
-        DrOrderInfo drOrderInfo = new DrOrderInfo();
-        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
-
-        if (null != map && map.containsKey("orderInfo")) {
-            System.out.println("分销系统有该订单，执行更新");
-            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
-            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
-            //已支付
-            drOrderInfo.setStatus((byte) 1);
-            //分销员id
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
-            //查询客户信息
-            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
-            if (userInfo != null) {
-                drOrderInfo.setConsumerName(userInfo.getUserName());
-                drOrderInfo.setConsumerPhone(userInfo.getMobile());
-            }
-
-            drOrderInfo.setUpdateTime(new Date());
-            return iRetailmOrderService.editOrder(drOrderInfo);
-        } else {
-            //没订单数据，就要新增了
-            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
-            //分销员id
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
-            drOrderInfo.setUpdateTime(new Date());
-            drOrderInfo.setStatus((byte) 1);
-            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
-            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
-            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
-            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
-            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
-            //查询客户信息
-            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
-            if (userInfo != null) {
-                drOrderInfo.setConsumerName(userInfo.getUserName());
-                drOrderInfo.setConsumerPhone(userInfo.getMobile());
-            }
-
-            System.out.println("分销系统没有该订单，执行新增");
-            System.out.println("订单信息:" + drOrderInfo.toString());
-            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
-
-            if (null != orderModel && null != orderModel.getId()) {
-                System.out.println("分销系统订单新增成功");
-                return true;
-            }
-            return false;
-        }
-
-    }
+//    @RequestMapping(value = "/test", method = RequestMethod.GET)
+//    @ResponseBody
+//    public Boolean test(@RequestParam Integer orderId) {
+//        System.out.println("回写分销系统");
+//        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderId(orderId);
+//        DrOrderInfo drOrderInfo = new DrOrderInfo();
+//        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+//
+//        if (null != map && map.containsKey("orderInfo")) {
+//            System.out.println("分销系统有该订单，执行更新");
+//            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
+//            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+//            //已支付
+//            drOrderInfo.setStatus((byte) 1);
+//            //分销员id
+//            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+//            //查询客户信息
+//            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+//            if (userInfo != null) {
+//                drOrderInfo.setConsumerName(userInfo.getUserName());
+//                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+//            }
+//
+//            drOrderInfo.setUpdateTime(new Date());
+//            return iRetailmOrderService.editOrder(drOrderInfo);
+//        } else {
+//            //没订单数据，就要新增了
+//            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+//            //分销员id
+//            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+//            drOrderInfo.setUpdateTime(new Date());
+//            drOrderInfo.setStatus((byte) 1);
+//            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
+//            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
+//            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
+//            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
+//            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+//            //查询客户信息
+//            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+//            if (userInfo != null) {
+//                drOrderInfo.setConsumerName(userInfo.getUserName());
+//                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+//            }
+//
+//            System.out.println("分销系统没有该订单，执行新增");
+//            System.out.println("订单信息:" + drOrderInfo.toString());
+////            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
+//
+////            if (null != orderModel && null != orderModel.getId()) {
+////                System.out.println("分销系统订单新增成功");
+////                return true;
+////            }
+//            return false;
+//        }
+//
+//    }
 
 }

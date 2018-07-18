@@ -15,11 +15,21 @@
     <context:component-scan base-package="cn.donut.ordermq"/>
     <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
     <tx:annotation-driven/>
+
+
+
     <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
         <property name="addresses" value="${rabbit.addresses}"/>
         <property name="username" value="${rabbit.username}"/>
         <property name="password" value="${rabbit.password}"/>
         <property name="virtualHost" value="${rabbit.vhost}"/>
+    </bean>
+
+    <bean id="MqconnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+        <property name="addresses" value="rabbit-3.cluster.koolearn.com:5673,rabbit-4.cluster.koolearn.com:5674"/>
+        <property name="username" value="donut"/>
+        <property name="password" value="d3K_ee4vC"/>
+        <property name="virtualHost" value="shark_vhost"/>
     </bean>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -34,12 +44,17 @@
 
     <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
     <rabbit:admin connection-factory="connectionFactory"/>
+    <rabbit:admin connection-factory="MqconnectionFactory"/>
 
-    <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象 -->
+    <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象(产品变更消息中心) -->
     <rabbit:listener-container connection-factory="connectionFactory">
         <!--产品变更mq-->
         <rabbit:listener queue-names="sharks.data.change-donut" ref="productReceiver"/>
+    </rabbit:listener-container>
 
+
+    <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象(订单变更中心) -->
+    <rabbit:listener-container connection-factory="MqconnectionFactory">
         <!--订单中心mq-->
         <rabbit:listener queue-names="donut.order.pay.success"  ref="orderPaySuccessReceiver" method="executor" />
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
@@ -47,8 +62,6 @@
         <rabbit:listener queue-names="donut.order.cancel" ref="orderCancelReceiver" />
         <!--<rabbit:listener queue-names="donut.order.pay.success" ref="orderPaySuccessReceiver" />-->
         <rabbit:listener queue-names="donut.order.refund" ref="orderRefundReceiver" />
-
-
     </rabbit:listener-container>
 
     <!-- 消息接收者 -->
