@@ -70,7 +70,7 @@ public class OrderPaySuccessReceiver {
                 Map<String, Object> map = iOrderService.checkProLine(orderInfo);
                 Boolean flag = false;
                 if (null != map && map.containsKey("flag")) {
-                        flag = (Boolean) map.get("flag");
+                    flag = (Boolean) map.get("flag");
                 }
                 if (orderInfo != null && flag) {
                     //保存
@@ -216,6 +216,7 @@ public class OrderPaySuccessReceiver {
             }
 
             System.out.println("分销系统没有该订单，执行新增");
+            System.out.println("订单信息:" + drOrderInfo.toString());
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
 
             if (null != orderModel && null != orderModel.getId()) {

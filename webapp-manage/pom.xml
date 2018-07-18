@@ -244,6 +244,11 @@
             <version>${spring.version}</version>
         </dependency>
 
+        <!--查客户信息-->
+        <dependency>
+            <groupId>com.koolearn</groupId>
+            <artifactId>koo-sso</artifactId>
+        </dependency>
 
     </dependencies>
 

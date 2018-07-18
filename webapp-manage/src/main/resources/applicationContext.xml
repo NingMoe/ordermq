@@ -33,4 +33,8 @@
     <!--查询订单分销员信息-->
     <dubbo:reference id="iOrderDistributionInfoService"
                      interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
+
+    <!--查询客户信息-->
+    <dubbo:reference id="OpenService"
+                     interface="com.koolearn.sso.service.IOpenService"/>
 </beans>

@@ -17,6 +17,8 @@ import cn.donut.retailm.entity.model.OrderModel;
 import com.google.common.collect.Maps;
 import com.koolearn.sharks.model.Product;
 import com.koolearn.sharks.service.IProductService;
+import com.koolearn.sso.dto.UsersDTO;
+import com.koolearn.sso.service.IOpenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,9 @@ public class ProductController {
 
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
+
+    @Autowired
+    private IOpenService iOpenService;
 
     @Autowired
     private MqUtil mqUtil;
@@ -94,6 +99,13 @@ public class ProductController {
             drOrderInfo.setStatus((byte) 1);
             //分销员id
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
+
             drOrderInfo.setUpdateTime(new Date());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
@@ -108,7 +120,15 @@ public class ProductController {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
+
             System.out.println("分销系统没有该订单，执行新增");
+            System.out.println("订单信息:" + drOrderInfo.toString());
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
 
             if (null != orderModel && null != orderModel.getId()) {
