@@ -11,6 +11,8 @@ import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.model.OrderModel;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
+import com.koolearn.sso.dto.UsersDTO;
+import com.koolearn.sso.service.IOpenService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -51,6 +53,9 @@ public class OrderRefundReceiver implements MessageListener {
 
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
+
+    @Autowired
+    private IOpenService iOpenService;
 
     @Autowired
     private MqUtil mqUtil;
@@ -158,6 +163,12 @@ public class OrderRefundReceiver implements MessageListener {
             //已退款
             drOrderInfo.setStatus((byte) 2);
             drOrderInfo.setUpdateTime(new Date());
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
             //没订单数据，就要新增了
@@ -171,6 +182,12 @@ public class OrderRefundReceiver implements MessageListener {
             drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
             drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
             System.out.println("分销系统没有该订单，执行新增");
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo);
             if (null != orderModel && null != orderModel.getId()) {
