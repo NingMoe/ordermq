@@ -179,7 +179,7 @@
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-sharks-api</artifactId>
-            <version>RELEASE</version>
+            <version>3.3.2</version>
         </dependency>
 
 
