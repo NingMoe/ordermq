@@ -34,7 +34,7 @@ public class AddressInfo {
 
     private static final String NODE_URL_REFUND = "https://abc.leanapp.cn/api/user/vip/refund";
 
-    private static final String test = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
+//    private static final String test = "https://doabc.leanapp.cn/api/v1/web/yc/apply/status";
 
     static Map<Integer, String> map = Maps.newHashMap();
 
