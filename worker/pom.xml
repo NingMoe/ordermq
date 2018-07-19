@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.koolearn</groupId>
-        <artifactId>dependency-jdk16</artifactId>
+        <artifactId>dependency-jdk17</artifactId>
         <version>2.0.0-product-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -16,7 +16,6 @@
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-ordercenter-api</artifactId>
-            <version>1.0.0-test-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -27,7 +26,6 @@
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-sharks-api</artifactId>
-            <version>3.0.33</version>
         </dependency>
         <!--订单分发 end-->
 
@@ -47,7 +45,6 @@
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.koolearn</groupId>
@@ -72,13 +69,11 @@
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-class-api</artifactId>
-            <version>3.0.17</version>
         </dependency>
 
         <dependency>
             <groupId>com.koolearn</groupId>
             <artifactId>koo-sharks-api</artifactId>
-            <version>3.0.33</version>
         </dependency>
 
         <dependency>
