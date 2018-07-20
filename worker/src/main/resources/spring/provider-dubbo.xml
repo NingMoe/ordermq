@@ -3,15 +3,25 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xmlns:rabbit="http://www.springframework.org/schema/rabbit"
-       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://code.alibabatech.com/schema/dubbo
                            http://code.alibabatech.com/schema/dubbo/dubbo.xsd
                            http://www.springframework.org/schema/rabbit
-			                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+			                http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+			                http://www.springframework.org/schema/context
+			                http://www.springframework.org/schema/context/spring-context.xsd
+			                http://www.springframework.org/schema/tx
+			                http://www.springframework.org/schema/tx/spring-tx.xsd
+			                http://www.springframework.org/schema/aop
+			                http://www.springframework.org/schema/aop/spring-aop.xsd"
        default-autowire="byName" default-lazy-init="false">
     <context:annotation-config/>
+    <!-- 开启对 @Aspect 的支持-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
     <context:component-scan base-package="cn.donut.ordermq"/>
     <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
     <tx:annotation-driven/>
@@ -25,12 +35,12 @@
         <property name="virtualHost" value="${rabbit.vhost}"/>
     </bean>
 
-    <bean id="MqconnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
-        <property name="addresses" value="rabbit-3.cluster.koolearn.com:5673,rabbit-4.cluster.koolearn.com:5674"/>
-        <property name="username" value="donut"/>
-        <property name="password" value="d3K_ee4vC"/>
-        <property name="virtualHost" value="shark_vhost"/>
-    </bean>
+    <!--<bean id="MqconnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">-->
+        <!--<property name="addresses" value="rabbit-3.cluster.koolearn.com:5673,rabbit-4.cluster.koolearn.com:5674"/>-->
+        <!--<property name="username" value="donut"/>-->
+        <!--<property name="password" value="d3K_ee4vC"/>-->
+        <!--<property name="virtualHost" value="shark_vhost"/>-->
+    <!--</bean>-->
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="10"/>
@@ -44,7 +54,7 @@
 
     <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
     <rabbit:admin connection-factory="connectionFactory"/>
-    <rabbit:admin connection-factory="MqconnectionFactory"/>
+    <!--<rabbit:admin connection-factory="MqconnectionFactory"/>-->
 
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象(产品变更消息中心) -->
     <rabbit:listener-container connection-factory="connectionFactory">
@@ -54,7 +64,7 @@
 
 
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象(订单变更中心) -->
-    <rabbit:listener-container connection-factory="MqconnectionFactory">
+    <rabbit:listener-container connection-factory="connectionFactory">
         <!--订单中心mq-->
         <rabbit:listener queue-names="donut.order.pay.success"  ref="orderPaySuccessReceiver" method="executor" />
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->

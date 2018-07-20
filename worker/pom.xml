@@ -12,6 +12,29 @@
     <artifactId>donut-ordermq-worker</artifactId>
     <version>1.0.0-RELEASE</version>
     <dependencies>
+        <!--AOP begin-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>3.2.17.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.6.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.6.12</version>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <!--AOP end-->
+
         <!--订单分发 begin-->
         <dependency>
             <groupId>com.koolearn</groupId>
