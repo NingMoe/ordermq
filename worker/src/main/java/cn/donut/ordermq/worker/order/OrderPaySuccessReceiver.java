@@ -229,7 +229,14 @@ public class OrderPaySuccessReceiver {
             System.out.println("订单信息:" + drOrderInfo.toString());
             List<MqOrderProduct> mqOrderProducts = mqOrderInfo.getMqOrderProducts();
             List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
-            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
+            if (null != mqOrderProducts) {
+                for (MqOrderProduct info : mqOrderProducts) {
+                    DrOrderProduct drOrderProduct = new DrOrderProduct();
+                    BeanUtils.copyProperties(drOrderProduct, info);
+                    orderProducts.add(drOrderProduct);
+                }
+            }
+//            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
 
 
