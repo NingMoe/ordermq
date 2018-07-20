@@ -20,8 +20,8 @@
 			                http://www.springframework.org/schema/aop/spring-aop.xsd"
        default-autowire="byName" default-lazy-init="false">
     <context:annotation-config/>
-    <!-- 开启对 @Aspect 的支持-->
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <!--&lt;!&ndash; 开启对 @Aspect 的支持&ndash;&gt;-->
+    <!--<aop:aspectj-autoproxy proxy-target-class="true"/>-->
     <context:component-scan base-package="cn.donut.ordermq"/>
     <bean class="com.koolearn.framework.common.utils.spring.SpringContextUtils"/>
     <tx:annotation-driven/>
