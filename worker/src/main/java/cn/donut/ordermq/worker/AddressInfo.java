@@ -69,6 +69,7 @@ public class AddressInfo {
         map.put(9174, NODE_URL_REFUND);  // 玩英语vip【 v6.5】
         map.put(9189, NODE_URL_PRODUCT);        // 华为899 【彩虹会员】无实物【 v6.5】
         map.put(9208, NODE_URL_MEMBER);        // 华为899 【彩虹会员】无实物【 v6.5】
+        map.put(9284, NODE_URL_PRODUCT);
 
     }
 }

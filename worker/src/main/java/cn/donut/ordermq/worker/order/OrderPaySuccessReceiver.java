@@ -218,6 +218,10 @@ public class OrderPaySuccessReceiver {
             //没订单数据，就要新增了
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
+            Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
+            if (null == retailmId) {
+                return null;
+            }
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setStatus((byte) 1);
