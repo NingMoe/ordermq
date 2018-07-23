@@ -87,6 +87,7 @@ public class OrderPaySuccessReceiver {
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 Boolean retailm = editRetailm(order);
+                                System.out.println("执行完成回写分销系统");
                                 if (retailm) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
                                 } else if (retailm == null) {
@@ -185,9 +186,8 @@ public class OrderPaySuccessReceiver {
 
     //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
-
+        System.out.println("回写");
         DrOrderInfo drOrderInfo = new DrOrderInfo();
-
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         String payWay = mqUtil.getPayWay(paywayMap);
