@@ -91,8 +91,10 @@ public class MqUtil {
         OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
         if (null != orderDistributionInfo) {
             //解密分销员id
+            System.out.println("分销员信息不为空"+orderDistributionInfo.toString());
             String id = null;
             try {
+                System.out.println("分销员id"+orderDistributionInfo.getDistributionUser());
                 id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
                 System.out.println("分销员id=" + id);
             } catch (Exception e) {

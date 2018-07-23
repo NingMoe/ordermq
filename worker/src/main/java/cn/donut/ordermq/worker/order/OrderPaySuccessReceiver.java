@@ -221,6 +221,7 @@ public class OrderPaySuccessReceiver {
             System.out.println("分销系统有该订单，执行新增");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
+
             Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
 
             if (null == retailmId) {
