@@ -21,6 +21,7 @@ import com.koolearn.sso.dto.UsersDTO;
 import com.koolearn.sso.service.IOpenService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.velocity.runtime.directive.Break;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Propagation;
@@ -85,8 +86,11 @@ public class OrderPaySuccessReceiver {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
-                                if (editRetailm(order)) {
+                                Boolean retailm = editRetailm(order);
+                                if (retailm) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
+                                } else if (retailm == null) {
+                                    log.info("不需要回写！订单号：{}");
                                 } else {
                                     log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
                                 }
@@ -194,6 +198,10 @@ public class OrderPaySuccessReceiver {
             //已支付
             drOrderInfo.setStatus((byte) 1);
             //分销员id
+            Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
+            if (null == retailmId) {
+                return null;
+            }
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
             drOrderInfo.setPayWay(payWay);
             //查询客户信息
