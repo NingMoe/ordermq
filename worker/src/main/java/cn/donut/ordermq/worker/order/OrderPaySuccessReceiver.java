@@ -87,10 +87,10 @@ public class OrderPaySuccessReceiver {
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 Boolean retailm = editRetailm(order);
-                                System.out.println("执行完成回写分销系统"+retailm);
+                                System.out.println("执行完成回写分销系统" + retailm);
                                 if (retailm) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
-                                } else if ( null == retailm ) {
+                                } else if (null == retailm) {
                                     log.info("不需要回写！订单号：{}");
                                 } else {
                                     log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
@@ -202,6 +202,7 @@ public class OrderPaySuccessReceiver {
             if (null == retailmId) {
                 return null;
             }
+            System.out.println("分销员不为空" + retailmId);
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
             drOrderInfo.setPayWay(payWay);
             //查询客户信息
