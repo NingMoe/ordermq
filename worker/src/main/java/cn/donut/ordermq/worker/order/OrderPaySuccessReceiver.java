@@ -186,10 +186,11 @@ public class OrderPaySuccessReceiver {
 
     //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
-        System.out.println("回写");
+        System.out.println("回写,订单实体"+mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        System.out.println("订单号" + mqOrderInfo.getOrderNo());
         String payWay = mqUtil.getPayWay(paywayMap);
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
@@ -217,12 +218,15 @@ public class OrderPaySuccessReceiver {
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
             //没订单数据，就要新增了
+            System.out.println("分销系统有该订单，执行新增");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
             Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
+
             if (null == retailmId) {
                 return null;
             }
+            System.out.println("分销员不为空" + retailmId);
             drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setStatus((byte) 1);
