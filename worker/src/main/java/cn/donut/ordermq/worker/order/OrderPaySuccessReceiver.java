@@ -181,7 +181,7 @@ public class OrderPaySuccessReceiver {
 
     //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
-        System.out.println("回写分销系统");
+
         DrOrderInfo drOrderInfo = new DrOrderInfo();
 
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
@@ -204,6 +204,7 @@ public class OrderPaySuccessReceiver {
             }
 
             drOrderInfo.setUpdateTime(new Date());
+            log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
             //没订单数据，就要新增了
@@ -225,12 +226,13 @@ public class OrderPaySuccessReceiver {
                 drOrderInfo.setConsumerPhone(userInfo.getMobile());
             }
 
-            System.out.println("分销系统没有该订单，执行新增");
-            System.out.println("订单信息:" + drOrderInfo.toString());
+            log.warn("回写分销系统，订单信息drOrderInfo:-->{}", drOrderInfo.toString());
             List<MqOrderProduct> mqOrderProducts = mqOrderInfo.getMqOrderProducts();
+
             List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
             if (null != mqOrderProducts) {
                 for (MqOrderProduct info : mqOrderProducts) {
+                    log.warn("产品信息：-->{}", info.toString());
                     DrOrderProduct drOrderProduct = new DrOrderProduct();
                     BeanUtils.copyProperties(drOrderProduct, info);
                     orderProducts.add(drOrderProduct);
