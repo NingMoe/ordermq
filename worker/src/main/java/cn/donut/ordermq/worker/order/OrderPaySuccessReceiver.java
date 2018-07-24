@@ -81,6 +81,7 @@ public class OrderPaySuccessReceiver {
                     MqRecord mqRecord = mqUtil.saveMsg(json, "order.pay.success");
                     if (mqRecord != null) {
                         try {
+                            //根据订单号查询最新实体，并更新本地数据
                             MqOrderInfo order = updateData(orderInfo);
                             if (order != null) {
                                 //回写消息状态
@@ -186,7 +187,7 @@ public class OrderPaySuccessReceiver {
 
     //回写分销系统状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
-        System.out.println("回写,订单实体"+mqOrderInfo.toString());
+        System.out.println("回写,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
