@@ -10,29 +10,29 @@
 //
 ///**
 // * @author wangjiahao
-// * @date 2018/7/19 13:55
+// * @date 2018/7/20 9:25
 // */
 //@Component
 //@Aspect
-//public class TestAop {
+//public class TestAOP {
 //
-//    private static final Logger log = LoggerFactory.getLogger(TestAop.class);
+//    private static final Logger log = LoggerFactory.getLogger(TestAOP.class);
 //
 //    @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderRefundReceiver.*(..))")
-//    public void pointCut() {
-//    }
+//    public void pointcut() {}
 //
-//    @Around("pointCut()")
-//    public void around(ProceedingJoinPoint jp) throws Throwable {
-//        System.out.println("------------------before-------------------------");
+//
+//
+//    @Around("pointcut()")
+//    public void around(ProceedingJoinPoint jp){
+//        System.out.println("=============before================");
 //        try {
-//            System.out.println("------------------around-------------------------");
 //            jp.proceed();
-//        } catch (Exception e) {
-//            log.error("异常！", e);
-//            System.out.println("------------------exception-------------------------");
+//            System.out.println("=============around================");
+//        } catch (Throwable throwable) {
+//            System.out.println("=============exception================");
 //        }
-//        System.out.println("------------------after-------------------------");
+//        System.out.println("=============after================");
 //    }
 //
 //}
