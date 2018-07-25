@@ -283,4 +283,10 @@ public class OrderPaySuccessReceiver {
 
     }
 
+    /**
+     * Aop的切点方法
+     */
+    public  void pushAop(){
+        System.out.println("执行业务处理--------------");
+    }
 }

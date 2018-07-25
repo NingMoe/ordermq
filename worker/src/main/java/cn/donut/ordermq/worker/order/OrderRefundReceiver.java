@@ -93,7 +93,7 @@ public class OrderRefundReceiver implements MessageListener {
                                         //推送直播
                                         try {
                                             Boolean live = mqUtil.pushLive(order);
-                                        }catch (Exception e){
+                                        } catch (Exception e) {
                                             e.printStackTrace();
                                             editRetailm(order);
                                         }
@@ -255,4 +255,10 @@ public class OrderRefundReceiver implements MessageListener {
 
     }
 
+    /**
+     * Aop的切点方法
+     */
+    public void pushAop() {
+        System.out.println("执行业务处理--------------");
+    }
 }
