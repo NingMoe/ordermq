@@ -10,6 +10,7 @@
  */
 package cn.donut.ordermq.worker;
 
+import cn.donut.crm.service.SystemAllocationService;
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
@@ -21,11 +22,13 @@ import com.google.gson.JsonParseException;
 import com.koolearn.ordercenter.model.OrderDistributionInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
+import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -53,6 +56,12 @@ public class MqUtil {
 
     @Autowired
     private IOrderProductService iOrderProductService;
+
+    @Autowired
+    private SystemAllocationService systemAllocationService;
+
+    @Autowired
+    private IOrderBasicInfoService iOrderBasicInfoService;
 
     /**
      * json转化实体
@@ -91,10 +100,10 @@ public class MqUtil {
         OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
         if (null != orderDistributionInfo) {
             //解密分销员id
-            System.out.println("分销员信息不为空"+orderDistributionInfo.toString());
+            System.out.println("分销员信息不为空" + orderDistributionInfo.toString());
             String id = null;
             try {
-                System.out.println("分销员id"+orderDistributionInfo.getDistributionUser());
+                System.out.println("分销员id" + orderDistributionInfo.getDistributionUser());
                 id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
                 System.out.println("分销员id=" + id);
             } catch (Exception e) {
@@ -162,5 +171,30 @@ public class MqUtil {
         }
         payWay = payWay.substring(0, payWay.length() - 1);
         return payWay;
+    }
+
+    public Boolean pushLive(MqOrderInfo order) {
+        System.out.println("本地订单实体:" + order.toString());
+        OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(order.getOrderNo(), true);
+        System.out.println("鲨鱼订单:" + orderBasicInfo.toString());
+        Integer i = systemAllocationService.addSystemAllocationTwoService(orderBasicInfo, convertDate(), 0);
+
+        return i > 0;
+    }
+
+    public String convertDate() {
+        Date date = new Date();
+        SimpleDateFormat df = null;
+        String returnValue = "";
+
+        if (date == null) {
+            // log.error("aDate is null!");
+        } else {
+            df = new SimpleDateFormat("yyyyMMdd");
+            returnValue = df.format(date);
+        }
+
+        return (returnValue);
+
     }
 }

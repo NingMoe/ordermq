@@ -81,13 +81,31 @@ public class OrderRefundReceiver implements MessageListener {
                     MqRecord mqRecord = mqUtil.saveMsg(json, "order.refund");
                     if (mqRecord != null) {
                         try {
+                            //根据订单号查询最新实体，并更新本地数据
                             MqOrderInfo order = updateData(orderInfo);
                             if (order != null) {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
-                                if (editRetailm(order)) {
+                                if (map.containsKey("productLine")) {
+                                    Integer lineCode = (Integer) map.get("productLine");
+                                    if (lineCode == 49) {
+                                        //推送直播
+                                        try {
+                                            Boolean live = mqUtil.pushLive(order);
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                            editRetailm(order);
+                                        }
+
+                                    }
+                                }
+                                Boolean retailm = editRetailm(order);
+                                System.out.println("执行完成回写分销系统" + retailm);
+                                if (retailm) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
+                                } else if (null == retailm) {
+                                    log.info("不需要回写！订单号：{}");
                                 } else {
                                     log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
                                 }
@@ -130,6 +148,7 @@ public class OrderRefundReceiver implements MessageListener {
         //如果本地没有数据，执行新增，外层已执行产品线校验
         if (one != null) {
             orderInfo.setId(one.getId());
+            orderInfo.setNetValue(info.getOriginalPriceNetValue());
             order = iOrderService.editOrder(orderInfo);
             if (null != order) {
                 try {
@@ -150,6 +169,7 @@ public class OrderRefundReceiver implements MessageListener {
 
         } else {//新增
             orderInfo.setId(null);
+            orderInfo.setNetValue(info.getOriginalPriceNetValue());
             order = iOrderService.saveOrder(orderInfo);
         }
         order.setPayWayMap(payWayMap);
@@ -158,20 +178,25 @@ public class OrderRefundReceiver implements MessageListener {
 
     //回写状态
     private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
-
-        OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(mqOrderInfo.getOrderNo(), true);
-
+        System.out.println("回写,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         String payWay = mqUtil.getPayWay(paywayMap);
+        System.out.println("订单号" + mqOrderInfo.getOrderNo());
         if (map != null && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //已退款
             drOrderInfo.setStatus((byte) 2);
+            //分销员id
+            Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
+            if (null == retailmId) {
+                return null;
+            }
             drOrderInfo.setUpdateTime(new Date());
+            drOrderInfo.setRetailMemberId(retailmId);
             drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
@@ -179,12 +204,21 @@ public class OrderRefundReceiver implements MessageListener {
                 drOrderInfo.setConsumerName(userInfo.getUserName());
                 drOrderInfo.setConsumerPhone(userInfo.getMobile());
             }
+            log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
             //没订单数据，就要新增了
+            System.out.println("分销系统有该订单，执行新增");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+
+            Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
+
+            if (null == retailmId) {
+                return null;
+            }
+            System.out.println("分销员不为空" + retailmId);
+            drOrderInfo.setRetailMemberId(retailmId);
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setStatus((byte) 2);
             drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
@@ -199,13 +233,21 @@ public class OrderRefundReceiver implements MessageListener {
                 drOrderInfo.setConsumerName(userInfo.getUserName());
                 drOrderInfo.setConsumerPhone(userInfo.getMobile());
             }
-            System.out.println("分销系统没有该订单，执行新增");
-            System.out.println("订单信息:" + drOrderInfo.toString());
+            log.warn("回写分销系统，订单信息drOrderInfo:-->{}", drOrderInfo.toString());
             List<MqOrderProduct> mqOrderProducts = mqOrderInfo.getMqOrderProducts();
             List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
-            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
+            if (null != mqOrderProducts) {
+                for (MqOrderProduct info : mqOrderProducts) {
+                    log.warn("产品信息：-->{}", info.toString());
+                    DrOrderProduct drOrderProduct = new DrOrderProduct();
+                    BeanUtils.copyProperties(drOrderProduct, info);
+                    orderProducts.add(drOrderProduct);
+                }
+            }
+//            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
             if (null != orderModel && null != orderModel.getId()) {
+                System.out.println("分销系统订单新增成功");
                 return true;
             }
             return false;

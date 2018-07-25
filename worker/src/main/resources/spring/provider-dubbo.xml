@@ -114,9 +114,9 @@
     <!--查询订单分销员信息-->
     <dubbo:reference id="iOrderDistributionInfoService"
                      interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
-    <!--&lt;!&ndash;直播dubbo&ndash;&gt;-->
-    <!--<dubbo:reference id="systemAllocationService"-->
-                     <!--interface="cn.donut.crm.service.SystemAllocationService"/>-->
+    <!--直播dubbo-->
+    <dubbo:reference id="systemAllocationService"
+                     interface="cn.donut.crm.service.SystemAllocationService"/>
 
     <!--查询客户信息-->
     <dubbo:reference id="OpenService"

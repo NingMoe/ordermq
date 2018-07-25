@@ -76,7 +76,6 @@ public class OrderCreateReceiver implements MessageListener {
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
-                                //TODO: 下单暂时不需要同步到分销系统
                             } else {
                                 log.info("订单已存在！");
                             }

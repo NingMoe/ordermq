@@ -87,6 +87,19 @@ public class OrderPaySuccessReceiver {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
+                                if (map.containsKey("productLine")) {
+                                    Integer lineCode = (Integer) map.get("productLine");
+                                    if (lineCode == 49) {
+                                        //推送直播
+                                        try {
+                                            Boolean live = mqUtil.pushLive(order);
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                            editRetailm(order);
+                                        }
+
+                                    }
+                                }
                                 Boolean retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);
                                 if (retailm) {
@@ -205,7 +218,7 @@ public class OrderPaySuccessReceiver {
                 return null;
             }
             System.out.println("分销员不为空" + retailmId);
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setRetailMemberId(retailmId);
             drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
@@ -229,7 +242,7 @@ public class OrderPaySuccessReceiver {
                 return null;
             }
             System.out.println("分销员不为空" + retailmId);
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setRetailMemberId(retailmId);
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setStatus((byte) 1);
             drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
