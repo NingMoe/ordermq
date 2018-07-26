@@ -93,12 +93,12 @@ public class OrderPaySuccessReceiver {
                                     Integer lineCode = (Integer) map.get("productLine");
                                     if (lineCode == 49) {
                                         //推送直播
-                                        try {
-                                            Boolean live = mqUtil.pushLive(order);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            editRetailm(order);
-                                        }
+//                                        try {
+//                                            Boolean live = mqUtil.pushLive(order);
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                            editRetailm(order);
+//                                        }
 
                                     }
                                 }
