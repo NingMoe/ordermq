@@ -87,13 +87,15 @@ public class OrderPaySuccessReceiver {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
+                                //aop测试方法
+                                pushAop(map, order);
                                 if (map.containsKey("productLine")) {
                                     Integer lineCode = (Integer) map.get("productLine");
                                     if (lineCode == 49) {
                                         //推送直播
                                         try {
                                             Boolean live = mqUtil.pushLive(order);
-                                        }catch (Exception e){
+                                        } catch (Exception e) {
                                             e.printStackTrace();
                                             editRetailm(order);
                                         }
@@ -286,7 +288,7 @@ public class OrderPaySuccessReceiver {
     /**
      * Aop的切点方法
      */
-    public  void pushAop(){
+    public void pushAop(Map<String, Object> map, MqOrderInfo order) {
         System.out.println("执行业务处理--------------");
     }
 }
