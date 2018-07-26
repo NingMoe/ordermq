@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author wangjiahao
- * @date 2018/7/19 13:55
+ * @date 2018/7/20 9:25
  */
 @Component
 @Aspect
-public class TestAop {
+public class TestAOP {
 
-    private static final Logger log = LoggerFactory.getLogger(TestAop.class);
+    private static final Logger log = LoggerFactory.getLogger(TestAOP.class);
 
     @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderRefundReceiver.pushAop(..))")
     public void pointCut() {
