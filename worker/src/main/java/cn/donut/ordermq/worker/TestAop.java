@@ -22,6 +22,7 @@ public class TestAOP {
     public void pointCut() {
     }
 
+
     @Around("pointCut()")
     public void around(ProceedingJoinPoint jp) throws Throwable {
         System.out.println("------------------before-------------------------");
