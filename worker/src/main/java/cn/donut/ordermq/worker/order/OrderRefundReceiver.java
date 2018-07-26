@@ -89,16 +89,16 @@ public class OrderRefundReceiver implements MessageListener {
                                 mqRecordService.edit(mqRecord);
                                 if (map.containsKey("productLine")) {
                                     Integer lineCode = (Integer) map.get("productLine");
-                                    if (lineCode == 49) {
-                                        //推送直播
-                                        try {
-                                            Boolean live = mqUtil.pushLive(order);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            editRetailm(order);
-                                        }
-
-                                    }
+//                                    if (lineCode == 49) {
+//                                        //推送直播
+//                                        try {
+//                                            Boolean live = mqUtil.pushLive(order);
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                            editRetailm(order);
+//                                        }
+//
+//                                    }
                                 }
                                 Boolean retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);

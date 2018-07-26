@@ -57,8 +57,8 @@ public class MqUtil {
     @Autowired
     private IOrderProductService iOrderProductService;
 
-    @Autowired
-    private SystemAllocationService systemAllocationService;
+//    @Autowired
+//    private SystemAllocationService systemAllocationService;
 
     @Autowired
     private IOrderBasicInfoService iOrderBasicInfoService;
@@ -173,14 +173,14 @@ public class MqUtil {
         return payWay;
     }
 
-    public Boolean pushLive(MqOrderInfo order) {
-        System.out.println("本地订单实体:" + order.toString());
-        OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(order.getOrderNo(), true);
-        System.out.println("鲨鱼订单:" + orderBasicInfo.toString());
-        Integer i = systemAllocationService.addSystemAllocationTwoService(orderBasicInfo, convertDate(), 0);
-
-        return i > 0;
-    }
+//    public Boolean pushLive(MqOrderInfo order) {
+//        System.out.println("本地订单实体:" + order.toString());
+//        OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(order.getOrderNo(), true);
+//        System.out.println("鲨鱼订单:" + orderBasicInfo.toString());
+//        Integer i = systemAllocationService.addSystemAllocationTwoService(orderBasicInfo, convertDate(), 0);
+//
+//        return i > 0;
+//    }
 
     public String convertDate() {
         Date date = new Date();
