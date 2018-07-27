@@ -88,7 +88,7 @@ public class OrderPaySuccessReceiver {
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 //aop测试方法
-                                pushAop(map, order);
+                                pushSuccessAop(map, order);
                                 if (map.containsKey("productLine")) {
                                     Integer lineCode = (Integer) map.get("productLine");
                                     if (lineCode == 49) {
@@ -234,7 +234,7 @@ public class OrderPaySuccessReceiver {
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
             //没订单数据，就要新增了
-            System.out.println("分销系统有该订单，执行新增");
+            System.out.println("分销系统没有该订单，执行新增");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
 
@@ -288,7 +288,9 @@ public class OrderPaySuccessReceiver {
     /**
      * Aop的切点方法
      */
-    public void pushAop(Map<String, Object> map, MqOrderInfo order) {
-        System.out.println("执行业务处理--------------");
+    public Map<String, Object> pushSuccessAop(Map<String, Object> map, MqOrderInfo order) {
+        map.put("order", order);
+        System.out.println("执行支付成功业务处理--------------");
+        return map;
     }
 }

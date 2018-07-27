@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
@@ -75,6 +76,7 @@ public class OrderCreateReceiver implements MessageListener {
                                 //回写消息状态为实例化成功
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
+                                pushAopCreate(map, order);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
                             } else {
                                 log.info("订单已存在！");
@@ -86,6 +88,7 @@ public class OrderCreateReceiver implements MessageListener {
 
 
                 }
+                System.out.println("不是多纳订单，不需要处理");
                 // TODO: 2018/6/29 做出分发
                 // TODO: 2018/6/29 分发记录
             }
@@ -94,5 +97,9 @@ public class OrderCreateReceiver implements MessageListener {
 
     }
 
-
+    public Map<String, Object> pushAopCreate(Map<String, Object> map, MqOrderInfo order) {
+        map.put("order", order);
+        System.out.println("执行下单业务处理--------------");
+        return map;
+    }
 }

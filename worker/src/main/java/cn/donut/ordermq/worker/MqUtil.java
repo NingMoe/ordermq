@@ -97,11 +97,15 @@ public class MqUtil {
      * @return
      */
     public Integer getRetailMemberId(MqOrderInfo mqOrderInfo) {
+        System.out.println("查询分销员");
         OrderDistributionInfo orderDistributionInfo = iOrderDistributionInfoService.findOrderDistributionInfoByOrderNo(mqOrderInfo.getOrderNo());
         if (null != orderDistributionInfo) {
             //解密分销员id
             System.out.println("分销员信息不为空" + orderDistributionInfo.toString());
             String id = null;
+            if (orderDistributionInfo.getDistributionUser() == null) {
+                return null;
+            }
             try {
                 System.out.println("分销员id" + orderDistributionInfo.getDistributionUser());
                 id = msgEncryptionService.decryption(orderDistributionInfo.getDistributionUser());
@@ -173,6 +177,7 @@ public class MqUtil {
         return payWay;
     }
 
+    //推送直播
     public Boolean pushLive(MqOrderInfo order) {
         System.out.println("本地订单实体:" + order.toString());
         OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(order.getOrderNo(), true);
