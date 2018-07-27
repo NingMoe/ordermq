@@ -88,12 +88,11 @@ public class OrderCreateReceiver implements MessageListener {
 
 
                 }
-                System.out.println("不是多纳订单，不需要处理");
+                sendMsg();
                 // TODO: 2018/6/29 做出分发
                 // TODO: 2018/6/29 分发记录
             }
         });
-
 
     }
 
@@ -101,5 +100,10 @@ public class OrderCreateReceiver implements MessageListener {
         System.out.println("执行下单业务处理--------------");
         map.put("order", order);
         return map;
+    }
+
+    //aop测试方法
+    public void sendMsg() {
+        System.out.println("AOP通知");
     }
 }

@@ -120,6 +120,7 @@ public class OrderPaySuccessReceiver {
                         }
                     }
                 }
+                sendMsg();
 //         TODO: 2018/6/29 做出分发
 //         TODO: 2018/6/29 分发记录
             }
@@ -292,5 +293,10 @@ public class OrderPaySuccessReceiver {
         map.put("order", order);
         System.out.println("执行支付成功业务处理--------------");
         return map;
+    }
+
+    //aop测试方法
+    public void sendMsg() {
+        System.out.println("AOP通知");
     }
 }

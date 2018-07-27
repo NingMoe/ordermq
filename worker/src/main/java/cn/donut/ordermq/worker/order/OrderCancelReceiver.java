@@ -88,6 +88,7 @@ public class OrderCancelReceiver implements MessageListener {
                         }
                     }
                 }
+                sendMsg();
             }
             // TODO: 2018/6/29 做出分发
             // TODO: 2018/6/29 分发记录
@@ -139,5 +140,8 @@ public class OrderCancelReceiver implements MessageListener {
 
     }
 
-
+    //aop测试方法
+    public void sendMsg() {
+        System.out.println("AOP通知");
+    }
 }
