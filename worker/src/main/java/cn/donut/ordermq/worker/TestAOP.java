@@ -1,10 +1,7 @@
 package cn.donut.ordermq.worker;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,7 +33,7 @@ public class TestAOP {
 //        System.out.println("------------------after-------------------------");
 //    }
 
-    @Before("pointCut()")
+    @After("pointCut()")
     public  void sendMsg(){
         System.out.println("不是多纳订单，不需要处理!");
     }
