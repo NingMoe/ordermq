@@ -16,6 +16,9 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
+import cn.donut.retailm.entity.domain.DrOrderInfo;
+import cn.donut.retailm.entity.domain.DrOrderProduct;
+import cn.donut.retailm.entity.model.OrderModel;
 import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
@@ -24,15 +27,15 @@ import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
+import com.koolearn.sso.dto.UsersDTO;
+import com.koolearn.sso.service.IOpenService;
+import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -62,6 +65,12 @@ public class MqUtil {
 
     @Autowired
     private IOrderBasicInfoService iOrderBasicInfoService;
+
+    @Autowired
+    private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
+
+    @Autowired
+    private IOpenService iOpenService;
 
     /**
      * json转化实体
@@ -141,7 +150,6 @@ public class MqUtil {
      * @return
      * @throws Exception
      */
-//    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     public List<MqOrderProduct> updateProducts(OrderBasicInfo orderBasicInfo) throws Exception {
         //判空
         if (orderBasicInfo.getOrderProductBasicInfos() != null && orderBasicInfo.getOrderProductBasicInfos().size() > 0) {
@@ -202,4 +210,80 @@ public class MqUtil {
         return (returnValue);
 
     }
+
+    //订单推送到分销系统
+    public Boolean pushOrderToRetailm(MqOrderInfo mqOrderInfo) throws Exception {
+        System.out.println("推送分销系统,订单实体" + mqOrderInfo.toString());
+        DrOrderInfo drOrderInfo = new DrOrderInfo();
+        //1.先取到通用数据:支付方式，分销员id,如果没有分销员id，直接退出方法
+        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
+        String payWay = getPayWay(paywayMap);
+        Integer retailmId = getRetailMemberId(mqOrderInfo);
+        if (null == retailmId) {
+            return null;
+        }
+        System.out.println("分销员不为空" + retailmId);
+        //2.先根据订单号查询分销系统是否有订单
+        Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
+        if (null != map && map.containsKey("orderInfo")) {
+            System.out.println("分销系统有该订单，执行更新");
+            drOrderInfo = (DrOrderInfo) map.get("orderInfo");
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //支付状态
+            drOrderInfo.setStatus(mqOrderInfo.getStatus());
+            //分销员id
+            drOrderInfo.setRetailMemberId(retailmId);
+            drOrderInfo.setPayWay(payWay);
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
+            drOrderInfo.setUpdateTime(new Date());
+            log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
+            return iRetailmOrderService.editOrder(drOrderInfo);
+        } else {
+            System.out.println("分销系统没有该订单，执行新增");
+            drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //分销员id
+            drOrderInfo.setRetailMemberId(retailmId);
+            drOrderInfo.setUpdateTime(new Date());
+            drOrderInfo.setStatus(mqOrderInfo.getStatus());
+            drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
+            drOrderInfo.setRealPrice(mqOrderInfo.getStrikePrice());
+            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
+            drOrderInfo.setOrderTime(mqOrderInfo.getOrderTime());
+            drOrderInfo.setPrice(mqOrderInfo.getOriginalPrice());
+            drOrderInfo.setPayWay(payWay);
+            //查询客户信息
+            UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
+            if (userInfo != null) {
+                drOrderInfo.setConsumerName(userInfo.getUserName());
+                drOrderInfo.setConsumerPhone(userInfo.getMobile());
+            }
+
+            log.warn("回写分销系统，订单信息drOrderInfo:-->{}", drOrderInfo.toString());
+            List<MqOrderProduct> mqOrderProducts = mqOrderInfo.getMqOrderProducts();
+            List<DrOrderProduct> orderProducts = new ArrayList<>();
+            if (null != mqOrderProducts) {
+                for (MqOrderProduct info : mqOrderProducts) {
+                    log.warn("产品信息：-->{}", info.toString());
+                    DrOrderProduct drOrderProduct = new DrOrderProduct();
+                    BeanUtils.copyProperties(drOrderProduct, info);
+                    orderProducts.add(drOrderProduct);
+                }
+            }
+
+            OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
+
+            if (null != orderModel && null != orderModel.getId()) {
+                System.out.println("分销系统订单新增成功");
+                return true;
+            }
+            return false;
+        }
+    }
+
+
 }

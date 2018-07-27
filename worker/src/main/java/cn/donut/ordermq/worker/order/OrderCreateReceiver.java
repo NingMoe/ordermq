@@ -98,8 +98,8 @@ public class OrderCreateReceiver implements MessageListener {
     }
 
     public Map<String, Object> pushAopCreate(Map<String, Object> map, MqOrderInfo order) {
-        map.put("order", order);
         System.out.println("执行下单业务处理--------------");
+        map.put("order", order);
         return map;
     }
 }

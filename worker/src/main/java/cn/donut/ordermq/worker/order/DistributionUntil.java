@@ -10,8 +10,8 @@
  */
 package cn.donut.ordermq.worker.order;
 
-import cn.donut.crm.service.SystemAllocationService;
-import cn.donut.ordermq.service.order.IOrderProductService;
+import cn.donut.ordermq.entity.order.MqOrderInfo;
+import cn.donut.ordermq.worker.MqUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -38,10 +38,7 @@ public class DistributionUntil {
     private static final Logger log = LoggerFactory.getLogger(DistributionUntil.class);
 
     @Autowired
-    private IOrderProductService iOrderProductService;
-
-    @Autowired
-    private SystemAllocationService systemAllocationService;
+    private MqUtil mqUtil;
 
     @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderPaySuccessReceiver.pushSuccessAop(..))")
     public void pointCutPaySuccess() {
@@ -75,13 +72,20 @@ public class DistributionUntil {
     public void aroundCreate(ProceedingJoinPoint jp) throws Throwable {
         System.out.println("------------------before-------------------------");
         try {
-            System.out.println("------------------around-------------------------");
             Map<String, Object> map = (Map<String, Object>) jp.proceed();
             System.out.println("进入下单切点方法");
-            if (map.containsKey("productLine")) {
-                Integer lineCode = (Integer) map.get("productLine");
-                System.out.println(lineCode);
+            if (map.containsKey("order")) {
+                MqOrderInfo order = (MqOrderInfo) map.get("order");
+                Boolean retailm = mqUtil.pushOrderToRetailm(order);
+                if (retailm) {
+                    log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
+                } else if (null == retailm) {
+                    log.info("不需要回写！订单号：{}");
+                } else {
+                    log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
+                }
             }
+
         } catch (Exception e) {
             log.error("异常！", e);
             System.out.println("------------------exception-------------------------");
