@@ -44,8 +44,10 @@ public class DistributionUntil {
     public void pointCutPaySuccess() {
     }
 
-    @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderCreateReceiver.pushAopCreate(..))")
-    public void pointCutCreate() {
+    //匹配下单和取消订单
+    @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderCreateReceiver.pushAop(..)) || " +
+            "execution(* cn.donut.ordermq.worker.order.OrderCancelReceiver.pushAop(..))")
+    public void pointCut() {
     }
 
     //支付成功切点
@@ -68,7 +70,7 @@ public class DistributionUntil {
     }
 
     //下单切点
-    @Around("pointCutCreate()")
+    @Around("pointCut()")
     public void aroundCreate(ProceedingJoinPoint jp) throws Throwable {
         System.out.println("------------------before-------------------------");
         try {

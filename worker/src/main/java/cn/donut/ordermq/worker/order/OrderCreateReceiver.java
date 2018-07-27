@@ -76,7 +76,7 @@ public class OrderCreateReceiver implements MessageListener {
                                 //回写消息状态为实例化成功
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
-                                pushAopCreate(map, order);
+                                pushAop(map, order);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
                             } else {
                                 log.info("订单已存在！");
@@ -96,7 +96,7 @@ public class OrderCreateReceiver implements MessageListener {
 
     }
 
-    public Map<String, Object> pushAopCreate(Map<String, Object> map, MqOrderInfo order) {
+    public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) {
         System.out.println("执行下单业务处理--------------");
         map.put("order", order);
         return map;
