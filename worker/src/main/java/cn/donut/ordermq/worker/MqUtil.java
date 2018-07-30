@@ -169,7 +169,7 @@ public class MqUtil {
 
     public String getPayWay(Map<Integer, String> paywayMap) {
         String payWay = "";
-        if (payWay == null || paywayMap.size()<1 ||paywayMap.isEmpty()) {
+        if (payWay == null || paywayMap.size() < 1 || paywayMap.isEmpty()) {
             return payWay;
         }
 
@@ -216,7 +216,8 @@ public class MqUtil {
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         //1.先取到通用数据:支付方式，分销员id,如果没有分销员id，直接退出方法
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
-        String payWay = getPayWay(paywayMap);
+//        String payWay = getPayWay(paywayMap);
+        String payWay = "";
         Integer retailmId = getRetailMemberId(mqOrderInfo);
         if (null == retailmId) {
             return 0;
