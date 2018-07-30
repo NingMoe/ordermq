@@ -65,6 +65,9 @@ public class OrderCreateReceiver implements MessageListener {
                 //是否多纳订单
                 Map<String, Object> map = iOrderService.checkProLine(orderInfo);
                 Boolean flag = false;
+                if (null != map && map.containsKey("flag")) {
+                    flag = (Boolean) map.get("flag");
+                }
                 if (orderInfo != null && flag) {
                     //保存
                     MqRecord mqRecord = mqUtil.saveMsg(json, "order.create");
