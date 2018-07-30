@@ -102,7 +102,8 @@ public class OrderPaySuccessReceiver {
 
                                     }
                                 }
-                                Boolean retailm = editRetailm(order);
+                                Boolean retailm = null;
+                                retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);
                                 if (retailm) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
