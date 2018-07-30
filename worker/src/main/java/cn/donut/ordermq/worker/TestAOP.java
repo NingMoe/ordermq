@@ -16,7 +16,7 @@ public class TestAOP {
 
     private static final Logger log = LoggerFactory.getLogger(TestAOP.class);
 
-    @Pointcut("execution(* cn.donut.ordermq.worker.order.*.sendMsg(..))")
+    @Pointcut("execution(void cn.donut.ordermq.worker.order.*.sendMsg(..))")
     public void pointCut() {
     }
 
@@ -34,7 +34,7 @@ public class TestAOP {
 //    }
 
     @After("pointCut()")
-    public  void sendMsg(){
+    public  void notice(){
         System.out.println("不是多纳订单，不需要处理!");
     }
 }
