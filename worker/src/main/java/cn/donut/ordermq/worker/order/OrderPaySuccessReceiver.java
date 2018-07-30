@@ -87,6 +87,21 @@ public class OrderPaySuccessReceiver {
                                 //回写消息状态
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
+                                //aop测试方法
+                                pushSuccessAop(map, order);
+                                if (map.containsKey("productLine")) {
+                                    Integer lineCode = (Integer) map.get("productLine");
+                                    if (lineCode == 49) {
+                                        //推送直播
+                                        try {
+//                                            Boolean live = mqUtil.pushLive(order);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            editRetailm(order);
+                                        }
+
+                                    }
+                                }
                                 Boolean retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);
                                 if (retailm) {
@@ -105,6 +120,7 @@ public class OrderPaySuccessReceiver {
                         }
                     }
                 }
+                sendMsg();
 //         TODO: 2018/6/29 做出分发
 //         TODO: 2018/6/29 分发记录
             }
@@ -205,7 +221,7 @@ public class OrderPaySuccessReceiver {
                 return null;
             }
             System.out.println("分销员不为空" + retailmId);
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setRetailMemberId(retailmId);
             drOrderInfo.setPayWay(payWay);
             //查询客户信息
             UsersDTO userInfo = iOpenService.getUserById(mqOrderInfo.getUserId());
@@ -219,7 +235,7 @@ public class OrderPaySuccessReceiver {
             return iRetailmOrderService.editOrder(drOrderInfo);
         } else {
             //没订单数据，就要新增了
-            System.out.println("分销系统有该订单，执行新增");
+            System.out.println("分销系统没有该订单，执行新增");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
             //分销员id
 
@@ -229,7 +245,7 @@ public class OrderPaySuccessReceiver {
                 return null;
             }
             System.out.println("分销员不为空" + retailmId);
-            drOrderInfo.setRetailMemberId(mqUtil.getRetailMemberId(mqOrderInfo));
+            drOrderInfo.setRetailMemberId(retailmId);
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setStatus((byte) 1);
             drOrderInfo.setNetWorth(mqOrderInfo.getNetValue());
@@ -270,4 +286,17 @@ public class OrderPaySuccessReceiver {
 
     }
 
+    /**
+     * Aop的切点方法
+     */
+    public Map<String, Object> pushSuccessAop(Map<String, Object> map, MqOrderInfo order) {
+        map.put("order", order);
+        System.out.println("执行支付成功业务处理--------------");
+        return map;
+    }
+
+    //aop测试方法
+    public void sendMsg() {
+        System.out.println("AOP通知");
+    }
 }

@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.MqUtil;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
@@ -75,8 +76,8 @@ public class OrderCreateReceiver implements MessageListener {
                                 //回写消息状态为实例化成功
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
+                                pushAop(map, order);
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
-                                //TODO: 下单暂时不需要同步到分销系统
                             } else {
                                 log.info("订单已存在！");
                             }
@@ -87,13 +88,22 @@ public class OrderCreateReceiver implements MessageListener {
 
 
                 }
+                sendMsg();
                 // TODO: 2018/6/29 做出分发
                 // TODO: 2018/6/29 分发记录
             }
         });
 
-
     }
 
+    public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) {
+        System.out.println("执行下单业务处理--------------");
+        map.put("order", order);
+        return map;
+    }
 
+    //aop测试方法
+    public void sendMsg() {
+        System.out.println("AOP通知");
+    }
 }
