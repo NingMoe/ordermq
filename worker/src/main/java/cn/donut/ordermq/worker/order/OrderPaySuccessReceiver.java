@@ -67,7 +67,6 @@ public class OrderPaySuccessReceiver {
                 MQMessage message = buildMQMessage(queue);
                 System.out.println("queue = " + queue.toString());
                 String json = JSON.toJSONString(queue);
-                log.info("收到消息：==>{}" + json);
                 //转换
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单

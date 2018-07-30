@@ -59,7 +59,7 @@ public class OrderCancelReceiver implements MessageListener {
             @Override
             public void run() {
                 String json = new String(message.getBody(), Charset.defaultCharset());
-                log.info("收到消息：==>{}" + json);
+                System.out.println("取消订单收到消息：==>{}" + json);
                 //转换并校验json格式
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单

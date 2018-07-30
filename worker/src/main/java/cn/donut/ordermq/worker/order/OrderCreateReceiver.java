@@ -59,7 +59,7 @@ public class OrderCreateReceiver implements MessageListener {
             @Override
             public void run() {
                 String json = new String(msg.getBody(), Charset.defaultCharset());
-                log.info("收到消息：==>{}" + json);
+                System.out.println("下单收到消息：==>{}" + json);
                 //转换并校验json格式
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
                 //是否多纳订单
@@ -74,6 +74,7 @@ public class OrderCreateReceiver implements MessageListener {
                             MqOrderInfo order = iOrderService.saveOrder(orderInfo);
                             if (order != null) {
                                 //回写消息状态为实例化成功
+                                System.out.println("订单消息" + order.toString());
                                 mqRecord.setPersist((byte) 1);
                                 mqRecordService.edit(mqRecord);
                                 pushAop(map, order);
