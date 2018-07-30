@@ -82,7 +82,11 @@ public class OrderCancelReceiver implements MessageListener {
                             //回写消息状态
                             mqRecord.setPersist((byte) 1);
                             mqRecordService.edit(mqRecord);
-                            pushAop(map, order);
+                            try {
+                                pushAop(map, order);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             log.info("订单取消已更新！订单号：{}", order.getOrderNo());
                         } else {
                             log.info("订单已存在！");
@@ -146,8 +150,9 @@ public class OrderCancelReceiver implements MessageListener {
         System.out.println("AOP通知");
     }
 
-    public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) {
+    public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) throws Exception {
         System.out.println("执行下单业务处理--------------");
+        mqUtil.pushOrderToRetailm(order);
         map.put("order", order);
         return map;
     }

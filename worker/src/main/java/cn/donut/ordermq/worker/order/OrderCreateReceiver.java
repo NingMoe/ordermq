@@ -96,8 +96,9 @@ public class OrderCreateReceiver implements MessageListener {
 
     }
 
-    public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) {
+    public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) throws Exception {
         System.out.println("执行下单业务处理--------------");
+        mqUtil.pushOrderToRetailm(order);
         map.put("order", order);
         return map;
     }

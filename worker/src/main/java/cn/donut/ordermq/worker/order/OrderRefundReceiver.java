@@ -100,11 +100,11 @@ public class OrderRefundReceiver implements MessageListener {
 
                                     }
                                 }
-                                Boolean retailm = editRetailm(order);
+                                int retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);
-                                if (retailm) {
+                                if (retailm == 1) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
-                                } else if (null == retailm) {
+                                } else if (0 == retailm) {
                                     log.info("不需要回写！订单号：{}");
                                 } else {
                                     log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
@@ -177,8 +177,8 @@ public class OrderRefundReceiver implements MessageListener {
         return order;
     }
 
-    //回写状态
-    private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
+    //回写状态0:不需要回写，1true，2false
+    private int editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
         System.out.println("回写,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
@@ -194,7 +194,7 @@ public class OrderRefundReceiver implements MessageListener {
             //分销员id
             Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
             if (null == retailmId) {
-                return null;
+                return 0;
             }
             drOrderInfo.setUpdateTime(new Date());
             drOrderInfo.setRetailMemberId(retailmId);
@@ -206,7 +206,7 @@ public class OrderRefundReceiver implements MessageListener {
                 drOrderInfo.setConsumerPhone(userInfo.getMobile());
             }
             log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
-            return iRetailmOrderService.editOrder(drOrderInfo);
+            return iRetailmOrderService.editOrder(drOrderInfo)? 1 : 2;
         } else {
             //没订单数据，就要新增了
             System.out.println("分销系统有该订单，执行新增");
@@ -216,7 +216,7 @@ public class OrderRefundReceiver implements MessageListener {
             Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
 
             if (null == retailmId) {
-                return null;
+                return 0;
             }
             System.out.println("分销员不为空" + retailmId);
             drOrderInfo.setRetailMemberId(retailmId);
@@ -249,9 +249,9 @@ public class OrderRefundReceiver implements MessageListener {
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
             if (null != orderModel && null != orderModel.getId()) {
                 System.out.println("分销系统订单新增成功");
-                return true;
+                return 1;
             }
-            return false;
+            return 2;
         }
 
     }

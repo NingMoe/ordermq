@@ -210,8 +210,8 @@ public class MqUtil {
 
     }
 
-    //订单推送到分销系统
-    public Boolean pushOrderToRetailm(MqOrderInfo mqOrderInfo) throws Exception {
+    //订单推送到分销系统 0:不需要回写，1true，2false
+    public int pushOrderToRetailm(MqOrderInfo mqOrderInfo) throws Exception {
         System.out.println("推送分销系统,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         //1.先取到通用数据:支付方式，分销员id,如果没有分销员id，直接退出方法
@@ -219,7 +219,7 @@ public class MqUtil {
         String payWay = getPayWay(paywayMap);
         Integer retailmId = getRetailMemberId(mqOrderInfo);
         if (null == retailmId) {
-            return null;
+            return 0;
         }
         System.out.println("分销员不为空" + retailmId);
         //2.先根据订单号查询分销系统是否有订单
@@ -241,7 +241,7 @@ public class MqUtil {
             }
             drOrderInfo.setUpdateTime(new Date());
             log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
-            return iRetailmOrderService.editOrder(drOrderInfo);
+            return iRetailmOrderService.editOrder(drOrderInfo) ? 1 : 2;
         } else {
             System.out.println("分销系统没有该订单，执行新增");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
@@ -278,9 +278,9 @@ public class MqUtil {
 
             if (null != orderModel && null != orderModel.getId()) {
                 System.out.println("分销系统订单新增成功");
-                return true;
+                return 1;
             }
-            return false;
+            return 2;
         }
     }
 

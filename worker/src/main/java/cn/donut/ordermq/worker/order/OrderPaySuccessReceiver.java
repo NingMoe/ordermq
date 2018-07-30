@@ -102,12 +102,11 @@ public class OrderPaySuccessReceiver {
 
                                     }
                                 }
-                                Boolean retailm = null;
-                                retailm = editRetailm(order);
+                                int retailm  = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);
-                                if (retailm) {
+                                if (retailm==1) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
-                                } else if (null == retailm) {
+                                } else if (0 == retailm) {
                                     log.info("不需要回写！订单号：{}");
                                 } else {
                                     log.info("分销系统订单回写失败！订单号：{}", order.getOrderNo());
@@ -202,8 +201,8 @@ public class OrderPaySuccessReceiver {
     }
 
 
-    //回写分销系统状态
-    private Boolean editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
+    //回写分销系统状态0:不需要回写，1true，2false
+    private int editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
         System.out.println("回写,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
         Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
@@ -219,7 +218,7 @@ public class OrderPaySuccessReceiver {
             //分销员id
             Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
             if (null == retailmId) {
-                return null;
+                return 0;
             }
             System.out.println("分销员不为空" + retailmId);
             drOrderInfo.setRetailMemberId(retailmId);
@@ -233,7 +232,7 @@ public class OrderPaySuccessReceiver {
 
             drOrderInfo.setUpdateTime(new Date());
             log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
-            return iRetailmOrderService.editOrder(drOrderInfo);
+            return iRetailmOrderService.editOrder(drOrderInfo) ? 1 : 2;
         } else {
             //没订单数据，就要新增了
             System.out.println("分销系统没有该订单，执行新增");
@@ -243,7 +242,7 @@ public class OrderPaySuccessReceiver {
             Integer retailmId = mqUtil.getRetailMemberId(mqOrderInfo);
 
             if (null == retailmId) {
-                return null;
+                return 0;
             }
             System.out.println("分销员不为空" + retailmId);
             drOrderInfo.setRetailMemberId(retailmId);
@@ -280,9 +279,9 @@ public class OrderPaySuccessReceiver {
 
             if (null != orderModel && null != orderModel.getId()) {
                 System.out.println("分销系统订单新增成功");
-                return true;
+                return 1;
             }
-            return false;
+            return 2;
         }
 
     }
