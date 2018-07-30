@@ -169,7 +169,7 @@ public class MqUtil {
 
     public String getPayWay(Map<Integer, String> paywayMap) {
         String payWay = "";
-        if (payWay == null) {
+        if (payWay == null || paywayMap.size()<1 ||paywayMap.isEmpty()) {
             return payWay;
         }
 
