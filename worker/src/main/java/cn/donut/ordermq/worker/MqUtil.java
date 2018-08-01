@@ -10,6 +10,7 @@
  */
 package cn.donut.ordermq.worker;
 
+import cn.donut.crm.service.SystemAllocationService;
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
@@ -21,11 +22,13 @@ import cn.donut.retailm.entity.model.OrderModel;
 import cn.donut.retailm.service.common.MsgEncryptionService;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParseException;
+import com.koolearn.ordercenter.enums.TransactionRecordEnums;
 import com.koolearn.ordercenter.model.OrderDistributionInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.ordercenter.service.IOrderDistributionInfoService;
+import com.koolearn.ordercenter.service.TransactionRecordService;
 import com.koolearn.sso.dto.UsersDTO;
 import com.koolearn.sso.service.IOpenService;
 import com.koolearn.util.BeanUtils;
@@ -59,8 +62,8 @@ public class MqUtil {
     @Autowired
     private IOrderProductService iOrderProductService;
 
-//    @Autowired
-//    private SystemAllocationService systemAllocationService;
+    @Autowired
+    private SystemAllocationService systemAllocationService;
 
     @Autowired
     private IOrderBasicInfoService iOrderBasicInfoService;
@@ -70,6 +73,9 @@ public class MqUtil {
 
     @Autowired
     private IOpenService iOpenService;
+
+    @Autowired
+    private TransactionRecordService transactionRecordService;
 
     /**
      * json转化实体
@@ -185,14 +191,18 @@ public class MqUtil {
     }
 
     //推送直播
-//    public Boolean pushLive(MqOrderInfo order) {
-//        System.out.println("本地订单实体:" + order.toString());
-//        OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(order.getOrderNo(), true);
-//        System.out.println("鲨鱼订单:" + orderBasicInfo.toString());
-//        Integer i = systemAllocationService.addSystemAllocationTwoService(orderBasicInfo, convertDate(), 0);
-//
-//        return i > 0;
-//    }
+    public Boolean pushLive(MqOrderInfo order) {
+        System.out.println("推送直播订单实体:" + order.toString());
+        OrderBasicInfo orderBasicInfo = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(order.getOrderNo(), true);
+        System.out.println("鲨鱼订单:" + orderBasicInfo.toString());
+        Integer i = systemAllocationService.addSystemAllocationTwoService(orderBasicInfo, convertDate(), 0);
+        if (i > 0) {
+            System.out.println("推送直播成功");
+        } else {
+            System.out.println("推送直播失败");
+        }
+        return i > 0;
+    }
 
     public String convertDate() {
         Date date = new Date();
@@ -223,12 +233,18 @@ public class MqUtil {
             return 0;
         }
         System.out.println("分销员不为空" + retailmId);
+//        TransactionRecordEnums.StatusEnum;
+
+
+        transactionRecordService.getTradeRecordByOrderNoAndStatus(mqOrderInfo.getOrderNo(), mqOrderInfo.getStatus());
         //2.先根据订单号查询分销系统是否有订单
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
             drOrderInfo.setTradeNumber(mqOrderInfo.getOrderNo());
+            //TODO 查询交易号
+//            drOrderInfo.setTransactionNo();
             //支付状态
             drOrderInfo.setStatus(mqOrderInfo.getStatus());
             //分销员id

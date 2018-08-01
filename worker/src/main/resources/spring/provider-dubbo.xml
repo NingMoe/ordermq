@@ -27,7 +27,6 @@
     <tx:annotation-driven/>
 
 
-
     <bean id="connectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
         <property name="addresses" value="${rabbit.addresses}"/>
         <property name="username" value="${rabbit.username}"/>
@@ -46,7 +45,7 @@
         <property name="corePoolSize" value="10"/>
         <property name="maxPoolSize" value="10"/>
         <property name="queueCapacity" value="10"/>
-        <property name="keepAliveSeconds" value ="300"/>
+        <property name="keepAliveSeconds" value="300"/>
         <property name="rejectedExecutionHandler">
             <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy"/>
         </property>
@@ -66,19 +65,19 @@
     <!-- queue litener 观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象(订单变更中心) -->
     <rabbit:listener-container connection-factory="MqconnectionFactory">
         <!--订单中心mq-->
-        <rabbit:listener queue-names="donut.order.pay.success"  ref="orderPaySuccessReceiver" method="executor" />
+        <rabbit:listener queue-names="donut.order.pay.success" ref="orderPaySuccessReceiver" method="executor"/>
         <!--<rabbit:listener queue-names="order.test" ref="consumer"/>-->
-        <rabbit:listener queue-names="donut.order.create" ref="orderCreateReceiver" />
-        <rabbit:listener queue-names="donut.order.cancel" ref="orderCancelReceiver" />
+        <rabbit:listener queue-names="donut.order.create" ref="orderCreateReceiver"/>
+        <rabbit:listener queue-names="donut.order.cancel" ref="orderCancelReceiver"/>
         <!--<rabbit:listener queue-names="donut.order.pay.success" ref="orderPaySuccessReceiver" />-->
-        <rabbit:listener queue-names="donut.order.refund" ref="orderRefundReceiver" />
+        <rabbit:listener queue-names="donut.order.refund" ref="orderRefundReceiver"/>
     </rabbit:listener-container>
 
     <!-- 消息接收者 -->
     <!--<bean id="consumer" class="cn.donut.ordermq.worker.MsgReceiver">-->
-        <!--<property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>-->
-        <!--<property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>-->
-        <!--<property name="iUserProductService" ref="iUserProductService"/>-->
+    <!--<property name="mqInformationServiceProvider" ref="mqInformationServiceProvider"/>-->
+    <!--<property name="mqAttachmentsServiceProvider" ref="mqAttachmentsServiceProvider"/>-->
+    <!--<property name="iUserProductService" ref="iUserProductService"/>-->
     <!--</bean>-->
 
     <!-- 消息接收者 -->
@@ -109,19 +108,23 @@
     <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
     <!--加密解密-->
     <dubbo:reference id="msgEncryptionService" interface="cn.donut.retailm.service.common.MsgEncryptionService"/>
-   <!--分销系统-->
+    <!--分销系统-->
     <dubbo:reference id="iRetailmOrderService" interface="cn.donut.retailm.service.order.IOrderService"/>
     <!--查询订单分销员信息-->
     <dubbo:reference id="iOrderDistributionInfoService"
                      interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
-    <!--&lt;!&ndash;直播dubbo&ndash;&gt;-->
-    <!--<dubbo:reference id="systemAllocationService"-->
-                     <!--interface="cn.donut.crm.service.SystemAllocationService"/>-->
+    <!--直播dubbo-->
+    <dubbo:reference id="systemAllocationService"
+                     interface="cn.donut.crm.service.SystemAllocationService"/>
 
     <!--查询客户信息-->
     <dubbo:reference id="OpenService"
                      interface="com.koolearn.sso.service.IOpenService"/>
 
+
+    <!--交易号-->
+    <dubbo:reference id="TransactionRecordService"
+                     interface="com.koolearn.ordercenter.service.TransactionRecordService"/>
 
 
 </beans>
