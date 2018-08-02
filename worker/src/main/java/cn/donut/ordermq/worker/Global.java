@@ -10,6 +10,8 @@
  */
 package cn.donut.ordermq.worker;
 
+import org.springframework.stereotype.Component;
+
 /**
  * 〈一句话功能简述〉<br>
  * 〈资源配置类〉
@@ -18,11 +20,12 @@ package cn.donut.ordermq.worker;
  * @create 2018/5/18
  * @since 1.0.0
  */
+@Component
 public class Global {
 
-    final static String NODE_URL_PRODUCT = "https://abc.leanapp.cn/api/v1/web/yc/apply/status";
-    final static String NODE_URL_TEST = "http://doabc.leanapp.cn/api/v1/web/yc/apply/status";
-    final static String PRODUCTID = "5960,5856,5866,5868,5869,5860,6258,7054,7563,7564,8310,8283,8431";
+    public void sendMsg() {
+
+    }
 
 
 }

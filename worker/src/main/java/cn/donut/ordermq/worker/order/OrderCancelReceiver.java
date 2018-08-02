@@ -5,6 +5,7 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.ordermq.worker.Global;
 import cn.donut.ordermq.worker.MqUtil;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
@@ -45,6 +46,9 @@ public class OrderCancelReceiver implements MessageListener {
 
     @Autowired
     private MqUtil mqUtil;
+
+    @Autowired
+    private Global global;
 //    {
 //        "orderNo": "订单号",
 //        "productIdList": [产品id1],
@@ -96,7 +100,7 @@ public class OrderCancelReceiver implements MessageListener {
                         }
                     }
                 }
-                sendMsg();
+                global.sendMsg();
             }
             // TODO: 2018/6/29 做出分发
             // TODO: 2018/6/29 分发记录
@@ -148,13 +152,7 @@ public class OrderCancelReceiver implements MessageListener {
 
     }
 
-    /**
-     * aop测试方法
-     */
 
-    public void sendMsg() {
-        System.out.println("AOP通知");
-    }
 
     public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) throws Exception {
         System.out.println("执行取消业务处理--------------");

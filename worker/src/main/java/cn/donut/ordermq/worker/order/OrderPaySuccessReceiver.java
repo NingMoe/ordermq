@@ -5,6 +5,7 @@ import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.ordermq.worker.Global;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.domain.DrOrderProduct;
@@ -59,6 +60,9 @@ public class OrderPaySuccessReceiver {
 
     @Autowired
     private MqUtil mqUtil;
+
+    @Autowired
+    private Global global;
 
     public void executor(final OrderPaySuccessQueue queue) {
         taskExecutor.execute(new Runnable() {
@@ -120,7 +124,7 @@ public class OrderPaySuccessReceiver {
                         }
                     }
                 }
-                sendMsg();
+                global.sendMsg();
 //         TODO: 2018/6/29 做出分发
 //         TODO: 2018/6/29 分发记录
             }
@@ -296,11 +300,4 @@ public class OrderPaySuccessReceiver {
         return map;
     }
 
-    /**
-     * aop测试方法
-     */
-
-    public void sendMsg() {
-        System.out.println("AOP通知");
-    }
 }

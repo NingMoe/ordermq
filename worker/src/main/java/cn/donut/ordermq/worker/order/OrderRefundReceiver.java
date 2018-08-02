@@ -6,6 +6,7 @@ import cn.donut.ordermq.entity.order.MqOrderProduct;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
+import cn.donut.ordermq.worker.Global;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.domain.DrOrderProduct;
@@ -59,6 +60,9 @@ public class OrderRefundReceiver implements MessageListener {
 
     @Autowired
     private MqUtil mqUtil;
+
+    @Autowired
+    private Global global;
 
     @Override
     public void onMessage(final Message msg) {
@@ -118,7 +122,7 @@ public class OrderRefundReceiver implements MessageListener {
                         }
                     }
                 }
-                sendMsg();
+                global.sendMsg();
                 // TODO: 2018/6/29 做出分发
                 // TODO: 2018/6/29 分发记录
             }
@@ -264,8 +268,4 @@ public class OrderRefundReceiver implements MessageListener {
     }
 
 
-    //aop测试方法
-    public void sendMsg() {
-        System.out.println("AOP通知");
-    }
 }
