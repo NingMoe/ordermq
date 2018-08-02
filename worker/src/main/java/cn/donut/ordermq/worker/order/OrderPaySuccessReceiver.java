@@ -95,6 +95,7 @@ public class OrderPaySuccessReceiver {
                                         try {
                                             Boolean live = mqUtil.pushLive(order);
                                         } catch (Exception e) {
+
                                             e.printStackTrace();
                                             editRetailm(order);
                                         }
