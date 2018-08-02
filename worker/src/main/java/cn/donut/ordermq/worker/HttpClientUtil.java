@@ -241,17 +241,4 @@ public class HttpClientUtil {
     }
 
 
-    /**
-     * 测试方法
-     *
-     * @param args
-     */
-    public static void main(String[] args) throws Exception {
-
-//        String url = "http://10.155.50.195/test/login";
-        String url = "http://www.baidu.com";
-        String content = HttpClientUtil.doPost(Global.NODE_URL_TEST);
-        System.out.println(content);
-    }
-
 }
