@@ -11,7 +11,7 @@
 
 	<appender name="dubboTimeoutAlarm" class="com.koolearn.framework.logger.kafka.KafkaLoggerAppender">
 		<param name="regAdd" value="${kafka.zk.address}" />
-		<param name="topic" value="component-check-topic" />
+		<param name="topic" value="timeout-topic" />
 		<param name="remoteLoggerName" value="${koo.app.name}" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS}#@#%m" />
