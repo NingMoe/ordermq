@@ -62,6 +62,7 @@ public class OrderCreateReceiver implements MessageListener {
                 System.out.println("下单收到消息：==>{}" + json);
                 //转换并校验json格式
                 MqOrderInfo orderInfo = mqUtil.Json2Order(json);
+                System.out.println("开始------------");
                 //是否多纳订单
                 Map<String, Object> map = iOrderService.checkProLine(orderInfo);
                 Boolean flag = false;

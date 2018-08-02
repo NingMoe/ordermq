@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.donut.ordermq.mapper.MqPushFailureMapper" >
+  <resultMap id="BaseResultMap" type="cn.donut.ordermq.entity.MqPushFailure" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="message" property="message" jdbcType="VARCHAR" />
+    <result column="push_count" property="pushCount" jdbcType="INTEGER" />
+    <result column="push_flag" property="pushFlag" jdbcType="TINYINT" />
+    <result column="push_time" property="pushTime" jdbcType="TIMESTAMP" />
+    <result column="is_delete" property="isDelete" jdbcType="TINYINT" />
+    <result column="push_target" property="pushTarget" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, message, push_count, push_flag, push_time, is_delete, push_target
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="cn.donut.ordermq.entity.MqPushFailureExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from mq_push_failure
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from mq_push_failure
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from mq_push_failure
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="cn.donut.ordermq.entity.MqPushFailureExample" >
+    delete from mq_push_failure
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqPushFailure" useGeneratedKeys="true" keyProperty="id">
+    insert into mq_push_failure (id, message, push_count, 
+      push_flag, push_time, is_delete, 
+      push_target)
+    values (#{id,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, #{pushCount,jdbcType=INTEGER}, 
+      #{pushFlag,jdbcType=TINYINT}, #{pushTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT}, 
+      #{pushTarget,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.MqPushFailure" >
+    insert into mq_push_failure
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="message != null" >
+        message,
+      </if>
+      <if test="pushCount != null" >
+        push_count,
+      </if>
+      <if test="pushFlag != null" >
+        push_flag,
+      </if>
+      <if test="pushTime != null" >
+        push_time,
+      </if>
+      <if test="isDelete != null" >
+        is_delete,
+      </if>
+      <if test="pushTarget != null" >
+        push_target,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="message != null" >
+        #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="pushCount != null" >
+        #{pushCount,jdbcType=INTEGER},
+      </if>
+      <if test="pushFlag != null" >
+        #{pushFlag,jdbcType=TINYINT},
+      </if>
+      <if test="pushTime != null" >
+        #{pushTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null" >
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="pushTarget != null" >
+        #{pushTarget,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="cn.donut.ordermq.entity.MqPushFailureExample" resultType="java.lang.Integer" >
+    select count(*) from mq_push_failure
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update mq_push_failure
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.message != null" >
+        message = #{record.message,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pushCount != null" >
+        push_count = #{record.pushCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.pushFlag != null" >
+        push_flag = #{record.pushFlag,jdbcType=TINYINT},
+      </if>
+      <if test="record.pushTime != null" >
+        push_time = #{record.pushTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null" >
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="record.pushTarget != null" >
+        push_target = #{record.pushTarget,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update mq_push_failure
+    set id = #{record.id,jdbcType=INTEGER},
+      message = #{record.message,jdbcType=VARCHAR},
+      push_count = #{record.pushCount,jdbcType=INTEGER},
+      push_flag = #{record.pushFlag,jdbcType=TINYINT},
+      push_time = #{record.pushTime,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT},
+      push_target = #{record.pushTarget,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.donut.ordermq.entity.MqPushFailure" >
+    update mq_push_failure
+    <set >
+      <if test="message != null" >
+        message = #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="pushCount != null" >
+        push_count = #{pushCount,jdbcType=INTEGER},
+      </if>
+      <if test="pushFlag != null" >
+        push_flag = #{pushFlag,jdbcType=TINYINT},
+      </if>
+      <if test="pushTime != null" >
+        push_time = #{pushTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null" >
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="pushTarget != null" >
+        push_target = #{pushTarget,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.donut.ordermq.entity.MqPushFailure" >
+    update mq_push_failure
+    set message = #{message,jdbcType=VARCHAR},
+      push_count = #{pushCount,jdbcType=INTEGER},
+      push_flag = #{pushFlag,jdbcType=TINYINT},
+      push_time = #{pushTime,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT},
+      push_target = #{pushTarget,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

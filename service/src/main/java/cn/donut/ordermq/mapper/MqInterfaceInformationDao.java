@@ -2,11 +2,13 @@ package cn.donut.ordermq.mapper;
 
 import cn.donut.ordermq.entity.MqInterfaceInformation;
 import cn.donut.ordermq.entity.MqInterfaceInformationExample;
+import com.koolearn.framework.mybatis.annotation.DAO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface MqInterfaceInformationMapper {
+@DAO
+public interface MqInterfaceInformationDao {
     int countByExample(MqInterfaceInformationExample example);
 
     int deleteByExample(MqInterfaceInformationExample example);

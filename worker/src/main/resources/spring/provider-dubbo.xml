@@ -116,15 +116,14 @@
     <!--直播dubbo-->
     <dubbo:reference id="systemAllocationService"
                      interface="cn.donut.crm.service.SystemAllocationService"/>
-
     <!--查询客户信息-->
     <dubbo:reference id="OpenService"
                      interface="com.koolearn.sso.service.IOpenService"/>
-
-
     <!--交易号-->
     <dubbo:reference id="TransactionRecordService"
                      interface="com.koolearn.ordercenter.service.TransactionRecordService"/>
-
+    <!--推送失败-->
+    <dubbo:reference id="MqPushFailureService"
+                     interface="cn.donut.ordermq.service.MqPushFailureService"/>
 
 </beans>

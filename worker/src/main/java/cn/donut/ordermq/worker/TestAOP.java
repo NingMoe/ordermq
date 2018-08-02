@@ -17,7 +17,7 @@ public class TestAOP {
 
     private static final Logger log = LoggerFactory.getLogger(TestAOP.class);
 
-    @Pointcut("execution(void cn.donut.ordermq.worker.order.*.sendMsg(..))")
+    @Pointcut("execution(* cn.donut.ordermq.worker.order.*.sendMsg(..))")
     public void pointCut() {
     }
 

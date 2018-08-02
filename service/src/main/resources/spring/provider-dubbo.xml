@@ -16,6 +16,10 @@
                    ref="MqAttachmentsServiceProvider"/>
     <bean id="MqAttachmentsServiceProvider" class="cn.donut.ordermq.impl.MqAttachmentsServiceProviderImpl"/>
 
+    <dubbo:service interface="cn.donut.ordermq.service.MqPushFailureService"
+                   ref="MqPushFailureService"/>
+    <bean id="MqPushFailureService" class="cn.donut.ordermq.impl.MqPushFailureServiceImpl"/>
+
     <dubbo:service interface="cn.donut.ordermq.service.MqRecordService" ref="mqRecordService"/>
     <bean id="mqRecordService" class="cn.donut.ordermq.impl.order.MqRecordServiceImpl"/>
 
@@ -24,6 +28,8 @@
 
     <dubbo:service interface="cn.donut.ordermq.service.order.IOrderProductService" ref="iOrderProductService"/>
     <bean id="iOrderProductService" class="cn.donut.ordermq.impl.order.IOrderProductServiceImpl"/>
+
+
 
 
     <!--订单状态消息变更MQ消息-->
