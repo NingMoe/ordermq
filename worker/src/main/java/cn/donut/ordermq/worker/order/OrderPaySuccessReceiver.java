@@ -102,9 +102,9 @@ public class OrderPaySuccessReceiver {
 
                                     }
                                 }
-                                int retailm  = editRetailm(order);
+                                int retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);
-                                if (retailm==1) {
+                                if (retailm == 1) {
                                     log.info("分销系统订单回写成功！订单号：{}", order.getOrderNo());
                                 } else if (0 == retailm) {
                                     log.info("不需要回写！订单号：{}");
@@ -201,7 +201,9 @@ public class OrderPaySuccessReceiver {
     }
 
 
-    //回写分销系统状态0:不需要回写，1true，2false
+    /**
+     * 回写分销系统状态0:不需要回写，1true，2false
+     */
     private int editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
         System.out.println("回写,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
@@ -273,7 +275,6 @@ public class OrderPaySuccessReceiver {
                     orderProducts.add(drOrderProduct);
                 }
             }
-//            BeanUtils.copyProperties(orderProducts, mqOrderProducts);
             OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
 
 
@@ -291,11 +292,14 @@ public class OrderPaySuccessReceiver {
      */
     public Map<String, Object> pushSuccessAop(Map<String, Object> map, MqOrderInfo order) {
         map.put("order", order);
-        System.out.println("执行支付成功业务处理--------------");
+//        System.out.println("执行支付成功业务处理--------------");
         return map;
     }
 
-    //aop测试方法
+    /**
+     * aop测试方法
+     */
+
     public void sendMsg() {
         System.out.println("AOP通知");
     }

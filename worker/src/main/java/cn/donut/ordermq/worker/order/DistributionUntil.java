@@ -44,13 +44,17 @@ public class DistributionUntil {
     public void pointCutPaySuccess() {
     }
 
-    //匹配下单和取消订单
+    /**
+     * 匹配下单和取消订单
+     */
     @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderCreateReceiver.pushAop(..)) || " +
             "execution(* cn.donut.ordermq.worker.order.OrderCancelReceiver.pushAop(..))")
     public void pointCut() {
     }
 
-    //支付成功切点
+    /**
+     * 支付成功切点
+     */
     @Around("pointCutPaySuccess()")
     public void aroundSuccess(ProceedingJoinPoint jp) throws Throwable {
         System.out.println("------------------before-------------------------");
@@ -69,7 +73,9 @@ public class DistributionUntil {
         System.out.println("------------------after-------------------------");
     }
 
-    //下单切点
+    /**
+     * 下单切点
+     */
     @Around("pointCut()")
     public void aroundCreate(ProceedingJoinPoint jp) throws Throwable {
         System.out.println("------------------before-------------------------");

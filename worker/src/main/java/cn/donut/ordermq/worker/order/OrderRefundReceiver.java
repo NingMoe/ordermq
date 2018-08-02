@@ -260,8 +260,9 @@ public class OrderRefundReceiver implements MessageListener {
      * Aop的切点方法
      */
     public void pushAop() {
-        System.out.println("执行业务处理--------------");
+        System.out.println("执行退课业务处理--------------");
     }
+
 
     //aop测试方法
     public void sendMsg() {

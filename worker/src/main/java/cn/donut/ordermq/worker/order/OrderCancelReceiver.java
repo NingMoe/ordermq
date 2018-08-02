@@ -148,13 +148,16 @@ public class OrderCancelReceiver implements MessageListener {
 
     }
 
-    //aop测试方法
+    /**
+     * aop测试方法
+     */
+
     public void sendMsg() {
         System.out.println("AOP通知");
     }
 
     public Map<String, Object> pushAop(Map<String, Object> map, MqOrderInfo order) throws Exception {
-        System.out.println("执行下单业务处理--------------");
+        System.out.println("执行取消业务处理--------------");
         mqUtil.pushOrderToRetailm(order);
         map.put("order", order);
         return map;

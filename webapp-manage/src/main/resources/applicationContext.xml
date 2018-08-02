@@ -27,9 +27,9 @@
     <!--订单状态消息变更MQ消息-->
     <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
     <!--加密解密-->
-    <dubbo:reference id="msgEncryptionService" interface="cn.donut.retailm.service.common.MsgEncryptionService"/>
-    <!--分销系统-->
-    <dubbo:reference id="iRetailmOrderService" interface="cn.donut.retailm.service.order.IOrderService"/>
+    <!--<dubbo:reference id="msgEncryptionService" interface="cn.donut.retailm.service.common.MsgEncryptionService"/>-->
+    <!--&lt;!&ndash;分销系统&ndash;&gt;-->
+    <!--<dubbo:reference id="iRetailmOrderService" interface="cn.donut.retailm.service.order.IOrderService"/>-->
     <!--查询订单分销员信息-->
     <dubbo:reference id="iOrderDistributionInfoService"
                      interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
