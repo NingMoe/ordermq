@@ -10,6 +10,8 @@
  */
 package order.product;
 
+import cn.donut.ordermq.entity.MqPushFailure;
+import cn.donut.ordermq.service.MqPushFailureService;
 import com.google.common.collect.Maps;
 import com.koolearn.sharks.model.Product;
 import com.koolearn.sharks.service.IProductService;
@@ -42,6 +44,9 @@ public class ProductController {
     @Autowired
     private IProductService productService;
 
+    @Autowired
+    private MqPushFailureService mqPushFailureService;
+
     @RequestMapping(value = "/url", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, String> getUrl(@RequestParam Integer productId) {
@@ -57,5 +62,15 @@ public class ProductController {
         }
 
         return map;
+    }
+
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    @ResponseBody
+    public String test() {
+        MqPushFailure mqPushFailure = new MqPushFailure();
+        mqPushFailure.setPushTarget("test");
+        mqPushFailure.setIsDelete((byte) 1);
+        mqPushFailureService.insert(mqPushFailure);
+        return mqPushFailure.toString();
     }
 }

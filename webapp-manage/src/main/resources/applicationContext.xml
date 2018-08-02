@@ -24,17 +24,12 @@
 
     <dubbo:reference id="iOrderProductService" interface="cn.donut.ordermq.service.order.IOrderProductService"/>
 
-    <!--订单状态消息变更MQ消息-->
-    <dubbo:reference id="iOrderBasicInfoService" interface="com.koolearn.ordercenter.service.IOrderBasicInfoService"/>
-    <!--加密解密-->
-    <!--<dubbo:reference id="msgEncryptionService" interface="cn.donut.retailm.service.common.MsgEncryptionService"/>-->
-    <!--&lt;!&ndash;分销系统&ndash;&gt;-->
-    <!--<dubbo:reference id="iRetailmOrderService" interface="cn.donut.retailm.service.order.IOrderService"/>-->
-    <!--查询订单分销员信息-->
-    <dubbo:reference id="iOrderDistributionInfoService"
-                     interface="com.koolearn.ordercenter.service.IOrderDistributionInfoService"/>
 
     <!--查询客户信息-->
     <dubbo:reference id="OpenService"
                      interface="com.koolearn.sso.service.IOpenService"/>
+
+    <!--推送失败-->
+    <dubbo:reference id="MqPushFailureService"
+                     interface="cn.donut.ordermq.service.MqPushFailureService"/>
 </beans>
