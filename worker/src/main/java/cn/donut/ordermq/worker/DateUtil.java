@@ -138,7 +138,6 @@ public class DateUtil {
         try {
             date = df.parse(strDate);
         } catch (ParseException pe) {
-            // log.error("ParseException: " + pe);
             throw new ParseException(pe.getMessage(), pe.getErrorOffset());
         }
 
@@ -200,7 +199,6 @@ public class DateUtil {
         String returnValue = "";
 
         if (aDate == null) {
-            // log.error("aDate is null!");
         } else {
             df = new SimpleDateFormat(aMask);
             returnValue = df.format(aDate);
@@ -228,7 +226,6 @@ public class DateUtil {
         int intDay = calCurrent.get(Calendar.DATE);
         int intMonth = calCurrent.get(Calendar.MONTH) + 1;
         int intYear = calCurrent.get(Calendar.YEAR);
-        // int intHour=calCurrent.get(Calendar.HOUR);
         int intHour = calCurrent.get(Calendar.HOUR_OF_DAY);
         int intMin = calCurrent.get(Calendar.MINUTE);
         int intSec = calCurrent.get(Calendar.SECOND);
@@ -236,7 +233,6 @@ public class DateUtil {
         if (intDay == 0) {
             // log.error("aDate is null!");
         } else {
-            // df = new SimpleDateFormat(aMask);
             returnValue = String.format("%1$04d", intYear) + String.format("%1$02d", intMonth) +
                     String.format("%1$02d", intDay) + String.format("%1$02d", intHour) +
                     String.format("%1$02d", intMin) + String.format("%1$02d", intSec);
@@ -564,10 +560,8 @@ public class DateUtil {
         if (days > 365) {
             return null;
         }
-        // int nowYear = oldD.getYear();
         int nowYear = oldD.get(Calendar.YEAR);
         // Calendar ca = Calendar.getInstance();
-        // ca.setTime(oldD);
         Calendar ca = oldD;
         int nowDay = ca.get(Calendar.DAY_OF_YEAR);
         int newYear = 0;

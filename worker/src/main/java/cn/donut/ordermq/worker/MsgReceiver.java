@@ -81,10 +81,12 @@ public class MsgReceiver implements MessageListener {
                     jsonMap.put("userProduct", "");
                 } else {
                     log.warn("userProductId:{}", userProduct.toString());
-                    if ((userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && AddressInfo.map.containsKey(userProduct.getProductId())) {
+                    boolean flag = false;
+                    flag = (userProduct.getProductLine() == 49 || userProduct.getProductLine() == 58) && AddressInfo.map.containsKey(userProduct.getProductId());
+                    if (flag) {
                         //数据存库
                         mq = mqInformationServiceProvider.insertMqInformation(mqInformation);
-                        jsonMap = this.Object2Json(userProduct);
+                        jsonMap = this.objectToJson(userProduct);
                         log.warn("jsonMap:{}", jsonMap.toString());
                         log.warn("Url:{}", AddressInfo.map.get(userProduct.getProductId()));
                         String content = HttpClientUtil.doPost(AddressInfo.map.get(userProduct.getProductId()), jsonMap);
@@ -103,7 +105,7 @@ public class MsgReceiver implements MessageListener {
             }
 
             //UserProduct转为Map<String,Object>
-            private Map<String, Object> Object2Json(UserProduct userProduct) {
+            private Map<String, Object> objectToJson(UserProduct userProduct) {
                 Map<String, Object> jsonMap = new HashMap<String, Object>();
                 if (null == userProduct) {
                     jsonMap.put("userProduct", "");

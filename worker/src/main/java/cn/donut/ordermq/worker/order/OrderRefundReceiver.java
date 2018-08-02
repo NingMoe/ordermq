@@ -69,7 +69,7 @@ public class OrderRefundReceiver implements MessageListener {
                 String json = new String(msg.getBody(), Charset.defaultCharset());
                 System.out.println("退课收到消息：==>{}" + json);
                 //转换
-                MqOrderInfo orderInfo = mqUtil.Json2Order(json);
+                MqOrderInfo orderInfo = mqUtil.jsonToOrder(json);
                 //是否多纳订单
                 Map<String, Object> map = iOrderService.checkProLine(orderInfo);
                 Boolean flag = false;

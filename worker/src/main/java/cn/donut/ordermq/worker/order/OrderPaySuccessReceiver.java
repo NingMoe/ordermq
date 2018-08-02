@@ -68,7 +68,7 @@ public class OrderPaySuccessReceiver {
                 System.out.println("queue = " + queue.toString());
                 String json = JSON.toJSONString(queue);
                 //转换
-                MqOrderInfo orderInfo = mqUtil.Json2Order(json);
+                MqOrderInfo orderInfo = mqUtil.jsonToOrder(json);
                 //是否多纳订单
                 Map<String, Object> map = iOrderService.checkProLine(orderInfo);
                 Boolean flag = false;

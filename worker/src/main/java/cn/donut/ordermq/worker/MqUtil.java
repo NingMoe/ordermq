@@ -83,7 +83,7 @@ public class MqUtil {
      * @param json
      * @return
      */
-    public MqOrderInfo Json2Order(String json) {
+    public MqOrderInfo jsonToOrder(String json) {
         try {
             JSONObject jsonObject = JSONObject.parseObject(json);
             String orderNo = jsonObject.get("orderNo").toString();
