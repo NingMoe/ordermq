@@ -166,8 +166,8 @@ public class ProductController {
 
     @RequestMapping(value = "/order", method = RequestMethod.GET)
     @ResponseBody
-    public int updateOrder(@RequestParam Integer orderId) throws Exception {
-        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderId(orderId);
+    public int updateOrder(@RequestParam String OrderNo) throws Exception {
+        MqOrderInfo mqOrderInfo = iOrderService.findOneByOrderNo(OrderNo);
         int a = 0;
         if (mqOrderInfo != null) {
             a = editRetailm(mqOrderInfo);
