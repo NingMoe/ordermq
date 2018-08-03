@@ -74,19 +74,45 @@ public class ProductController {
 
     @RequestMapping(value = "/url", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, String> getUrl(@RequestParam Integer productId) {
-        Map<String, String> map = Maps.newHashMap();
-        map.put("url", "");
-        if (productId == null) {
-            return map;
-        }
-        Product product = productService.findProductById(productId);
-        if (null != product) {
-            map.put("url", product.getProductInfoUrl());
-            return map;
-        }
+    public String getUrl(@RequestParam Integer productId) throws Exception {
+        DrOrderInfo drOrderInfo = new DrOrderInfo();
+        drOrderInfo.setTradeNumber("2018080301");
+        drOrderInfo.setRetailMemberId(75377712);
+        drOrderInfo.setTransactionNo("20180803");
+        drOrderInfo.setPayWay("微信支付");
+        drOrderInfo.setStatus((byte) 0);
+        drOrderInfo.setConsumerName("张三");
+        drOrderInfo.setConsumerPhone("17600002213");
+        BigDecimal NetWorth = new BigDecimal(899);
+        BigDecimal RealPrice = new BigDecimal(899);
+        BigDecimal Price = new BigDecimal(899);
+        drOrderInfo.setNetWorth(NetWorth);
+        drOrderInfo.setRealPrice(RealPrice);
+//        drOrderInfo.setPayTime();
+        drOrderInfo.setOrderTime(new Date());
+        drOrderInfo.setPrice(Price);
 
-        return map;
+        List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
+        DrOrderProduct drOrderProduct = new DrOrderProduct();
+        drOrderProduct.setTradenumber("2018080301");
+        drOrderProduct.setProductstatus(1);
+        drOrderProduct.setExamseasonid(49);
+        drOrderProduct.setIsgiveproduct(0);
+        drOrderProduct.setOriginalprice(RealPrice);
+        drOrderProduct.setOriginalpricenetvalue(RealPrice);
+        drOrderProduct.setProductid(10720);
+        drOrderProduct.setProductline(49);
+        drOrderProduct.setProductname("taizhikun的验收产品多纳直播+预约辅导");
+        drOrderProduct.setProducttype(8);
+        orderProducts.add(drOrderProduct);
+        OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
+
+
+        if (null != orderModel && null != orderModel.getId()) {
+            System.out.println("分销系统订单新增成功");
+            return "分销系统订单新增成功";
+        }
+        return "失败";
     }
 
     @RequestMapping(value = "/insert", method = RequestMethod.GET)
