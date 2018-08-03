@@ -117,7 +117,7 @@ public class ProductController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.GET)
     @ResponseBody
-    public String insert() throws Exception {
+    public String insert(@RequestParam String OrderNo) throws Exception {
 //        MqPushFailure mqPushFailure = new MqPushFailure();
 //        mqPushFailure.setPushTarget("test");
 //        mqPushFailure.setIsDelete((byte) 1);
