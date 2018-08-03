@@ -113,7 +113,7 @@ public class ProductController {
         OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(mqOrderInfo.getOrderNo(), true);
         System.out.println("orderBasicInfoWithPayway=" + orderBasicInfoWithPayway.toString());
         Map<Integer, String> paywayMap = Maps.newHashMap();
-        if(null != orderBasicInfoWithPayway){
+        if (null != orderBasicInfoWithPayway) {
             paywayMap = orderBasicInfoWithPayway.getPayWayMap();
             System.out.println("支付方式" + paywayMap != null);
         }
@@ -121,7 +121,7 @@ public class ProductController {
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         System.out.println("订单号" + mqOrderInfo.getOrderNo());
         String payWay = getPayWay(paywayMap);
-        System.out.println("分销订单：" + map.containsKey("orderInfo"));
+        System.out.println("分销订单：" + map.size());
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
@@ -209,11 +209,15 @@ public class ProductController {
         Iterator iter = paywayMap.entrySet().iterator();
         while (iter.hasNext()) {
             System.out.println("迭代器");
+
             Map.Entry entry = (Map.Entry) iter.next();
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
             Object key = entry.getKey();
             Object val = entry.getValue();
             payWay += val + ",";
         }
+        System.out.println("走出迭代器" + payWay);
         payWay = payWay.substring(0, payWay.length() - 1);
         return payWay;
     }
