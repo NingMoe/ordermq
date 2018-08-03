@@ -17,6 +17,8 @@ import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.domain.DrOrderProduct;
 import cn.donut.retailm.entity.model.OrderModel;
 import com.google.common.collect.Maps;
+import com.koolearn.ordercenter.model.order.basic.OrderBasicInfoWithPayway;
+import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.sharks.model.Product;
 import com.koolearn.sharks.service.IProductService;
 import com.koolearn.sso.dto.UsersDTO;
@@ -64,6 +66,10 @@ public class ProductController {
     private MqUtil mqUtil;
 
     @Autowired
+    private IOrderBasicInfoService iOrderBasicInfoService;
+
+
+    @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
     @RequestMapping(value = "/url", method = RequestMethod.GET)
@@ -109,7 +115,13 @@ public class ProductController {
     private int editRetailm(MqOrderInfo mqOrderInfo) throws Exception {
         System.out.println("回写,订单实体" + mqOrderInfo.toString());
         DrOrderInfo drOrderInfo = new DrOrderInfo();
-        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
+
+        //从鲨鱼拿到订单并复制
+        OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(mqOrderInfo.getOrderNo(), true);
+
+        Map<Integer, String> paywayMap = orderBasicInfoWithPayway.getPayWayMap();
+
+//        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         System.out.println("订单号" + mqOrderInfo.getOrderNo());
         String payWay = mqUtil.getPayWay(paywayMap);
