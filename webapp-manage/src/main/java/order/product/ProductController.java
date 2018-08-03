@@ -114,8 +114,12 @@ public class ProductController {
 
         //从鲨鱼拿到订单并复制
         OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(mqOrderInfo.getOrderNo(), true);
-
-        Map<Integer, String> paywayMap = orderBasicInfoWithPayway.getPayWayMap();
+        System.out.println("orderBasicInfoWithPayway=" + orderBasicInfoWithPayway.toString());
+        Map<Integer, String> paywayMap = Maps.newHashMap();
+        if(null != orderBasicInfoWithPayway){
+            paywayMap = orderBasicInfoWithPayway.getPayWayMap();
+            System.out.println("支付方式" + paywayMap != null);
+        }
 
 //        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
