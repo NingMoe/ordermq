@@ -124,7 +124,8 @@ public class ProductController {
 //        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         System.out.println("订单号" + mqOrderInfo.getOrderNo());
-        String payWay = mqUtil.getPayWay(paywayMap);
+//        String payWay = mqUtil.getPayWay(paywayMap);
+        String payWay = "微信支付";
         System.out.println("分销订单：" + map.containsKey("orderInfo"));
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
