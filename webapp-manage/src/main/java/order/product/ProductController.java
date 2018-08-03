@@ -61,9 +61,6 @@ public class ProductController {
     private IProductService productService;
 
     @Autowired
-    private MqPushFailureService mqPushFailureService;
-
-    @Autowired
     private IOpenService iOpenService;
 
     @Autowired

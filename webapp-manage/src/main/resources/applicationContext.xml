@@ -39,7 +39,7 @@
     <dubbo:reference id="OpenService"
                      interface="com.koolearn.sso.service.IOpenService"/>
 
-    <!--推送失败-->
-    <dubbo:reference id="MqPushFailureService"
-                     interface="cn.donut.ordermq.service.MqPushFailureService"/>
+    <!--&lt;!&ndash;推送失败&ndash;&gt;-->
+    <!--<dubbo:reference id="MqPushFailureService"-->
+                     <!--interface="cn.donut.ordermq.service.MqPushFailureService"/>-->
 </beans>
