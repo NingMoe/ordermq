@@ -123,5 +123,9 @@
                      interface="com.koolearn.sso.service.IOpenService"/>
 
 
+    <!--交易号-->
+    <dubbo:reference id="TransactionRecordService"
+                     interface="com.koolearn.ordercenter.service.TransactionRecordService"/>
+
 
 </beans>
