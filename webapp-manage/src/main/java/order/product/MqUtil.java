@@ -69,7 +69,6 @@ public class MqUtil {
     private IOpenService iOpenService;
 
 
-
     /**
      * json转化实体
      *
@@ -169,11 +168,13 @@ public class MqUtil {
     public String getPayWay(Map<Integer, String> paywayMap) {
         String payWay = "";
         if (paywayMap == null || paywayMap.isEmpty()) {
+            System.out.println("支付方式为空");
             return payWay;
         }
 
         Iterator iter = paywayMap.entrySet().iterator();
         while (iter.hasNext()) {
+            System.out.println("迭代器");
             Map.Entry entry = (Map.Entry) iter.next();
             Object key = entry.getKey();
             Object val = entry.getValue();

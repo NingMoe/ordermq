@@ -33,10 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 〈一句话功能简述〉<br>
@@ -121,11 +118,9 @@ public class ProductController {
             System.out.println("支付方式" + paywayMap != null);
         }
 
-//        Map<Integer, String> paywayMap = mqOrderInfo.getPayWayMap();
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         System.out.println("订单号" + mqOrderInfo.getOrderNo());
-//        String payWay = mqUtil.getPayWay(paywayMap);
-        String payWay = "微信支付";
+        String payWay = getPayWay(paywayMap);
         System.out.println("分销订单：" + map.containsKey("orderInfo"));
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
@@ -202,4 +197,25 @@ public class ProductController {
         }
 
     }
+
+
+    public String getPayWay(Map<Integer, String> paywayMap) {
+        String payWay = "";
+        if (paywayMap == null || paywayMap.isEmpty()) {
+            System.out.println("支付方式为空");
+            return payWay;
+        }
+
+        Iterator iter = paywayMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            System.out.println("迭代器");
+            Map.Entry entry = (Map.Entry) iter.next();
+            Object key = entry.getKey();
+            Object val = entry.getValue();
+            payWay += val + ",";
+        }
+        payWay = payWay.substring(0, payWay.length() - 1);
+        return payWay;
+    }
+
 }
