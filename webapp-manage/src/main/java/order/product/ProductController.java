@@ -86,50 +86,6 @@ public class ProductController {
         return map;
     }
 
-//    @RequestMapping(value = "/insert", method = RequestMethod.GET)
-//    @ResponseBody
-//    public String insert(@RequestParam String OrderNo) throws Exception {
-//
-//        DrOrderInfo drOrderInfo = new DrOrderInfo();
-//        drOrderInfo.setTradeNumber("2018080301");
-//        drOrderInfo.setRetailMemberId(75377712);
-//        drOrderInfo.setTransactionNo("20180803");
-//        drOrderInfo.setPayWay("微信支付");
-//        drOrderInfo.setStatus((byte) 0);
-//        drOrderInfo.setConsumerName("张三");
-//        drOrderInfo.setConsumerPhone("17600002213");
-//        BigDecimal NetWorth = new BigDecimal(899);
-//        BigDecimal RealPrice = new BigDecimal(899);
-//        BigDecimal Price = new BigDecimal(899);
-//        drOrderInfo.setNetWorth(NetWorth);
-//        drOrderInfo.setRealPrice(RealPrice);
-////        drOrderInfo.setPayTime();
-//        drOrderInfo.setOrderTime(new Date());
-//        drOrderInfo.setPrice(Price);
-//        drOrderInfo.setProductId(10720);
-//        List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
-//        DrOrderProduct drOrderProduct = new DrOrderProduct();
-//        drOrderProduct.setTradenumber("2018080301");
-//        drOrderProduct.setProductstatus(1);
-//        drOrderProduct.setExamseasonid(49);
-//        drOrderProduct.setIsgiveproduct(0);
-//        drOrderProduct.setOriginalprice(RealPrice);
-//        drOrderProduct.setOriginalpricenetvalue(RealPrice);
-//        drOrderProduct.setProductid(10720);
-//        drOrderProduct.setProductline(49);
-//        drOrderProduct.setProductname("taizhikun的验收产品多纳直播+预约辅导");
-//        drOrderProduct.setProducttype(8);
-//        orderProducts.add(drOrderProduct);
-//        OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
-//
-//
-//        if (null != orderModel && null != orderModel.getId()) {
-//            System.out.println("分销系统订单新增成功");
-//            return "分销系统订单新增成功";
-//        }
-//        return "失败";
-//    }
-
 
     @RequestMapping(value = "/correctionOrder", method = RequestMethod.GET)
     @ResponseBody
@@ -138,7 +94,13 @@ public class ProductController {
         int a = 0;
         if (mqOrderInfo != null) {
             System.out.println("查询出订单:" + mqOrderInfo.toString());
-            a = editRetailm(mqOrderInfo);
+            try {
+                a = editRetailm(mqOrderInfo);
+            } catch (Exception e) {
+                System.out.println("错误");
+                e.printStackTrace();
+            }
+
         }
         return a;
     }
@@ -154,6 +116,7 @@ public class ProductController {
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         System.out.println("订单号" + mqOrderInfo.getOrderNo());
         String payWay = mqUtil.getPayWay(paywayMap);
+        System.out.println("分销订单：" + map.containsKey("orderInfo"));
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
