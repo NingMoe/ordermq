@@ -37,8 +37,7 @@ public class DistributionUntil {
 
     private static final Logger log = LoggerFactory.getLogger(DistributionUntil.class);
 
-    @Autowired
-    private MqUtil mqUtil;
+
 
     @Pointcut("execution(* cn.donut.ordermq.worker.order.OrderPaySuccessReceiver.pushSuccessAop(..))")
     public void pointCutPaySuccess() {
