@@ -91,6 +91,7 @@ public class ProductController {
 //        drOrderInfo.setPayTime();
         drOrderInfo.setOrderTime(new Date());
         drOrderInfo.setPrice(Price);
+        drOrderInfo.setProductId(10720);
 
         List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
         DrOrderProduct drOrderProduct = new DrOrderProduct();
@@ -103,6 +104,7 @@ public class ProductController {
         drOrderProduct.setProductid(10720);
         drOrderProduct.setProductline(49);
         drOrderProduct.setProductname("taizhikun的验收产品多纳直播+预约辅导");
+        drOrderProduct.setStrikeprice(Price);
         drOrderProduct.setProducttype(8);
         orderProducts.add(drOrderProduct);
         OrderModel orderModel = iRetailmOrderService.insertOrder(drOrderInfo, orderProducts);
@@ -139,7 +141,7 @@ public class ProductController {
 //        drOrderInfo.setPayTime();
         drOrderInfo.setOrderTime(new Date());
         drOrderInfo.setPrice(Price);
-
+        drOrderInfo.setProductId(10720);
         List<DrOrderProduct> orderProducts = new ArrayList<DrOrderProduct>();
         DrOrderProduct drOrderProduct = new DrOrderProduct();
         drOrderProduct.setTradenumber("2018080301");
