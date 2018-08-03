@@ -209,6 +209,7 @@ public class OrderRefundReceiver implements MessageListener {
                 drOrderInfo.setConsumerName(userInfo.getUserName());
                 drOrderInfo.setConsumerPhone(userInfo.getMobile());
             }
+            drOrderInfo.setPayTime(mqOrderInfo.getPayTime());
             log.warn("回写分销系统drOrderInfo:-->{}", drOrderInfo.toString());
             return iRetailmOrderService.editOrder(drOrderInfo)? 1 : 2;
         } else {
