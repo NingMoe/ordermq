@@ -97,14 +97,10 @@ public class ProductController {
         int a = 0;
         if (mqOrderInfo != null) {
             System.out.println("查询出订单:" + mqOrderInfo.toString());
-            try {
-                a = editRetailm(mqOrderInfo);
-            } catch (Exception e) {
-                System.out.println("错误");
-                e.printStackTrace();
-            }
-
+            a = editRetailm(mqOrderInfo);
         }
+
+
         return a;
     }
 
