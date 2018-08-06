@@ -117,13 +117,11 @@ public class ProductController {
         Map<Integer, String> paywayMap = Maps.newHashMap();
         if (null != orderBasicInfoWithPayway) {
             paywayMap = orderBasicInfoWithPayway.getPayWayMap();
-            System.out.println("支付方式" + paywayMap != null);
         }
 
         Map<String, Object> map = iRetailmOrderService.findOrderByTradeNo(mqOrderInfo.getOrderNo());
         System.out.println("订单号" + mqOrderInfo.getOrderNo());
         String payWay = getPayWay(paywayMap);
-        System.out.println("分销订单：" + map.size());
         if (null != map && map.containsKey("orderInfo")) {
             System.out.println("分销系统有该订单，执行更新");
             drOrderInfo = (DrOrderInfo) map.get("orderInfo");
