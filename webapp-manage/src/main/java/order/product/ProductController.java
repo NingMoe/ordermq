@@ -17,6 +17,7 @@ import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.domain.DrOrderProduct;
 import cn.donut.retailm.entity.model.OrderModel;
 import com.google.common.collect.Maps;
+import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfoWithPayway;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.sharks.model.Product;
@@ -114,6 +115,23 @@ public class ProductController {
         //从鲨鱼拿到订单并复制
         OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(mqOrderInfo.getOrderNo(), true);
         System.out.println("orderBasicInfoWithPayway=" + orderBasicInfoWithPayway.toString());
+        OrderBasicInfo orderBasicInfo = orderBasicInfoWithPayway.getOrderBasicInfo();
+
+        if (null != orderBasicInfo) {
+            try {
+                List<MqOrderProduct> products = mqUtil.updateProducts(orderBasicInfo);
+                if (products != null && products.size() > 0) {
+                    mqOrderInfo.setMqOrderProducts(products);
+                }
+            } catch (Exception e) {
+                log.error("修改产品状态失败！", e);
+                return 0;
+            }
+        } else {
+            log.error("修改产品信息失败！");
+            return 0;
+        }
+
         Map<Integer, String> paywayMap = Maps.newHashMap();
         if (null != orderBasicInfoWithPayway) {
             paywayMap = orderBasicInfoWithPayway.getPayWayMap();
