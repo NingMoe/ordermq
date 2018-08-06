@@ -95,6 +95,8 @@ public class ProductController {
         if (mqOrderInfo != null) {
             System.out.println("查询出订单:" + mqOrderInfo.toString());
             a = editRetailm(mqOrderInfo);
+        }else {
+            System.out.println("未查询到订单");
         }
 
 
