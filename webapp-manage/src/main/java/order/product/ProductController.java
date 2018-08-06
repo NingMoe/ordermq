@@ -114,13 +114,14 @@ public class ProductController {
 
         //从鲨鱼拿到订单并复制
         OrderBasicInfoWithPayway orderBasicInfoWithPayway = iOrderBasicInfoService.findOrderBasicInfoWithPaywayByOrderNo(mqOrderInfo.getOrderNo(), true);
-        System.out.println("orderBasicInfoWithPayway=" + orderBasicInfoWithPayway.toString());
+
         OrderBasicInfo orderBasicInfo = orderBasicInfoWithPayway.getOrderBasicInfo();
 
         if (null != orderBasicInfo) {
             try {
                 List<MqOrderProduct> products = mqUtil.updateProducts(orderBasicInfo);
                 if (products != null && products.size() > 0) {
+                    System.out.println("产品信息"+products.get(0).toString());
                     mqOrderInfo.setMqOrderProducts(products);
                 }
             } catch (Exception e) {
