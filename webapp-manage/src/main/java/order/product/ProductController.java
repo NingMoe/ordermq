@@ -71,22 +71,7 @@ public class ProductController {
     @Autowired
     private cn.donut.retailm.service.order.IOrderService iRetailmOrderService;
 
-    @RequestMapping(value = "/a", method = RequestMethod.GET)
-    @ResponseBody
-    public String a() {
-        MqOrderPush push = new MqOrderPush();
-        push.setId(1);
-        push.setProductid(1);
-        push.setUrl("http://doabc.leanapp.cn/api/yc/buy");
-        push.setIsDelete(0);
-        push.setRemark("测试数据");
-        push.setCreateAt(new Date());
-        push.setUpdateAt(new Date());
-        System.out.println(push.getUrl());
-        iOrderService.a(push);
 
-        return "ok";
-    }
 
     @RequestMapping(value = "/url", method = RequestMethod.GET)
     @ResponseBody

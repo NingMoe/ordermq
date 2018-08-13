@@ -234,7 +234,7 @@ public class IOrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public void a(MqOrderPush push) {
+    public void test(MqOrderPush push) {
         int insert = mqOrderPushMapper.insert(push);
         System.out.println(insert);
     }

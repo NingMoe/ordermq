@@ -82,5 +82,5 @@ public interface IOrderService {
     Map<String, Object> checkProLine(MqOrderInfo orderInfo);
 
 
-    void a(MqOrderPush push);
+    void test(MqOrderPush push);
 }
