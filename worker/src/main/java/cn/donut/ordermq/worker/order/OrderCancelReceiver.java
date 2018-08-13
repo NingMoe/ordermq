@@ -1,16 +1,21 @@
 package cn.donut.ordermq.worker.order;
 
+import cn.donut.ordermq.dto.OrderBasicInfoDto;
+import cn.donut.ordermq.entity.MqPushFailure;
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
+import cn.donut.ordermq.service.MqPushFailureService;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.Global;
+import cn.donut.ordermq.worker.HttpClientUtil;
 import cn.donut.ordermq.worker.MqUtil;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +55,9 @@ public class OrderCancelReceiver implements MessageListener {
 
     @Autowired
     private Global global;
+
+    @Autowired
+    private MqPushFailureService mqPushFailureService;
 //    {
 //        "orderNo": "订单号",
 //        "productIdList": [产品id1],
@@ -81,22 +90,55 @@ public class OrderCancelReceiver implements MessageListener {
                         MqOrderInfo order = null;
                         try {
                             order = updateOrder(orderInfo);
+                            if (order != null) {
+                                //回写消息状态
+                                mqRecord.setPersist((byte) 1);
+                                mqRecordService.edit(mqRecord);
+                                //推送到分销
+                                try {
+                                    pushAop(map, order);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                log.warn("订单取消已更新！订单号：{}", order.getOrderNo());
+
+                                //推送node
+                                if( map.containsKey("infoList")){
+                                    log.error("进入infoList==推送node start==========");
+                                    List<OrderBasicInfoDto> infoList = (List<OrderBasicInfoDto>) map.get("infoList");
+                                    log.error("infoList=="+infoList);
+                                    if(infoList!=null&&infoList.size()>0){
+                                        for (int i=0;i<infoList.size();i++){
+                                            String url=infoList.get(i).getUrl();
+                                            Map<String,Object> params=new HashMap<String, Object>();
+                                            params.put("data",infoList.get(i));
+                                            String content = HttpClientUtil.doPost(url, params);
+                                            log.warn("httpClient返回消息", content);
+                                            //发送失败
+                                            if (! (StringUtils.isNotEmpty(content) && content.contains("成功"))){
+                                                MqPushFailure mqPushFailure = new MqPushFailure();
+                                                mqPushFailure.setPushTarget(url);
+                                                mqPushFailure.setMessage(json);
+                                                mqPushFailure.setOriginalRoute("order.cancel");
+                                                log.error("mqPushFailure=="+mqPushFailure);
+                                                try {
+                                                    mqPushFailureService.insert(mqPushFailure);
+                                                    log.error("进入infoList==推送node end==========");
+                                                }catch (Exception e){
+                                                    e.printStackTrace();
+                                                    log.error("消息插入到mqPushFailure数据库失败");
+                                                    log.error("json:"+json);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                log.error("订单取消更新数据库失败！，请检查原因");
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                             log.error("修改产品信息失败！");
-                        }
-                        if (order != null) {
-                            //回写消息状态
-                            mqRecord.setPersist((byte) 1);
-                            mqRecordService.edit(mqRecord);
-                            try {
-                                pushAop(map, order);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            log.info("订单取消已更新！订单号：{}", order.getOrderNo());
-                        } else {
-                            log.info("订单已存在！");
                         }
                     }
                 }

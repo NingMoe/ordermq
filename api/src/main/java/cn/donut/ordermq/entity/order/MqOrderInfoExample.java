@@ -1325,6 +1325,66 @@ public class MqOrderInfoExample {
             addCriterion("basic_order_id not between", value1, value2, "basicOrderId");
             return (Criteria) this;
         }
+
+        public Criteria andSharkOrderInfoIdIsNull() {
+            addCriterion("shark_order_info_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdIsNotNull() {
+            addCriterion("shark_order_info_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdEqualTo(Integer value) {
+            addCriterion("shark_order_info_id =", value, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdNotEqualTo(Integer value) {
+            addCriterion("shark_order_info_id <>", value, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdGreaterThan(Integer value) {
+            addCriterion("shark_order_info_id >", value, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("shark_order_info_id >=", value, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdLessThan(Integer value) {
+            addCriterion("shark_order_info_id <", value, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdLessThanOrEqualTo(Integer value) {
+            addCriterion("shark_order_info_id <=", value, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdIn(List<Integer> values) {
+            addCriterion("shark_order_info_id in", values, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdNotIn(List<Integer> values) {
+            addCriterion("shark_order_info_id not in", values, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdBetween(Integer value1, Integer value2) {
+            addCriterion("shark_order_info_id between", value1, value2, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharkOrderInfoIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("shark_order_info_id not between", value1, value2, "sharkOrderInfoId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

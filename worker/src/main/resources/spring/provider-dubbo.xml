@@ -130,5 +130,8 @@
     <dubbo:reference id="TransactionRecordService"
                      interface="com.koolearn.ordercenter.service.TransactionRecordService"/>
 
+    <dubbo:reference id="mqPushFailureService"
+                     interface="cn.donut.ordermq.service.MqPushFailureService"/>
+
 
 </beans>

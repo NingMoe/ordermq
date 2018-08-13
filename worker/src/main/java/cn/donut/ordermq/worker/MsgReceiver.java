@@ -1,8 +1,10 @@
 package cn.donut.ordermq.worker;
 
 import cn.donut.ordermq.entity.MqInformation;
+import cn.donut.ordermq.entity.MqPushFailure;
 import cn.donut.ordermq.service.MqAttachmentsServiceProvider;
 import cn.donut.ordermq.service.MqInformationServiceProvider;
+import cn.donut.ordermq.service.MqPushFailureService;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.koolearn.clazz.model.UserProduct;
@@ -37,6 +39,9 @@ public class MsgReceiver implements MessageListener {
 
     @Autowired
     private IUserProductService iUserProductService;
+
+    @Autowired
+    private MqPushFailureService mqPushFailureService;
 
     private static final Logger log = LoggerFactory.getLogger(MsgReceiver.class);
 
@@ -99,6 +104,18 @@ public class MsgReceiver implements MessageListener {
                             mqInformation.setUpdateTime(new Date());
                             mqInformationServiceProvider.updateMqInformation(mqInformation);
                             System.out.println("pushed");
+                        }else{
+                            MqPushFailure mqPushFailure = new MqPushFailure();
+                            mqPushFailure.setPushTarget(AddressInfo.map.get(userProduct.getProductId()));
+                            mqPushFailure.setMessage(json);
+                            mqPushFailure.setOriginalRoute("sharks.data.change-donut");
+                            try {
+                                mqPushFailureService.insert(mqPushFailure);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                                log.error("消息插入到mqPushFailure数据库失败");
+                                log.error("json:"+json);
+                            }
                         }
                     }
                 }

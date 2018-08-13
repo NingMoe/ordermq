@@ -1,12 +1,16 @@
 package cn.donut.ordermq.worker.order;
 
+import cn.donut.ordermq.dto.OrderBasicInfoDto;
+import cn.donut.ordermq.entity.MqPushFailure;
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
+import cn.donut.ordermq.service.MqPushFailureService;
 import cn.donut.ordermq.service.MqRecordService;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
 import cn.donut.ordermq.worker.Global;
+import cn.donut.ordermq.worker.HttpClientUtil;
 import cn.donut.ordermq.worker.MqUtil;
 import cn.donut.retailm.entity.domain.DrOrderInfo;
 import cn.donut.retailm.entity.domain.DrOrderProduct;
@@ -18,6 +22,7 @@ import com.koolearn.sso.dto.UsersDTO;
 import com.koolearn.sso.service.IOpenService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +69,9 @@ public class OrderRefundReceiver implements MessageListener {
     @Autowired
     private Global global;
 
+    @Autowired
+    private MqPushFailureService mqPushFailureService;
+
     @Override
     public void onMessage(final Message msg) {
 
@@ -97,11 +105,50 @@ public class OrderRefundReceiver implements MessageListener {
                                         //推送直播
                                         try {
                                             Boolean live = mqUtil.pushLive(order);
+                                            if(live==false){
+                                                MqPushFailure mqPushFailure = new MqPushFailure();
+                                                mqPushFailure.setPushTarget("systemAllocationService.addSystemAllocationTwoService(OrderBasicInfo var1, String var2, Integer var3);");
+                                                mqPushFailure.setMessage(json);
+                                                mqPushFailure.setOriginalRoute("order.refund");
+                                                try {
+                                                    mqPushFailureService.insert(mqPushFailure);
+                                                }catch (Exception e){
+                                                    e.printStackTrace();
+                                                    log.error("消息插入到mqPushFailure数据库失败");
+                                                    log.error("json:"+json);
+                                                }
+                                            }
                                         } catch (Exception e) {
                                             e.printStackTrace();
-                                            editRetailm(order);
                                         }
 
+                                    }
+                                    //推送node
+                                    if( map.containsKey("infoList")){
+                                        List<OrderBasicInfoDto> infoList = (List<OrderBasicInfoDto>) map.get("infoList");
+                                        if(infoList!=null&&infoList.size()>0){
+                                            for (int i=0;i<infoList.size();i++){
+                                                String url=infoList.get(i).getUrl();
+                                                Map<String,Object> params=new HashMap<String, Object>();
+                                                params.put("data",infoList.get(i));
+                                                String content = HttpClientUtil.doPost(url, params);
+                                                log.warn("httpClient返回消息", content);
+                                                //发送失败
+                                                if (! (StringUtils.isNotEmpty(content) && content.contains("成功"))){
+                                                    MqPushFailure mqPushFailure = new MqPushFailure();
+                                                    mqPushFailure.setPushTarget(url);
+                                                    mqPushFailure.setMessage(json);
+                                                    mqPushFailure.setOriginalRoute("order.pay.success");
+                                                    try {
+                                                        mqPushFailureService.insert(mqPushFailure);
+                                                    }catch (Exception e){
+                                                        e.printStackTrace();
+                                                        log.error("消息插入到mqPushFailure数据库失败");
+                                                        log.error("json:"+json);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 int retailm = editRetailm(order);

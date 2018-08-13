@@ -1,5 +1,6 @@
 package cn.donut.ordermq.service.order;
 
+import cn.donut.ordermq.entity.MqOrderPush;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
@@ -81,4 +82,5 @@ public interface IOrderService {
     Map<String, Object> checkProLine(MqOrderInfo orderInfo);
 
 
+    void a(MqOrderPush push);
 }

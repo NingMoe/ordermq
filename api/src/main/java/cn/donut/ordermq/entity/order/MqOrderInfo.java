@@ -6,7 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class MqOrderInfo implements Serializable {
+public class MqOrderInfo implements Serializable,Cloneable {
+    private static final long serialVersionUID = 4232883849763021126L;
     private Integer id;
     //订单号
     private String orderNo;
@@ -50,6 +51,24 @@ public class MqOrderInfo implements Serializable {
     private List<MqOrderProduct> mqOrderProducts;
     //支付方式
     Map<Integer, String> payWayMap;
+    //鲨鱼消息队列主键
+    private Integer sharkOrderInfoId;
+
+    public List<MqOrderProduct> getMqOrderProducts() {
+        return mqOrderProducts;
+    }
+
+    public void setMqOrderProducts(List<MqOrderProduct> mqOrderProducts) {
+        this.mqOrderProducts = mqOrderProducts;
+    }
+
+    public Map<Integer, String> getPayWayMap() {
+        return payWayMap;
+    }
+
+    public void setPayWayMap(Map<Integer, String> payWayMap) {
+        this.payWayMap = payWayMap;
+    }
 
     public Integer getId() {
         return id;
@@ -211,20 +230,12 @@ public class MqOrderInfo implements Serializable {
         this.basicOrderId = basicOrderId;
     }
 
-    public List<MqOrderProduct> getMqOrderProducts() {
-        return mqOrderProducts;
+    public Integer getSharkOrderInfoId() {
+        return sharkOrderInfoId;
     }
 
-    public void setMqOrderProducts(List<MqOrderProduct> mqOrderProducts) {
-        this.mqOrderProducts = mqOrderProducts;
-    }
-
-    public Map<Integer, String> getPayWayMap() {
-        return payWayMap;
-    }
-
-    public void setPayWayMap(Map<Integer, String> payWayMap) {
-        this.payWayMap = payWayMap;
+    public void setSharkOrderInfoId(Integer sharkOrderInfoId) {
+        this.sharkOrderInfoId = sharkOrderInfoId;
     }
 
     @Override
@@ -252,6 +263,7 @@ public class MqOrderInfo implements Serializable {
                 ", basicOrderId=" + basicOrderId +
                 ", mqOrderProducts=" + mqOrderProducts +
                 ", payWayMap=" + payWayMap +
+                ", sharkOrderInfoId=" + sharkOrderInfoId +
                 '}';
     }
 }

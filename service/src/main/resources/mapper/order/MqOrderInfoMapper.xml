@@ -22,6 +22,7 @@
     <result column="strike_price" property="strikePrice" jdbcType="DECIMAL" />
     <result column="is_basic_order" property="isBasicOrder" jdbcType="TINYINT" />
     <result column="basic_order_id" property="basicOrderId" jdbcType="INTEGER" />
+    <result column="shark_order_info_id" property="sharkOrderInfoId" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -84,8 +85,8 @@
   <sql id="Base_Column_List" >
     id, order_no, user_id, campus_id, agent_new_id, agent_account_id, agent_account_version_id, 
     agent_ssoId, partner_id, status, order_type, order_source, order_time, cancel_time, 
-    pay_time, original_price, net_value, strike_price, is_basic_order,
-    basic_order_id
+    pay_time, original_price, net_value, strike_price, is_basic_order, basic_order_id, 
+    shark_order_info_id
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="cn.donut.ordermq.entity.order.MqOrderInfoExample" >
     select
@@ -102,7 +103,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from mq_order_info
     where id = #{id,jdbcType=INTEGER}
@@ -117,23 +118,25 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" >
     insert into mq_order_info (id, order_no, user_id, 
       campus_id, agent_new_id, agent_account_id, 
       agent_account_version_id, agent_ssoId, partner_id, 
       status, order_type, order_source, 
       order_time, cancel_time, pay_time, 
-      original_price, net_value, strike_price,
-      is_basic_order, basic_order_id)
+      original_price, net_value, strike_price, 
+      is_basic_order, basic_order_id, shark_order_info_id
+      )
     values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
       #{campusId,jdbcType=INTEGER}, #{agentNewId,jdbcType=INTEGER}, #{agentAccountId,jdbcType=INTEGER}, 
       #{agentAccountVersionId,jdbcType=INTEGER}, #{agentSsoid,jdbcType=VARCHAR}, #{partnerId,jdbcType=INTEGER}, 
       #{status,jdbcType=TINYINT}, #{orderType,jdbcType=TINYINT}, #{orderSource,jdbcType=TINYINT}, 
       #{orderTime,jdbcType=TIMESTAMP}, #{cancelTime,jdbcType=TIMESTAMP}, #{payTime,jdbcType=TIMESTAMP}, 
-      #{originalPrice,jdbcType=DECIMAL}, #{netValue,jdbcType=DECIMAL}, #{strikePrice,jdbcType=DECIMAL},
-      #{isBasicOrder,jdbcType=TINYINT}, #{basicOrderId,jdbcType=INTEGER})
+      #{originalPrice,jdbcType=DECIMAL}, #{netValue,jdbcType=DECIMAL}, #{strikePrice,jdbcType=DECIMAL}, 
+      #{isBasicOrder,jdbcType=TINYINT}, #{basicOrderId,jdbcType=INTEGER}, #{sharkOrderInfoId,jdbcType=INTEGER}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.order.MqOrderInfo" >
     insert into mq_order_info
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -196,6 +199,9 @@
       <if test="basicOrderId != null" >
         basic_order_id,
       </if>
+      <if test="sharkOrderInfoId != null" >
+        shark_order_info_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -257,6 +263,9 @@
       </if>
       <if test="basicOrderId != null" >
         #{basicOrderId,jdbcType=INTEGER},
+      </if>
+      <if test="sharkOrderInfoId != null" >
+        #{sharkOrderInfoId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -329,6 +338,9 @@
       <if test="record.basicOrderId != null" >
         basic_order_id = #{record.basicOrderId,jdbcType=INTEGER},
       </if>
+      <if test="record.sharkOrderInfoId != null" >
+        shark_order_info_id = #{record.sharkOrderInfoId,jdbcType=INTEGER},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -337,25 +349,26 @@
   <update id="updateByExample" parameterType="map" >
     update mq_order_info
     set id = #{record.id,jdbcType=INTEGER},
-      order_no = #{record.orderNo,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=INTEGER},
-      campus_id = #{record.campusId,jdbcType=INTEGER},
-      agent_new_id = #{record.agentNewId,jdbcType=INTEGER},
-      agent_account_id = #{record.agentAccountId,jdbcType=INTEGER},
-      agent_account_version_id = #{record.agentAccountVersionId,jdbcType=INTEGER},
-      agent_ssoId = #{record.agentSsoid,jdbcType=VARCHAR},
-      partner_id = #{record.partnerId,jdbcType=INTEGER},
-      status = #{record.status,jdbcType=TINYINT},
-      order_type = #{record.orderType,jdbcType=TINYINT},
-      order_source = #{record.orderSource,jdbcType=TINYINT},
-      order_time = #{record.orderTime,jdbcType=TIMESTAMP},
-      cancel_time = #{record.cancelTime,jdbcType=TIMESTAMP},
-      pay_time = #{record.payTime,jdbcType=TIMESTAMP},
-      original_price = #{record.originalPrice,jdbcType=DECIMAL},
-      net_value = #{record.netValue,jdbcType=DECIMAL},
-      strike_price = #{record.strikePrice,jdbcType=DECIMAL},
-      is_basic_order = #{record.isBasicOrder,jdbcType=TINYINT},
-      basic_order_id = #{record.basicOrderId,jdbcType=INTEGER}
+    order_no = #{record.orderNo,jdbcType=VARCHAR},
+    user_id = #{record.userId,jdbcType=INTEGER},
+    campus_id = #{record.campusId,jdbcType=INTEGER},
+    agent_new_id = #{record.agentNewId,jdbcType=INTEGER},
+    agent_account_id = #{record.agentAccountId,jdbcType=INTEGER},
+    agent_account_version_id = #{record.agentAccountVersionId,jdbcType=INTEGER},
+    agent_ssoId = #{record.agentSsoid,jdbcType=VARCHAR},
+    partner_id = #{record.partnerId,jdbcType=INTEGER},
+    status = #{record.status,jdbcType=TINYINT},
+    order_type = #{record.orderType,jdbcType=TINYINT},
+    order_source = #{record.orderSource,jdbcType=TINYINT},
+    order_time = #{record.orderTime,jdbcType=TIMESTAMP},
+    cancel_time = #{record.cancelTime,jdbcType=TIMESTAMP},
+    pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+    original_price = #{record.originalPrice,jdbcType=DECIMAL},
+    net_value = #{record.netValue,jdbcType=DECIMAL},
+    strike_price = #{record.strikePrice,jdbcType=DECIMAL},
+    is_basic_order = #{record.isBasicOrder,jdbcType=TINYINT},
+    basic_order_id = #{record.basicOrderId,jdbcType=INTEGER},
+    shark_order_info_id = #{record.sharkOrderInfoId,jdbcType=INTEGER}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -420,6 +433,9 @@
       <if test="basicOrderId != null" >
         basic_order_id = #{basicOrderId,jdbcType=INTEGER},
       </if>
+      <if test="sharkOrderInfoId != null" >
+        shark_order_info_id = #{sharkOrderInfoId,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -443,7 +459,15 @@
       net_value = #{netValue,jdbcType=DECIMAL},
       strike_price = #{strikePrice,jdbcType=DECIMAL},
       is_basic_order = #{isBasicOrder,jdbcType=TINYINT},
-      basic_order_id = #{basicOrderId,jdbcType=INTEGER}
+      basic_order_id = #{basicOrderId,jdbcType=INTEGER},
+      shark_order_info_id = #{sharkOrderInfoId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectBySharkOrderInfoId" resultType="java.lang.String" parameterType="java.lang.Integer" >
+    select
+    order_no
+    from mq_order_info
+    where shark_order_info_id = #{sharkOrderInfoId,jdbcType=INTEGER}
+  </select>
 </mapper>

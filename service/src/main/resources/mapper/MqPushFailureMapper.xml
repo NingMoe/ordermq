@@ -9,6 +9,7 @@
     <result column="push_time" property="pushTime" jdbcType="TIMESTAMP" />
     <result column="is_delete" property="isDelete" jdbcType="TINYINT" />
     <result column="push_target" property="pushTarget" jdbcType="VARCHAR" />
+    <result column="original_route" property="originalRoute" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, message, push_count, push_flag, push_time, is_delete, push_target
+    id, message, push_count, push_flag, push_time, is_delete, push_target, original_route
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="cn.donut.ordermq.entity.MqPushFailureExample" >
     select
@@ -86,7 +87,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
+    select
     <include refid="Base_Column_List" />
     from mq_push_failure
     where id = #{id,jdbcType=INTEGER}
@@ -101,13 +102,13 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqPushFailure" useGeneratedKeys="true" keyProperty="id">
-    insert into mq_push_failure (id, message, push_count, 
-      push_flag, push_time, is_delete, 
-      push_target)
-    values (#{id,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, #{pushCount,jdbcType=INTEGER}, 
-      #{pushFlag,jdbcType=TINYINT}, #{pushTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT}, 
-      #{pushTarget,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="cn.donut.ordermq.entity.MqPushFailure" >
+    insert into mq_push_failure (id, message, push_count,
+      push_flag, push_time, is_delete,
+      push_target, original_route)
+    values (#{id,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, #{pushCount,jdbcType=INTEGER},
+      #{pushFlag,jdbcType=TINYINT}, #{pushTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT},
+      #{pushTarget,jdbcType=VARCHAR}, #{originalRoute,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="cn.donut.ordermq.entity.MqPushFailure" >
     insert into mq_push_failure
@@ -133,6 +134,9 @@
       <if test="pushTarget != null" >
         push_target,
       </if>
+      <if test="originalRoute != null" >
+        original_route,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -155,6 +159,9 @@
       </if>
       <if test="pushTarget != null" >
         #{pushTarget,jdbcType=VARCHAR},
+      </if>
+      <if test="originalRoute != null" >
+        #{originalRoute,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -188,6 +195,9 @@
       <if test="record.pushTarget != null" >
         push_target = #{record.pushTarget,jdbcType=VARCHAR},
       </if>
+      <if test="record.originalRoute != null" >
+        original_route = #{record.originalRoute,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -196,12 +206,13 @@
   <update id="updateByExample" parameterType="map" >
     update mq_push_failure
     set id = #{record.id,jdbcType=INTEGER},
-      message = #{record.message,jdbcType=VARCHAR},
-      push_count = #{record.pushCount,jdbcType=INTEGER},
-      push_flag = #{record.pushFlag,jdbcType=TINYINT},
-      push_time = #{record.pushTime,jdbcType=TIMESTAMP},
-      is_delete = #{record.isDelete,jdbcType=TINYINT},
-      push_target = #{record.pushTarget,jdbcType=VARCHAR}
+    message = #{record.message,jdbcType=VARCHAR},
+    push_count = #{record.pushCount,jdbcType=INTEGER},
+    push_flag = #{record.pushFlag,jdbcType=TINYINT},
+    push_time = #{record.pushTime,jdbcType=TIMESTAMP},
+    is_delete = #{record.isDelete,jdbcType=TINYINT},
+    push_target = #{record.pushTarget,jdbcType=VARCHAR},
+    original_route = #{record.originalRoute,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +238,9 @@
       <if test="pushTarget != null" >
         push_target = #{pushTarget,jdbcType=VARCHAR},
       </if>
+      <if test="originalRoute != null" >
+        original_route = #{originalRoute,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -237,7 +251,8 @@
       push_flag = #{pushFlag,jdbcType=TINYINT},
       push_time = #{pushTime,jdbcType=TIMESTAMP},
       is_delete = #{isDelete,jdbcType=TINYINT},
-      push_target = #{pushTarget,jdbcType=VARCHAR}
+      push_target = #{pushTarget,jdbcType=VARCHAR},
+      original_route = #{originalRoute,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

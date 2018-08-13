@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.donut.ordermq.mapper.MqInterfaceInformationMapper" >
+<mapper namespace="cn.donut.ordermq.mapper.MqInterfaceInformationDao" >
   <resultMap id="BaseResultMap" type="cn.donut.ordermq.entity.MqInterfaceInformation" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="primary_key" property="primaryKey" jdbcType="INTEGER" />

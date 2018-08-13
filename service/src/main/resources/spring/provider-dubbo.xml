@@ -29,7 +29,8 @@
     <dubbo:service interface="cn.donut.ordermq.service.order.IOrderProductService" ref="iOrderProductService"/>
     <bean id="iOrderProductService" class="cn.donut.ordermq.impl.order.IOrderProductServiceImpl"/>
 
-
+    <dubbo:service interface="cn.donut.ordermq.service.MqPushFailureService" ref="mqPushFailureService"/>
+    <bean id="mqPushFailureService" class="cn.donut.ordermq.impl.MqPushFailureServiceImpl"/>
 
 
     <!--订单状态消息变更MQ消息-->

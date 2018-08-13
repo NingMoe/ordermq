@@ -1,8 +1,11 @@
 package cn.donut.ordermq.impl.order;
 
+import cn.donut.ordermq.dto.OrderBasicInfoDto;
+import cn.donut.ordermq.entity.MqOrderPush;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderInfoExample;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
+import cn.donut.ordermq.mapper.MqOrderPushMapper;
 import cn.donut.ordermq.mapper.order.MqOrderInfoMapper;
 import cn.donut.ordermq.service.order.IOrderProductService;
 import cn.donut.ordermq.service.order.IOrderService;
@@ -11,6 +14,7 @@ import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
 import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,9 @@ public class IOrderServiceImpl implements IOrderService {
 
     @Autowired
     private IOrderProductService iOrderProductService;
+
+    @Autowired
+    private MqOrderPushMapper mqOrderPushMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -123,10 +130,11 @@ public class IOrderServiceImpl implements IOrderService {
         OrderBasicInfo info = iOrderBasicInfoService.findOrderBasicInfoByOrderNo(orderInfo.getOrderNo(), true);
         BeanUtils.copyProperties(orderInfo, info);
         orderInfo.setId(null);
+        orderInfo.setSharkOrderInfoId(info.getId());
         MqOrderInfo mqOrderInfo = findOneByOrderNo(orderInfo.getOrderNo());
         if (mqOrderInfo == null) {
             MqOrderInfo order = insertOrder(orderInfo);
-            List<MqOrderProduct> list = new ArrayList<MqOrderProduct>();
+            List<MqOrderProduct> list = new ArrayList<>();
             for (OrderProductBasicInfo productBasicInfo : info.getOrderProductBasicInfos()) {
                 MqOrderProduct product = new MqOrderProduct();
 
@@ -175,12 +183,47 @@ public class IOrderServiceImpl implements IOrderService {
         if (null == info) {
             return map;
         }
+        String originalOrderNo=null;
+        if(info.getBasicOrderId()!=null){
+            originalOrderNo=orderInfoMapper.selectBySharkOrderInfoId(info.getBasicOrderId());
+        }
         List<OrderProductBasicInfo> list = info.getOrderProductBasicInfos();
         if (null != list && list.size() > 0) {
             //判断产品线：订单包含产品要么全是多纳的，要么都不是多纳的
             if (list.get(0).getProductLine() == 49 || list.get(0).getProductLine() == 58) {
+               
                 map.put("flag",true);
                 map.put("productLine",list.get(0).getProductLine());
+                List<OrderBasicInfoDto> infoList=new ArrayList<>();
+                for(int i=0;i<list.size();i++){
+                    OrderBasicInfoDto orderBasicInfoDto=new OrderBasicInfoDto(info);
+                    Integer productId = list.get(i).getProductId();
+                    try {
+                        MqOrderPush push = mqOrderPushMapper.selectByProductId(productId);
+                        log.error("productId=="+productId);
+                        log.error("push=="+push.toString());
+                        if(push!=null){
+                            String url = push.getUrl();
+                            List<OrderProductBasicInfo> listN=new ArrayList<>();
+                            listN.add(list.get(i));
+                            orderBasicInfoDto.setOrderProductBasicInfos(listN);
+                            orderBasicInfoDto.setUrl(url);
+                            if(StringUtils.isNotEmpty(originalOrderNo)){
+                                orderBasicInfoDto.setOriginalOrderNo(originalOrderNo);
+                            }
+                            infoList.add(orderBasicInfoDto);
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        log.error("位置:checkProLine方法");
+                        log.error("orderBasicInfoDto:"+orderBasicInfoDto.toString());
+                        log.error("orderInfo:"+orderInfo.toString());
+                    }
+                }
+
+                if (infoList.size()>0){
+                    map.put("infoList",infoList);
+                }
                 return map;
             } else {
                 return map;
@@ -188,6 +231,12 @@ public class IOrderServiceImpl implements IOrderService {
         }
 
         return map;
+    }
+
+    @Override
+    public void a(MqOrderPush push) {
+        int insert = mqOrderPushMapper.insert(push);
+        System.out.println(insert);
     }
 
 

@@ -20,8 +20,10 @@ public class MqPushFailure implements Serializable {
 
     private Byte isDelete;
 
-    //推送目标
+    //推送目标  具体调用接口
     private String pushTarget;
+    //来源队列
+    private String originalRoute;
 
     public Integer getId() {
         return id;
@@ -77,5 +79,13 @@ public class MqPushFailure implements Serializable {
 
     public void setPushTarget(String pushTarget) {
         this.pushTarget = pushTarget == null ? null : pushTarget.trim();
+    }
+
+    public String getOriginalRoute() {
+        return originalRoute;
+    }
+
+    public void setOriginalRoute(String originalRoute) {
+        this.originalRoute = originalRoute == null ? null : originalRoute.trim();
     }
 }

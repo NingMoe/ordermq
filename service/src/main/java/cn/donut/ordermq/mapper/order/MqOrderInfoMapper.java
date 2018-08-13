@@ -29,4 +29,6 @@ public interface MqOrderInfoMapper {
     int updateByPrimaryKeySelective(MqOrderInfo record);
 
     int updateByPrimaryKey(MqOrderInfo record);
+
+    String selectBySharkOrderInfoId(Integer sharkOrderInfoId);
 }

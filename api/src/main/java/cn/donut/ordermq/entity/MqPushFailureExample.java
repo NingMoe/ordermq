@@ -544,6 +544,76 @@ public class MqPushFailureExample {
             addCriterion("push_target not between", value1, value2, "pushTarget");
             return (Criteria) this;
         }
+
+        public Criteria andOriginalRouteIsNull() {
+            addCriterion("original_route is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteIsNotNull() {
+            addCriterion("original_route is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteEqualTo(String value) {
+            addCriterion("original_route =", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteNotEqualTo(String value) {
+            addCriterion("original_route <>", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteGreaterThan(String value) {
+            addCriterion("original_route >", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteGreaterThanOrEqualTo(String value) {
+            addCriterion("original_route >=", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteLessThan(String value) {
+            addCriterion("original_route <", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteLessThanOrEqualTo(String value) {
+            addCriterion("original_route <=", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteLike(String value) {
+            addCriterion("original_route like", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteNotLike(String value) {
+            addCriterion("original_route not like", value, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteIn(List<String> values) {
+            addCriterion("original_route in", values, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteNotIn(List<String> values) {
+            addCriterion("original_route not in", values, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteBetween(String value1, String value2) {
+            addCriterion("original_route between", value1, value2, "originalRoute");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalRouteNotBetween(String value1, String value2) {
+            addCriterion("original_route not between", value1, value2, "originalRoute");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

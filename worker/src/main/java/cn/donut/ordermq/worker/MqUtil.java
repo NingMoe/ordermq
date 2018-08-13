@@ -201,7 +201,7 @@ public class MqUtil {
         } else {
             System.out.println("推送直播失败");
         }
-        return i > 0;
+        return i > 0?true:false;
     }
 
     public String convertDate() {
