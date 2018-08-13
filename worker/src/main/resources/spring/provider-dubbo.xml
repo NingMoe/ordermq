@@ -36,10 +36,10 @@
     </bean>
 
     <bean id="MqconnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
-        <property name="addresses" value="rabbit-3.cluster.koolearn.com:5673,rabbit-4.cluster.koolearn.com:5674"/>
-        <property name="username" value="donut"/>
-        <property name="password" value="d3K_ee4vC"/>
-        <property name="virtualHost" value="shark_vhost"/>
+        <property name="addresses" value="${rabbit.addresses1}"/>
+        <property name="username" value="${rabbit.username1}"/>
+        <property name="password" value="${rabbit.password1}"/>
+        <property name="virtualHost" value="${rabbit.vhost1}"/>
     </bean>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
