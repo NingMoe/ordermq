@@ -3,6 +3,7 @@ package order.product;
 import cn.donut.ordermq.entity.MqOrderPush;
 import cn.donut.ordermq.service.order.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,6 +16,8 @@ import java.util.Date;
  * @author luoxuzheng
  * @create 2018-08-13 17:34
  **/
+@Controller
+@RequestMapping("ordermq/test")
 public class TestController {
 
     @Autowired
@@ -32,7 +35,6 @@ public class TestController {
         push.setUpdateAt(new Date());
         System.out.println(push.getUrl());
         iOrderService.test(push);
-
         return "ok";
     }
 }
