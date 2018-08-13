@@ -103,9 +103,10 @@ public class OrderCreateReceiver implements MessageListener {
                                 }
                                 log.info("订单创建已完成！订单号：{}", order.getOrderNo());
 
-
+                                log.error("OrderCreateReceiver推送node判断，包含infoList则进入循环");
                                 //推送node
                                 if( map.containsKey("infoList")){
+                                    log.error("进入infoList==推送node start==========");
                                     List<OrderBasicInfoDto> infoList = (List<OrderBasicInfoDto>) map.get("infoList");
                                     if(infoList!=null&&infoList.size()>0){
                                         for (int i=0;i<infoList.size();i++){
@@ -122,6 +123,7 @@ public class OrderCreateReceiver implements MessageListener {
                                                 mqPushFailure.setOriginalRoute("order.create");
                                                 try {
                                                     mqPushFailureService.insert(mqPushFailure);
+                                                    log.error("mqPushFailure=="+mqPushFailure);
                                                 }catch (Exception e){
                                                     e.printStackTrace();
                                                     log.error("消息插入到mqPushFailure数据库失败");
@@ -131,6 +133,7 @@ public class OrderCreateReceiver implements MessageListener {
                                         }
                                     }
                                 }
+                                log.error("循环结束==========");
                             } else {
                                 log.info("订单已存在！");
                             }

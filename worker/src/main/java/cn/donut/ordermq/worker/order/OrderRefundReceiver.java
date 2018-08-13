@@ -112,6 +112,7 @@ public class OrderRefundReceiver implements MessageListener {
                                                 mqPushFailure.setOriginalRoute("order.refund");
                                                 try {
                                                     mqPushFailureService.insert(mqPushFailure);
+                                                    log.error("mqPushFailure=="+mqPushFailure);
                                                 }catch (Exception e){
                                                     e.printStackTrace();
                                                     log.error("消息插入到mqPushFailure数据库失败");
@@ -123,6 +124,7 @@ public class OrderRefundReceiver implements MessageListener {
                                         }
 
                                     }
+                                    log.error("OrderRefundReceiver推送node判断，包含infoList则进入循环");
                                     //推送node
                                     if( map.containsKey("infoList")){
                                         List<OrderBasicInfoDto> infoList = (List<OrderBasicInfoDto>) map.get("infoList");
@@ -141,6 +143,7 @@ public class OrderRefundReceiver implements MessageListener {
                                                     mqPushFailure.setOriginalRoute("order.pay.success");
                                                     try {
                                                         mqPushFailureService.insert(mqPushFailure);
+                                                        log.error("mqPushFailure=="+mqPushFailure);
                                                     }catch (Exception e){
                                                         e.printStackTrace();
                                                         log.error("消息插入到mqPushFailure数据库失败");
@@ -150,6 +153,7 @@ public class OrderRefundReceiver implements MessageListener {
                                             }
                                         }
                                     }
+                                    log.error("循环结束==========");
                                 }
                                 int retailm = editRetailm(order);
                                 System.out.println("执行完成回写分销系统" + retailm);

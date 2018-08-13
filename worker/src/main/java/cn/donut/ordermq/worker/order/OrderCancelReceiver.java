@@ -102,6 +102,7 @@ public class OrderCancelReceiver implements MessageListener {
                                 }
                                 log.warn("订单取消已更新！订单号：{}", order.getOrderNo());
 
+                                log.error("OrderCancelReceiver推送node判断，包含infoList则进入循环");
                                 //推送node
                                 if( map.containsKey("infoList")){
                                     log.error("进入infoList==推送node start==========");
@@ -133,6 +134,7 @@ public class OrderCancelReceiver implements MessageListener {
                                         }
                                     }
                                 }
+                                log.error("循环结束==========");
                             } else {
                                 log.error("订单取消更新数据库失败！，请检查原因");
                             }
