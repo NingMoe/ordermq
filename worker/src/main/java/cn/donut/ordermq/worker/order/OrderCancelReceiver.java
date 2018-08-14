@@ -12,6 +12,7 @@ import cn.donut.ordermq.worker.Global;
 import cn.donut.ordermq.worker.HttpClientUtil;
 import cn.donut.ordermq.worker.MqUtil;
 import com.koolearn.ordercenter.model.order.basic.OrderBasicInfo;
+import com.koolearn.ordercenter.model.order.basic.OrderProductBasicInfo;
 import com.koolearn.ordercenter.service.IOrderBasicInfoService;
 import com.koolearn.util.BeanUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -111,10 +112,13 @@ public class OrderCancelReceiver implements MessageListener {
                                     if(infoList!=null&&infoList.size()>0){
                                         for (int i=0;i<infoList.size();i++){
                                             String url=infoList.get(i).getUrl();
-                                            Map<String,Object> params=new HashMap<String, Object>();
-                                            params.put("data",infoList.get(i));
+                                            OrderBasicInfoDto orderBasicInfoDto = infoList.get(i);
+                                            Map<String, Object> params = mqUtil.transferOrderBasicInfoDtoMap(orderBasicInfoDto);
+                                            log.error("params=="+params);
                                             String content = HttpClientUtil.doPost(url, params);
                                             log.warn("httpClient返回消息", content);
+                                            log.error("httpClient返回消息===="+content);
+
                                             //发送失败
                                             if (! (StringUtils.isNotEmpty(content) && content.contains("成功"))){
                                                 MqPushFailure mqPushFailure = new MqPushFailure();
@@ -150,6 +154,8 @@ public class OrderCancelReceiver implements MessageListener {
             // TODO: 2018/6/29 分发记录
         });
     }
+
+
 
 
     /**

@@ -11,6 +11,7 @@
 package cn.donut.ordermq.worker;
 
 import cn.donut.crm.service.SystemAllocationService;
+import cn.donut.ordermq.dto.OrderBasicInfoDto;
 import cn.donut.ordermq.entity.MqRecord;
 import cn.donut.ordermq.entity.order.MqOrderInfo;
 import cn.donut.ordermq.entity.order.MqOrderProduct;
@@ -32,6 +33,7 @@ import com.koolearn.ordercenter.service.TransactionRecordService;
 import com.koolearn.sso.dto.UsersDTO;
 import com.koolearn.sso.service.IOpenService;
 import com.koolearn.util.BeanUtils;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -301,5 +303,51 @@ public class MqUtil {
         }
     }
 
+    /**
+     * orderBasicInfoDto实体转换成map
+     *
+     * @param orderBasicInfoDto
+     * @return
+     */
+    public   Map<String,Object> transferOrderBasicInfoDtoMap(OrderBasicInfoDto orderBasicInfoDto) {
+        Map<String,Object> params=new HashMap<String, Object>();
+        params.put("id",orderBasicInfoDto.getId());
+        params.put("orderNo",orderBasicInfoDto.getOrderNo());
+        params.put("userId",orderBasicInfoDto.getUserId());
+        params.put("campusId",orderBasicInfoDto.getCampusId());
+        params.put("agentNewId",orderBasicInfoDto.getAgentNewId());
+        params.put("agentAccountId",orderBasicInfoDto.getAgentAccountId());
+        params.put("agentAccountVersionId",orderBasicInfoDto.getAgentAccountVersionId());
+        params.put("agentSsoId",orderBasicInfoDto.getAgentSsoId());
+        params.put("partnerId",orderBasicInfoDto.getPartnerId());
+        params.put("status",orderBasicInfoDto.getStatus());
+        params.put("orderType",orderBasicInfoDto.getOrderType());
+        params.put("orderSource",orderBasicInfoDto.getOrderSource());
+        params.put("orderTime",orderBasicInfoDto.getOrderTime());
+        params.put("cancelTime",orderBasicInfoDto.getCancelTime());
+        params.put("payTime",orderBasicInfoDto.getPayTime());
+        params.put("originalPrice",orderBasicInfoDto.getOriginalPrice());
+        params.put("originalPriceNetValue",orderBasicInfoDto.getOriginalPriceNetValue());
+        params.put("strikePrice",orderBasicInfoDto.getStrikePrice());
+        params.put("isBasicOrder",orderBasicInfoDto.getIsBasicOrder());
+        params.put("basicOrderId",orderBasicInfoDto.getBasicOrderId());
+        params.put("originalOrderNo",orderBasicInfoDto.getOriginalOrderNo());
+        List<OrderProductBasicInfo> orderProductBasicInfos = orderBasicInfoDto.getOrderProductBasicInfos();
+        if(orderProductBasicInfos!=null&&orderProductBasicInfos.size()>0){
+            OrderProductBasicInfo orderProductBasicInfo = orderProductBasicInfos.get(0);
+            params.put("orderProduct$Id",orderBasicInfoDto.getId());
+            params.put("orderProduct$OrderNo",orderProductBasicInfo.getOrderNo());
+            params.put("orderProduct$ProductId",orderProductBasicInfo.getProductId());
+            params.put("orderProduct$ProductName",orderProductBasicInfo.getProductName());
+            params.put("orderProduct$ProductLine",orderProductBasicInfo.getProductLine());
+            params.put("orderProduct$ProductType",orderProductBasicInfo.getProductType());
+            params.put("orderProduct$ExamSeasonId",orderProductBasicInfo.getExamSeasonId());
+            params.put("orderProduct$ProductStatus",orderProductBasicInfo.getProductStatus());
+            params.put("orderProduct$OriginalPrice",orderProductBasicInfo.getOriginalPrice());
+            params.put("orderProduct$OriginalPriceNetValue",orderProductBasicInfo.getOriginalPriceNetValue());
+            params.put("orderProduct$StrikePrice",orderProductBasicInfo.getStrikePrice());
+        }
 
+        return params;
+    }
 }

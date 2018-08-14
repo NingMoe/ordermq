@@ -111,8 +111,9 @@ public class OrderCreateReceiver implements MessageListener {
                                     if(infoList!=null&&infoList.size()>0){
                                         for (int i=0;i<infoList.size();i++){
                                             String url=infoList.get(i).getUrl();
-                                            Map<String,Object> params=new HashMap<String, Object>();
-                                            params.put("data",infoList.get(i));
+                                            OrderBasicInfoDto orderBasicInfoDto = infoList.get(i);
+                                            Map<String,Object> params=mqUtil.transferOrderBasicInfoDtoMap(orderBasicInfoDto);
+                                            log.error("params=="+params);
                                             String content = HttpClientUtil.doPost(url, params);
                                             log.warn("httpClient返回消息", content);
                                             log.error("httpClient返回消息===="+content);
