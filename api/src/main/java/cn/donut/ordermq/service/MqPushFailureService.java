@@ -34,4 +34,6 @@ public interface MqPushFailureService {
 
     List<MqPushFailure> findByTarget(String target);
 
+    MqPushFailure insertSelective(MqPushFailure mqPushFailure);
+
 }

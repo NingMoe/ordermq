@@ -76,4 +76,13 @@ public class MqPushFailureServiceImpl implements MqPushFailureService {
         List<MqPushFailure> mqPushFailures = mqPushFailureDao.selectByExample(example);
         return mqPushFailures;
     }
+
+    @Override
+    public MqPushFailure insertSelective(MqPushFailure mqPushFailure) {
+        mqPushFailure.setIsDelete((byte) 0);
+        mqPushFailure.setPushTime(new Date());
+        mqPushFailure.setPushFlag((byte) 1);
+        mqPushFailureDao.insertSelective(mqPushFailure);
+        return mqPushFailure;
+    }
 }

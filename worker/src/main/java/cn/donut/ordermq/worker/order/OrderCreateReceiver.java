@@ -115,6 +115,7 @@ public class OrderCreateReceiver implements MessageListener {
                                             params.put("data",infoList.get(i));
                                             String content = HttpClientUtil.doPost(url, params);
                                             log.warn("httpClient返回消息", content);
+                                            log.error("httpClient返回消息===="+content);
                                             //发送失败
                                             if (! (StringUtils.isNotEmpty(content) && content.contains("成功"))){
                                                 MqPushFailure mqPushFailure = new MqPushFailure();
