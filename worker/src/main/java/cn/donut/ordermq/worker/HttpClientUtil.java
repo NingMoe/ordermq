@@ -163,6 +163,7 @@ public class HttpClientUtil {
         List<NameValuePair> pairList = new ArrayList<NameValuePair>(params.size());
         for (Map.Entry<String, Object> entry : params.entrySet()) {
             NameValuePair pair = new BasicNameValuePair(entry.getKey(), entry
+                    .getValue()==null?"":entry
                     .getValue().toString());
             pairList.add(pair);
         }
